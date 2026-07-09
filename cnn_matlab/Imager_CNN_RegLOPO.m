@@ -69,6 +69,17 @@ if ~ismember(lopoMode, {'insession', 'pooled'}), error('LOPO_MODE must be insess
 if ~ismember(lopoUnit, {'subpos', 'cell'}), error('LOPO_UNIT must be subpos|cell'); end
 fprintf('LOPO mode = %s   granularity = %s\n', upper(lopoMode), upper(lopoUnit));
 
+% ---- Experiment 1: mixup augmentation (off unless MIXUP_ALPHA>0) ----
+% Offline mixup for regression: append synthetic TRAIN samples that are convex
+% blends of random training pairs, with matching convex-blended (x,y) targets.
+% Teaches the signal->coordinate map to be smooth -> better interpolation to
+% never-seen positions. Applied to TRAIN only, never the held-out cell.
+mixAlpha = str2double(getenv('MIXUP_ALPHA')); if isnan(mixAlpha), mixAlpha = 0; end
+mixRatio = str2double(getenv('MIXUP_RATIO')); if isnan(mixRatio), mixRatio = 1.0; end
+if mixAlpha > 0
+    fprintf('MIXUP ON: alpha=%.2f  ratio=%.2f  (blend train pairs + their xy)\n', mixAlpha, mixRatio);
+end
+
 %% 1. DATA
 defaultParent = ['C:\Users\peter\Desktop\EM Imaging\BreastPhantom\HunterVNA\' ...
                  'DataMeasurements\Sam Antennas\MediumAntenna\Separated\June18'];
@@ -98,6 +109,7 @@ if meanSub, preproc = 'v1_session_mean'; else, preproc = 'v2_no_session_mean'; e
 setLabel = strtrim(getenv('CNN_LOSO_SETLABEL'));
 if isempty(setLabel), setLabel = sprintf('%dsess', nSess); end
 if meanSub, setLabel = [setLabel '-meansub']; end
+if mixAlpha > 0, setLabel = [setLabel sprintf('-mixup%s', strrep(num2str(mixAlpha), '.', 'p'))]; end
 
 %% 2. ANTENNAS + TARGETS
 ports = 1:4; antennaMode = 'all';   % first pass: full 4-antenna array only
@@ -177,7 +189,8 @@ if strcmp(lopoMode, 'pooled')
         teMask = ismember(yp, units{u}); trMask = ~teMask;
         yTr = yp(trMask);
         TTr = labelsToXY(yTr, adjMap);
-        net = trainCNNReg(Xp(:, :, :, trMask), TTr, numSParamRows, numFreqPoints, cfg, execEnv);
+        [Xtr_a, Ttr_a] = maybeMixup(Xp(:, :, :, trMask), TTr, mixAlpha, mixRatio);
+        net = trainCNNReg(Xtr_a, Ttr_a, numSParamRows, numFreqPoints, cfg, execEnv);
         predTe = double(predict(net, Xp(:, :, :, teMask)));
         yTe = yp(teMask);
         rec = accumUnit(rec, units{u}, yTe, predTe, xyOf, nearInsertMap, '(pooled)');
@@ -194,7 +207,8 @@ else  % insession
             t0 = tic;
             trMask = ~teMask; yTr = ys(trMask);
             TTr = labelsToXY(yTr, adjMap);
-            net = trainCNNReg(Xs(:, :, :, trMask), TTr, numSParamRows, numFreqPoints, cfg, execEnv);
+            [Xtr_a, Ttr_a] = maybeMixup(Xs(:, :, :, trMask), TTr, mixAlpha, mixRatio);
+            net = trainCNNReg(Xtr_a, Ttr_a, numSParamRows, numFreqPoints, cfg, execEnv);
             predTe = double(predict(net, Xs(:, :, :, teMask)));
             rec = accumUnit(rec, units{u}, ys(teMask), predTe, xyOf, nearInsertMap, sessNames{s});
             nFoldTotal = nFoldTotal + 1;
@@ -265,6 +279,7 @@ result.antennaMode = antennaMode; result.ports = ports;
 result.numSessions = nSess; result.sessionNames = {sessNames{:}};
 result.numPositions = nPos; result.numUnits = nUnits; result.numFolds = nFoldTotal;
 result.epochs = cfg.Epochs;
+result.mixupAlpha = mixAlpha; result.mixupRatio = mixRatio;
 result.overall = overall;
 result.nearInsert = stratN; result.exterior = stratE;
 result.crossContextMedianErr = crossMedErr; result.crossContextPctHalfIn = crossPctHalf;
@@ -308,6 +323,29 @@ function rec = accumUnit(rec, unitLabels, yTe, predTe, xyOf, nearMap, sessTag)
             'spread', mean(vecnorm(P - med, 2, 2)), ...
             'near', double(nearMap(L))); %#ok<AGROW>
     end
+end
+
+function [Xo, To] = maybeMixup(X, T, alpha, ratio)
+% Offline mixup for regression. Appends `ratio*N` synthetic samples, each a
+% convex blend  l*A + (1-l)*B  of a random training pair, with the SAME blend
+% applied to their (x,y) targets. l ~ Beta(alpha,alpha). Train-only; no test
+% data is ever touched, so there is no LOPO leakage.
+    if alpha <= 0 || ratio <= 0, Xo = X; To = T; return; end
+    n = size(X, 4);
+    if n < 2, Xo = X; To = T; return; end
+    nMix = max(1, round(ratio * n));
+    ii = randi(n, nMix, 1); jj = randi(n, nMix, 1);
+    if exist('betarnd', 'file'), lam = betarnd(alpha, alpha, nMix, 1);
+    else, lam = rand(nMix, 1); end                 % Beta(1,1) fallback
+    sz = size(X);
+    Xmix = zeros([sz(1), sz(2), 1, nMix], 'like', X);
+    Tmix = zeros(nMix, size(T, 2));
+    for k = 1:nMix
+        l = lam(k);
+        Xmix(:, :, 1, k) = l * X(:, :, 1, ii(k)) + (1 - l) * X(:, :, 1, jj(k));
+        Tmix(k, :)       = l * T(ii(k), :)       + (1 - l) * T(jj(k), :);
+    end
+    Xo = cat(4, X, Xmix); To = [T; Tmix];
 end
 
 function S = distStats(errs, sprs, half)

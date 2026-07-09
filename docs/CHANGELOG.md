@@ -6,6 +6,13 @@ entry here.
 
 ## 2026-07-09
 
+- **Experiment 1 — mixup augmentation** (`Imager_CNN_RegLOPO.m`, behind the
+  `MIXUP_ALPHA` flag; off by default so baseline behavior is unchanged). Offline
+  mixup: append `ratio·N` synthetic train samples, each a convex blend of a
+  random training pair with matching blended `(x, y)` target. Train-only, no
+  LOPO leakage. **F5 pooled/cell: 0.664 → 0.572 in** (~14%), and near-insert
+  improved *more* than exterior (0.75→0.61 vs 0.65→0.56) — teaching a smooth
+  signal→coordinate map helps the barrier region most. See `RESULTS.md §4`.
 - **Repo initialized.** Placed the CNN-vs-MLP localization study (classification
   + regression + LOPO) under git. Added `.gitignore`, `docs/` (METHODS, RESULTS,
   DEPENDENCIES, this CHANGELOG), and a versioned snapshot of the target-defining

@@ -89,14 +89,30 @@ Near-insert vs exterior median error (LOPO whole-cell):
 > Sub-position LOPO granularity is parked (gentle interpolation, ~5× the fold
 > cost); run only if whole-cell proves insufficient.
 
-## Next experiments (queued)
+## 4. Improving interpolation (LOPO pooled/cell experiments)
 
-Aimed at improving the LOPO/interpolation regime (pooled/cell only):
-- **Mixup augmentation** — blend sample pairs *and* their `(x, y)` labels to
-  teach the signal→coordinate map to be smooth.
-- **Position-disjoint validation** — model selection on held-out *positions*
-  (not trials), rewarding spatial generalization.
-- **Structured output** — heatmap-over-grid regression (centroid readout) and/or
-  a Gaussian-Process head (smooth interpolation + distance-aware uncertainty).
+Baseline = plain LOPO pooled/cell (§3). Testbed = **F5** (hardest setup),
+raw/all-antenna, 40 epochs.
+
+| variant | median (in) | ≤0.5 in | ≤1 in | near / ext |
+|---|---|---|---|---|
+| baseline | 0.664 | 33% | 67% | 0.75 / 0.65 |
+| **+ mixup** (α=0.4, ratio=1) | **0.572** | 39% | 76% | **0.61 / 0.56** |
+
+**Exp 1 — mixup: helps, and helps the barrier most.** −0.09 in overall (~14%),
+and the **near-insert cells improve more than exterior** (0.75→0.61 vs
+0.65→0.56). Offline mixup appends synthetic training samples that are convex
+blends of random training pairs with matching blended `(x, y)` targets
+(`MIXUP_ALPHA` flag). Contrary to the over-smoothing worry, synthesizing
+intermediate signal↔coordinate points *fills* the spatial gaps rather than
+washing out the dielectric discontinuity — net-positive exactly where
+interpolation was hardest.
+
+Queued (pooled/cell):
+- **Exp 2 — position-disjoint validation** — model selection on held-out
+  *positions* (not trials), rewarding spatial generalization.
+- **Exp 3 — structured output** — heatmap-over-grid regression (centroid
+  readout) and/or a Gaussian-Process head (smooth interpolation +
+  distance-aware uncertainty).
 
 See `CHANGELOG.md` for the running log of what changed when.
