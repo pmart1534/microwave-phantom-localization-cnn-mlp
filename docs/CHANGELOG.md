@@ -10,12 +10,13 @@ entry here.
   + regression + LOPO) under git. Added `.gitignore`, `docs/` (METHODS, RESULTS,
   DEPENDENCIES, this CHANGELOG), and a versioned snapshot of the target-defining
   `position_adjustments.json` under `reference/`.
-- **LOPO whole-cell, first pass** (`Imager_CNN_RegLOPO.m`, raw/all-antenna CNN,
-  40 epochs). Both modes on all 3 setups. Result: interpolation to an unseen
-  cell is ~3–4× harder than LOSO; pooled beats in-session; near-insert error now
-  *exceeds* exterior (glandular barrier surfaces under interpolation). One run
-  (pooled/cell F4) crashed on a transient GPU fault (`0xc0000409`) and is being
-  re-run. See `RESULTS.md §3`.
+- **LOPO whole-cell, first pass COMPLETE** (`Imager_CNN_RegLOPO.m`,
+  raw/all-antenna CNN, 40 epochs). Both modes, all 3 setups (F4 pooled/cell
+  re-run after its transient `0xc0000409` GPU crash: 0.482 in, near/ext
+  0.75/0.41). Results: interpolation to an unseen cell is ~3–4× harder than
+  LOSO; pooled beats in-session on all three setups; near-insert error exceeds
+  exterior everywhere (glandular barrier surfaces under interpolation, starkest
+  F4 pooled ~1.8×). See `RESULTS.md §3`.
 
 ## 2026-07-08
 

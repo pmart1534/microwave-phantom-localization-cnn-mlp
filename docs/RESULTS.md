@@ -58,8 +58,15 @@ location it has **never seen a signature for**. Raw input, all 16 S-params,
 | Setup | pooled/cell | in-session/cell | *(LOSO raw, ref)* |
 |---|---|---|---|
 | June18 empty | **0.448 (59%)** | 0.661 (29%) | *0.156* |
-| F4 small insert | *(pending re-run)* | 0.609 (40%) | *0.167* |
+| F4 small insert | **0.482 (51%)** | 0.609 (40%) | *0.167* |
 | F5 large insert | **0.664 (33%)** | 0.753 (31%) | *0.221* |
+
+Near-insert vs exterior median error (LOPO whole-cell):
+
+| | pooled near / ext | in-session near / ext |
+|---|---|---|
+| F4 | **0.75 / 0.41** | 0.67 / 0.54 |
+| F5 | 0.75 / 0.65 | 0.93 / 0.69 |
 
 **Findings**
 
@@ -67,16 +74,17 @@ location it has **never seen a signature for**. Raw input, all 16 S-params,
    (0.45–0.75 in) vastly exceed LOSO (0.16–0.22 in). The data supports "new scan
    of a known grid" far better than "predict an unmeasured spot." *This is the
    headline distinction between the two protocols.*
-2. **Pooled beats in-session** (June18 0.45 vs 0.66; F5 0.66 vs 0.75) — despite
-   in-session removing session drift. For interpolation, the extra training data
-   from pooling outweighs the drift it introduces: **more data > cleaner data**.
+2. **Pooled beats in-session on all three setups** (June18 0.45 vs 0.66;
+   F4 0.48 vs 0.61; F5 0.66 vs 0.75) — despite in-session removing session
+   drift. For interpolation, the extra training data from pooling outweighs the
+   drift it introduces: **more data > cleaner data**.
 3. **The glandular barrier finally shows up.** In LOPO, near-insert cells are
-   *worse* than exterior (F5 in-session 0.93 vs 0.69; F4 in-session 0.67 vs
-   0.54) — the **opposite** of the LOSO pattern. Because the held-out insert
-   position is never seen, the model must interpolate across the dielectric
-   discontinuity at the barrier, where the field is non-smooth and interpolation
-   fails hardest. The interpolation test surfaces physics the session-transfer
-   test masked.
+   *worse* than exterior in every insert setup — starkest at **F4 pooled (0.75
+   vs 0.41 in, ~1.8×)**, and F5 in-session (0.93 vs 0.69). This is the
+   **opposite** of the LOSO pattern. Because the held-out insert position is
+   never seen, the model must interpolate across the dielectric discontinuity at
+   the barrier, where the field is non-smooth and interpolation fails hardest.
+   The interpolation test surfaces physics the session-transfer test masked.
 
 > Sub-position LOPO granularity is parked (gentle interpolation, ~5× the fold
 > cost); run only if whole-cell proves insufficient.
