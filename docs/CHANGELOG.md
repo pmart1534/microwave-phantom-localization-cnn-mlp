@@ -6,6 +6,14 @@ entry here.
 
 ## 2026-07-09
 
+- **Experiment 2 — position-disjoint validation** (`Imager_CNN_RegLOPO.m`,
+  `POSVAL_FRAC` flag; `trainCNNReg` gained optional validation data +
+  `OutputNetwork='best-validation'`, `ValidationPatience=Inf` to isolate model
+  selection from early-stop). Carve a fraction of TRAIN *positions* out as a
+  validation set and keep the best-validation net. **Negative result: F5
+  pooled/cell 0.664 → 0.927** — losing ~20% of the scarce training positions
+  outweighed the selection benefit. Follow-up (Exp 2b): combine with mixup to
+  replenish the lost data.
 - **Experiment 1 — mixup augmentation** (`Imager_CNN_RegLOPO.m`, behind the
   `MIXUP_ALPHA` flag; off by default so baseline behavior is unchanged). Offline
   mixup: append `ratio·N` synthetic train samples, each a convex blend of a

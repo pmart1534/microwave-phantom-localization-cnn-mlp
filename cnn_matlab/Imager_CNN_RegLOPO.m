@@ -80,6 +80,16 @@ if mixAlpha > 0
     fprintf('MIXUP ON: alpha=%.2f  ratio=%.2f  (blend train pairs + their xy)\n', mixAlpha, mixRatio);
 end
 
+% ---- Experiment 2: position-disjoint validation (off unless POSVAL_FRAC>0) ----
+% Carve a fraction of the TRAIN positions out as a validation set (all their
+% trials, none in training) and keep the network with the best validation loss
+% (OutputNetwork='best-validation'). Selects for generalization to UNSEEN
+% positions rather than long training on memorized ones.
+posValFrac = str2double(getenv('POSVAL_FRAC')); if isnan(posValFrac), posValFrac = 0; end
+if posValFrac > 0
+    fprintf('POSVAL ON: frac=%.2f of train positions held out for best-net selection\n', posValFrac);
+end
+
 %% 1. DATA
 defaultParent = ['C:\Users\peter\Desktop\EM Imaging\BreastPhantom\HunterVNA\' ...
                  'DataMeasurements\Sam Antennas\MediumAntenna\Separated\June18'];
@@ -110,6 +120,7 @@ setLabel = strtrim(getenv('CNN_LOSO_SETLABEL'));
 if isempty(setLabel), setLabel = sprintf('%dsess', nSess); end
 if meanSub, setLabel = [setLabel '-meansub']; end
 if mixAlpha > 0, setLabel = [setLabel sprintf('-mixup%s', strrep(num2str(mixAlpha), '.', 'p'))]; end
+if posValFrac > 0, setLabel = [setLabel sprintf('-posval%s', strrep(num2str(posValFrac), '.', 'p'))]; end
 
 %% 2. ANTENNAS + TARGETS
 ports = 1:4; antennaMode = 'all';   % first pass: full 4-antenna array only
@@ -189,8 +200,9 @@ if strcmp(lopoMode, 'pooled')
         teMask = ismember(yp, units{u}); trMask = ~teMask;
         yTr = yp(trMask);
         TTr = labelsToXY(yTr, adjMap);
-        [Xtr_a, Ttr_a] = maybeMixup(Xp(:, :, :, trMask), TTr, mixAlpha, mixRatio);
-        net = trainCNNReg(Xtr_a, Ttr_a, numSParamRows, numFreqPoints, cfg, execEnv);
+        [Xt0, Tt0, Xv0, Tv0] = posDisjointSplit(Xp(:, :, :, trMask), TTr, yTr, posValFrac);
+        [Xtr_a, Ttr_a] = maybeMixup(Xt0, Tt0, mixAlpha, mixRatio);
+        net = trainCNNReg(Xtr_a, Ttr_a, numSParamRows, numFreqPoints, cfg, execEnv, Xv0, Tv0);
         predTe = double(predict(net, Xp(:, :, :, teMask)));
         yTe = yp(teMask);
         rec = accumUnit(rec, units{u}, yTe, predTe, xyOf, nearInsertMap, '(pooled)');
@@ -207,8 +219,9 @@ else  % insession
             t0 = tic;
             trMask = ~teMask; yTr = ys(trMask);
             TTr = labelsToXY(yTr, adjMap);
-            [Xtr_a, Ttr_a] = maybeMixup(Xs(:, :, :, trMask), TTr, mixAlpha, mixRatio);
-            net = trainCNNReg(Xtr_a, Ttr_a, numSParamRows, numFreqPoints, cfg, execEnv);
+            [Xt0, Tt0, Xv0, Tv0] = posDisjointSplit(Xs(:, :, :, trMask), TTr, yTr, posValFrac);
+            [Xtr_a, Ttr_a] = maybeMixup(Xt0, Tt0, mixAlpha, mixRatio);
+            net = trainCNNReg(Xtr_a, Ttr_a, numSParamRows, numFreqPoints, cfg, execEnv, Xv0, Tv0);
             predTe = double(predict(net, Xs(:, :, :, teMask)));
             rec = accumUnit(rec, units{u}, ys(teMask), predTe, xyOf, nearInsertMap, sessNames{s});
             nFoldTotal = nFoldTotal + 1;
@@ -280,6 +293,7 @@ result.numSessions = nSess; result.sessionNames = {sessNames{:}};
 result.numPositions = nPos; result.numUnits = nUnits; result.numFolds = nFoldTotal;
 result.epochs = cfg.Epochs;
 result.mixupAlpha = mixAlpha; result.mixupRatio = mixRatio;
+result.posValFrac = posValFrac;
 result.overall = overall;
 result.nearInsert = stratN; result.exterior = stratE;
 result.crossContextMedianErr = crossMedErr; result.crossContextPctHalfIn = crossPctHalf;
@@ -346,6 +360,22 @@ function [Xo, To] = maybeMixup(X, T, alpha, ratio)
         Tmix(k, :)       = l * T(ii(k), :)       + (1 - l) * T(jj(k), :);
     end
     Xo = cat(4, X, Xmix); To = [T; Tmix];
+end
+
+function [Xt, Tt, Xv, Tv] = posDisjointSplit(X, T, labels, frac)
+% Split a training set so that a fraction of the POSITIONS (all their trials)
+% become a validation set disjoint from training. Model selection on this set
+% rewards generalization to unseen positions, not memorized ones.
+    Xv = []; Tv = [];
+    if frac <= 0, Xt = X; Tt = T; return; end
+    u = unique(labels);
+    if numel(u) < 3, Xt = X; Tt = T; return; end     % too few to spare
+    nv = min(numel(u) - 1, max(1, round(frac * numel(u))));
+    p = randperm(numel(u));
+    valpos = u(p(1:nv));
+    isval = ismember(labels, valpos);
+    Xt = X(:, :, :, ~isval); Tt = T(~isval, :);
+    Xv = X(:, :, :,  isval); Tv = T( isval, :);
 end
 
 function S = distStats(errs, sprs, half)
@@ -487,7 +517,8 @@ function S = buildSession(loaded, pairs, inputMode, nTdr, meanSub)
     S.X = X; S.posLabel = posLabel;
 end
 
-function net = trainCNNReg(XTrain, TTrain, nRows, nFreq, cfg, execEnv)
+function net = trainCNNReg(XTrain, TTrain, nRows, nFreq, cfg, execEnv, Xval, Tval)
+    if nargin < 8, Xval = []; Tval = []; end
     layers = [
         imageInputLayer([nRows nFreq 1], 'Normalization', 'zscore', 'Name', 'input')
         convolution2dLayer([min(4,nRows) 20], cfg.Conv1, 'Padding', 'same', 'Name', 'conv1')
@@ -500,9 +531,19 @@ function net = trainCNNReg(XTrain, TTrain, nRows, nFreq, cfg, execEnv)
         fullyConnectedLayer(2, 'Name', 'fc_out')
         regressionLayer('Name', 'output')];
     if cfg.showPlots, plt = 'training-progress'; else, plt = 'none'; end
-    opts = trainingOptions('adam', 'MaxEpochs', cfg.Epochs, 'MiniBatchSize', cfg.BatchSize, ...
+    args = {'MaxEpochs', cfg.Epochs, 'MiniBatchSize', cfg.BatchSize, ...
         'InitialLearnRate', cfg.LR, 'LearnRateSchedule', 'piecewise', ...
         'LearnRateDropPeriod', cfg.LRDropPeriod, 'LearnRateDropFactor', cfg.LRDropFactor, ...
-        'Shuffle', 'every-epoch', 'ExecutionEnvironment', execEnv, 'Verbose', false, 'Plots', plt);
+        'Shuffle', 'every-epoch', 'ExecutionEnvironment', execEnv, 'Verbose', false, 'Plots', plt};
+    if ~isempty(Xval)
+        % position-disjoint validation: keep the best-validation network, no
+        % early stop (isolate model SELECTION, not shortened training).
+        iterPerEpoch = max(1, floor(size(XTrain, 4) / cfg.BatchSize));
+        args = [args, {'ValidationData', {Xval, Tval}, ...
+                       'ValidationFrequency', iterPerEpoch, ...
+                       'ValidationPatience', Inf, ...
+                       'OutputNetwork', 'best-validation'}];
+    end
+    opts = trainingOptions('adam', args{:});
     net = trainNetwork(XTrain, TTrain, layers, opts);
 end
