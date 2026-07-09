@@ -12,8 +12,13 @@ entry here.
   selection from early-stop). Carve a fraction of TRAIN *positions* out as a
   validation set and keep the best-validation net. **Negative result: F5
   pooled/cell 0.664 → 0.927** — losing ~20% of the scarce training positions
-  outweighed the selection benefit. Follow-up (Exp 2b): combine with mixup to
-  replenish the lost data.
+  outweighed the selection benefit.
+- **Experiment 2b — posval + mixup combined.** Mixup replenishes the lost data:
+  F5 pooled/cell 0.722 — better than posval alone (0.927) but still below mixup
+  alone (0.572). Conclusion: position-disjoint validation is a net negative on
+  this dataset regardless; mixup alone is the winner. (One transient
+  `CUDA_ERROR_UNKNOWN`/heap-corruption GPU crash on first attempt; clean on
+  retry — 2nd such transient GPU fault this session.)
 - **Experiment 1 — mixup augmentation** (`Imager_CNN_RegLOPO.m`, behind the
   `MIXUP_ALPHA` flag; off by default so baseline behavior is unchanged). Offline
   mixup: append `ratio·N` synthetic train samples, each a convex blend of a

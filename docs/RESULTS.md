@@ -99,6 +99,7 @@ raw/all-antenna, 40 epochs.
 | baseline | 0.664 | 33% | 67% | 0.75 / 0.65 |
 | **+ mixup** (α=0.4, ratio=1) | **0.572** | 39% | 76% | **0.61 / 0.56** |
 | + position-disjoint val (frac=0.2) | 0.927 | 24% | 55% | 1.12 / 0.89 |
+| + mixup **&** posval | 0.722 | 33% | 70% | 0.84 / 0.72 |
 
 **Exp 1 — mixup: helps, and helps the barrier most.** −0.09 in overall (~14%),
 and the **near-insert cells improve more than exterior** (0.75→0.61 vs
@@ -109,15 +110,15 @@ intermediate signal↔coordinate points *fills* the spatial gaps rather than
 washing out the dielectric discontinuity — net-positive exactly where
 interpolation was hardest.
 
-**Exp 2 — position-disjoint validation: hurts (data too scarce).** Holding 20%
-of the ~30 training positions out for best-network selection cost more (less
-training data) than the selection gained: 0.664 → 0.927. On a dataset this small
-the positions can't be spared. Whether the *selection* idea has any merit once
-the data is replenished is tested by combining it with mixup (below).
+**Exp 2 — position-disjoint validation: hurts, even with mixup.** Standalone,
+holding 20% of the ~30 training positions out for best-network selection cost
+more than it gained: 0.664 → 0.927. Combined with mixup to replenish the lost
+data it recovers to 0.722 — better than posval alone, but still well below
+**mixup alone (0.572)**. Conclusion: on a dataset this small, sacrificing
+positions for model selection is a net negative regardless; **mixup alone is the
+winner so far.**
 
 Queued (pooled/cell):
-- **Exp 2b — posval + mixup combined** — does mixup replenishing the lost
-  positions let the selection benefit show?
 - **Exp 3 — structured output** — heatmap-over-grid regression (centroid
   readout) and/or a Gaussian-Process head (smooth interpolation +
   distance-aware uncertainty).
