@@ -1,0 +1,251 @@
+{
+  "method": "CNN",
+  "setup": "A3_F5_SamMed",
+  "sessionSet": "all5",
+  "antennaMode": "single",
+  "ports": 1,
+  "sparams": [
+    "S11"
+  ],
+  "numRows": 2,
+  "numSessions": 5,
+  "sessionNames": [
+    "BreastPhantom_A3_F5_FishingWeight_20260703_1356",
+    "BreastPhantom_A3_F5_FishingWeight_20260703_1417",
+    "BreastPhantom_A3_F5_FishingWeight_20260703_1432",
+    "BreastPhantom_A3_F5_FishingWeight_20260703_1454",
+    "BreastPhantom_A3_F5_FishingWeight_20260703_1516"
+  ],
+  "numClasses": 33,
+  "chancePct": 3.0303030303030303,
+  "foldTrialAcc": [
+    28.787878787878789,
+    77.651515151515156,
+    81.25,
+    67.424242424242422,
+    82.38636363636364
+  ],
+  "foldPosAcc": [
+    24.242424242424242,
+    84.848484848484844,
+    87.878787878787875,
+    69.6969696969697,
+    87.878787878787875
+  ],
+  "losoTrialMean": 67.5,
+  "losoTrialStd": 22.429632465433652,
+  "losoPosMean": 70.9090909090909,
+  "losoPosStd": 27.154626445114967,
+  "perPosition": [
+    {
+      "label": "R1C3P2",
+      "x": 2.875,
+      "y": 0.125,
+      "acc": 100
+    },
+    {
+      "label": "R1C3P3",
+      "x": 2.875,
+      "y": 0.875,
+      "acc": 80
+    },
+    {
+      "label": "R1C3P4",
+      "x": 2.125,
+      "y": 0.875,
+      "acc": 80
+    },
+    {
+      "label": "R1C4P1",
+      "x": 3.125,
+      "y": 0.125,
+      "acc": 80
+    },
+    {
+      "label": "R1C4P3",
+      "x": 3.875,
+      "y": 0.875,
+      "acc": 80
+    },
+    {
+      "label": "R1C4P4",
+      "x": 3.125,
+      "y": 0.875,
+      "acc": 80
+    },
+    {
+      "label": "R2C2P3",
+      "x": 1.875,
+      "y": 1.875,
+      "acc": 80
+    },
+    {
+      "label": "R2C3P1",
+      "x": 2.125,
+      "y": 1.125,
+      "acc": 80
+    },
+    {
+      "label": "R2C3P2",
+      "x": 2.875,
+      "y": 1.125,
+      "acc": 80
+    },
+    {
+      "label": "R2C3P3",
+      "x": 2.875,
+      "y": 1.875,
+      "acc": 80
+    },
+    {
+      "label": "R2C3P4",
+      "x": 2.125,
+      "y": 1.875,
+      "acc": 80
+    },
+    {
+      "label": "R2C5P4",
+      "x": 4.125,
+      "y": 1.875,
+      "acc": 80
+    },
+    {
+      "label": "R3C2P2",
+      "x": 1.875,
+      "y": 2.125,
+      "acc": 80
+    },
+    {
+      "label": "R3C3P2",
+      "x": 2.875,
+      "y": 2.125,
+      "acc": 80
+    },
+    {
+      "label": "R3C3P3",
+      "x": 2.875,
+      "y": 2.875,
+      "acc": 20
+    },
+    {
+      "label": "R3C3P4",
+      "x": 2.125,
+      "y": 2.875,
+      "acc": 80
+    },
+    {
+      "label": "R3C4P1",
+      "x": 3.125,
+      "y": 2.125,
+      "acc": 60
+    },
+    {
+      "label": "R3C4P2",
+      "x": 3.875,
+      "y": 2.125,
+      "acc": 20
+    },
+    {
+      "label": "R3C4P3",
+      "x": 3.875,
+      "y": 2.875,
+      "acc": 40
+    },
+    {
+      "label": "R3C4P4",
+      "x": 3.125,
+      "y": 2.875,
+      "acc": 20
+    },
+    {
+      "label": "R4C3P1",
+      "x": 2.125,
+      "y": 3.125,
+      "acc": 100
+    },
+    {
+      "label": "R4C3P2",
+      "x": 2.875,
+      "y": 3.125,
+      "acc": 80
+    },
+    {
+      "label": "R4C3P3",
+      "x": 2.875,
+      "y": 3.875,
+      "acc": 60
+    },
+    {
+      "label": "R4C4P1",
+      "x": 3.125,
+      "y": 3.125,
+      "acc": 60
+    },
+    {
+      "label": "R4C4P2",
+      "x": 3.875,
+      "y": 3.125,
+      "acc": 40
+    },
+    {
+      "label": "R4C4P3",
+      "x": 3.875,
+      "y": 3.875,
+      "acc": 0
+    },
+    {
+      "label": "R4C4P4",
+      "x": 3.125,
+      "y": 3.875,
+      "acc": 60
+    },
+    {
+      "label": "R5C3P2",
+      "x": 2.875,
+      "y": 4.125,
+      "acc": 100
+    },
+    {
+      "label": "R5C4P1",
+      "x": 3.125,
+      "y": 4.125,
+      "acc": 60
+    },
+    {
+      "label": "R6C3P1",
+      "x": 2.125,
+      "y": 5.125,
+      "acc": 100
+    },
+    {
+      "label": "R6C3P2",
+      "x": 2.875,
+      "y": 5.125,
+      "acc": 100
+    },
+    {
+      "label": "R6C4P1",
+      "x": 3.125,
+      "y": 5.125,
+      "acc": 100
+    },
+    {
+      "label": "R6C4P2",
+      "x": 3.875,
+      "y": 5.125,
+      "acc": 100
+    }
+  ],
+  "cnnConfig": {
+    "LR": 0.001,
+    "BatchSize": 16,
+    "Epochs": 100,
+    "Conv1": 32,
+    "Conv2": 32,
+    "FC1": 64,
+    "Dropout": 0.3,
+    "LRDropFactor": 0.5,
+    "LRDropPeriod": 30,
+    "showPlots": false
+  }
+}

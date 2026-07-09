@@ -1,0 +1,29 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# --- MATLAB ---
+*.asv
+*.m~
+slprj/
+
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Environments (never commit venvs) ---
+venv/
+.venv/
+env/
+
+# --- Raw measurement data ---
+# The VNA sweeps live OUTSIDE this folder and are referenced by absolute path
+# (see docs/DEPENDENCIES.md); they are intentionally not tracked. If you ever
+# copy raw Touchstone/CSV sweeps in here, keep them out of the repo:
+*.s2p
+*.s4p
+# NOTE: result .csv/.json/.png ARE tracked (they are the deliverables); only
+# bulk raw sweeps are ignored above.

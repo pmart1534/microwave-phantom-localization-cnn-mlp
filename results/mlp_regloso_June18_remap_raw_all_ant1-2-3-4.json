@@ -1,0 +1,543 @@
+{
+  "method": "MLP-REG",
+  "task": "regression_xy_inches",
+  "setup": "June18",
+  "sessionSet": "remap",
+  "inputKind": "raw",
+  "freqGrid": "native791",
+  "preproc": "v2_no_session_mean",
+  "adjustKey": "A3_Empty",
+  "ridge": false,
+  "antennaMode": "all",
+  "ports": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "numSessions": 3,
+  "sessionNames": [
+    "BreastPhantom_A3_FishingWeight_20260618_1530",
+    "BreastPhantom_A3_FishingWeight_20260618_1547",
+    "BreastPhantom_A3_FishingWeight_20260618_1611"
+  ],
+  "numPositions": 51,
+  "numAdjustedTargets": 0,
+  "folds": [
+    {
+      "testSession": "BreastPhantom_A3_FishingWeight_20260618_1530",
+      "trial": {
+        "meanErrIn": 0.6025486008700802,
+        "medianErrIn": 0.5048814017522331,
+        "pctWithinHalfIn": 48.89705882352941,
+        "pctWithin1In": 85.29411764705883
+      },
+      "position": {
+        "meanErrIn": 0.5615363612019941,
+        "medianErrIn": 0.47477932601518796,
+        "pctWithinHalfIn": 54.90196078431373,
+        "pctWithin1In": 86.27450980392157
+      },
+      "snapTrialAccPct": 22.30392156862745,
+      "snapPosAccPct": 25.49019607843137,
+      "baselineCentroid": {
+        "meanErrIn": 1.3904503658861889,
+        "medianErrIn": 1.3417410805586698,
+        "pctWithinHalfIn": 7.8431372549019605,
+        "pctWithin1In": 23.52941176470588
+      }
+    },
+    {
+      "testSession": "BreastPhantom_A3_FishingWeight_20260618_1547",
+      "trial": {
+        "meanErrIn": 0.5106735129904489,
+        "medianErrIn": 0.45598485809225126,
+        "pctWithinHalfIn": 56.372549019607845,
+        "pctWithin1In": 94.85294117647058
+      },
+      "position": {
+        "meanErrIn": 0.4667479194469827,
+        "medianErrIn": 0.392899918657929,
+        "pctWithinHalfIn": 62.745098039215684,
+        "pctWithin1In": 98.0392156862745
+      },
+      "snapTrialAccPct": 22.67156862745098,
+      "snapPosAccPct": 25.49019607843137,
+      "baselineCentroid": {
+        "meanErrIn": 1.3904503658861889,
+        "medianErrIn": 1.3417410805586698,
+        "pctWithinHalfIn": 7.8431372549019605,
+        "pctWithin1In": 23.52941176470588
+      }
+    },
+    {
+      "testSession": "BreastPhantom_A3_FishingWeight_20260618_1611",
+      "trial": {
+        "meanErrIn": 0.6174760646630609,
+        "medianErrIn": 0.5755892936199103,
+        "pctWithinHalfIn": 41.05392156862745,
+        "pctWithin1In": 87.25490196078431
+      },
+      "position": {
+        "meanErrIn": 0.5888525981206659,
+        "medianErrIn": 0.5758898826872064,
+        "pctWithinHalfIn": 45.09803921568628,
+        "pctWithin1In": 90.19607843137256
+      },
+      "snapTrialAccPct": 17.647058823529413,
+      "snapPosAccPct": 19.607843137254903,
+      "baselineCentroid": {
+        "meanErrIn": 1.3904503658861889,
+        "medianErrIn": 1.3417410805586698,
+        "pctWithinHalfIn": 7.8431372549019605,
+        "pctWithin1In": 23.52941176470588
+      }
+    }
+  ],
+  "losoTrialMeanErr": [
+    0.5768993928411966,
+    0.04722363578637958
+  ],
+  "losoTrialMedianErr": [
+    0.5121518511547982,
+    0.049098199731822695
+  ],
+  "losoPosMeanErr": [
+    0.5390456262565476,
+    0.052324392063935195
+  ],
+  "losoPosMedianErr": [
+    0.4811897091201078,
+    0.0748427306312953
+  ],
+  "losoPosPctHalfIn": [
+    54.248366013071895,
+    7.219190207311933
+  ],
+  "losoPosPct1In": [
+    91.50326797385621,
+    4.89105540754763
+  ],
+  "losoSnapTrialAccPct": [
+    20.874183006535947,
+    2.2868521245552946
+  ],
+  "losoSnapPosAccPct": [
+    23.529411764705884,
+    2.7729677693590085
+  ],
+  "losoCentroidMedianErr": [
+    1.3417410805586698,
+    0.0
+  ],
+  "perPosition": [
+    {
+      "label": "R1C3P3",
+      "pos": 10,
+      "x": 2.875,
+      "y": 0.875,
+      "medianErrIn": 0.6654467652188655,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R1C3P4",
+      "pos": 11,
+      "x": 2.125,
+      "y": 0.875,
+      "medianErrIn": 0.34851673683983075,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R1C4P3",
+      "pos": 14,
+      "x": 3.875,
+      "y": 0.875,
+      "medianErrIn": 0.4732475198489286,
+      "snapAccPct": 66.66666666666666
+    },
+    {
+      "label": "R1C4P4",
+      "pos": 15,
+      "x": 3.125,
+      "y": 0.875,
+      "medianErrIn": 0.766770502617914,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R2C2P2",
+      "pos": 29,
+      "x": 1.875,
+      "y": 1.125,
+      "medianErrIn": 0.4782224036799228,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R2C2P3",
+      "pos": 30,
+      "x": 1.875,
+      "y": 1.875,
+      "medianErrIn": 0.4480112894492074,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R2C3P1",
+      "pos": 32,
+      "x": 2.125,
+      "y": 1.125,
+      "medianErrIn": 0.40949996590364246,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R2C3P2",
+      "pos": 33,
+      "x": 2.875,
+      "y": 1.125,
+      "medianErrIn": 0.6144589482223656,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R2C3P3",
+      "pos": 34,
+      "x": 2.875,
+      "y": 1.875,
+      "medianErrIn": 0.38858075233233985,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R2C3P4",
+      "pos": 35,
+      "x": 2.125,
+      "y": 1.875,
+      "medianErrIn": 0.46649573997046007,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R2C4P1",
+      "pos": 36,
+      "x": 3.125,
+      "y": 1.125,
+      "medianErrIn": 0.6107096373109059,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R2C4P2",
+      "pos": 37,
+      "x": 3.875,
+      "y": 1.125,
+      "medianErrIn": 0.5048326525573908,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R2C4P3",
+      "pos": 38,
+      "x": 3.875,
+      "y": 1.875,
+      "medianErrIn": 0.45822434080144764,
+      "snapAccPct": 66.66666666666666
+    },
+    {
+      "label": "R2C4P4",
+      "pos": 39,
+      "x": 3.125,
+      "y": 1.875,
+      "medianErrIn": 0.8017955684654495,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R2C5P1",
+      "pos": 40,
+      "x": 4.125,
+      "y": 1.125,
+      "medianErrIn": 0.6352289531126591,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R2C5P4",
+      "pos": 43,
+      "x": 4.125,
+      "y": 1.875,
+      "medianErrIn": 0.7555715010598799,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R3C2P2",
+      "pos": 53,
+      "x": 1.875,
+      "y": 2.125,
+      "medianErrIn": 0.3302200676371522,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R3C2P3",
+      "pos": 54,
+      "x": 1.875,
+      "y": 2.875,
+      "medianErrIn": 0.6513314325160412,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R3C3P1",
+      "pos": 56,
+      "x": 2.125,
+      "y": 2.125,
+      "medianErrIn": 0.5490658386112965,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R3C3P2",
+      "pos": 57,
+      "x": 2.875,
+      "y": 2.125,
+      "medianErrIn": 0.5053399967909125,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R3C3P3",
+      "pos": 58,
+      "x": 2.875,
+      "y": 2.875,
+      "medianErrIn": 0.7263232053675241,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R3C3P4",
+      "pos": 59,
+      "x": 2.125,
+      "y": 2.875,
+      "medianErrIn": 0.4979374619653926,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R3C4P1",
+      "pos": 60,
+      "x": 3.125,
+      "y": 2.125,
+      "medianErrIn": 0.6441301008337811,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R3C4P2",
+      "pos": 61,
+      "x": 3.875,
+      "y": 2.125,
+      "medianErrIn": 0.830478891052754,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R3C4P3",
+      "pos": 62,
+      "x": 3.875,
+      "y": 2.875,
+      "medianErrIn": 0.4717764987573954,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R3C4P4",
+      "pos": 63,
+      "x": 3.125,
+      "y": 2.875,
+      "medianErrIn": 0.4916396054553622,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R3C5P1",
+      "pos": 64,
+      "x": 4.125,
+      "y": 2.125,
+      "medianErrIn": 0.9733773789158856,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R3C5P4",
+      "pos": 67,
+      "x": 4.125,
+      "y": 2.875,
+      "medianErrIn": 0.8188043142184216,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R4C2P2",
+      "pos": 77,
+      "x": 1.875,
+      "y": 3.125,
+      "medianErrIn": 0.938593967540334,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R4C2P3",
+      "pos": 78,
+      "x": 1.875,
+      "y": 3.875,
+      "medianErrIn": 0.39075832275296324,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R4C3P1",
+      "pos": 80,
+      "x": 2.125,
+      "y": 3.125,
+      "medianErrIn": 0.4671883478101848,
+      "snapAccPct": 66.66666666666666
+    },
+    {
+      "label": "R4C3P2",
+      "pos": 81,
+      "x": 2.875,
+      "y": 3.125,
+      "medianErrIn": 0.6334054449181957,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R4C3P3",
+      "pos": 82,
+      "x": 2.875,
+      "y": 3.875,
+      "medianErrIn": 0.22155897734516974,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R4C3P4",
+      "pos": 83,
+      "x": 2.125,
+      "y": 3.875,
+      "medianErrIn": 0.2750181913599055,
+      "snapAccPct": 66.66666666666666
+    },
+    {
+      "label": "R4C4P1",
+      "pos": 84,
+      "x": 3.125,
+      "y": 3.125,
+      "medianErrIn": 0.3754414130128616,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R4C4P2",
+      "pos": 85,
+      "x": 3.875,
+      "y": 3.125,
+      "medianErrIn": 0.7732931219877311,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R4C4P3",
+      "pos": 86,
+      "x": 3.875,
+      "y": 3.875,
+      "medianErrIn": 0.7227637966584824,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R4C4P4",
+      "pos": 87,
+      "x": 3.125,
+      "y": 3.875,
+      "medianErrIn": 0.2877456513022199,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R4C5P1",
+      "pos": 88,
+      "x": 4.125,
+      "y": 3.125,
+      "medianErrIn": 0.7187792970855572,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R4C5P4",
+      "pos": 91,
+      "x": 4.125,
+      "y": 3.875,
+      "medianErrIn": 0.29385883156651604,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R5C3P1",
+      "pos": 104,
+      "x": 2.125,
+      "y": 4.125,
+      "medianErrIn": 0.5254487600423269,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R5C3P2",
+      "pos": 105,
+      "x": 2.875,
+      "y": 4.125,
+      "medianErrIn": 0.3620774451881242,
+      "snapAccPct": 66.66666666666666
+    },
+    {
+      "label": "R5C3P3",
+      "pos": 106,
+      "x": 2.875,
+      "y": 4.875,
+      "medianErrIn": 0.48459333703652857,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R5C3P4",
+      "pos": 107,
+      "x": 2.125,
+      "y": 4.875,
+      "medianErrIn": 0.6414988508472832,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R5C4P1",
+      "pos": 108,
+      "x": 3.125,
+      "y": 4.125,
+      "medianErrIn": 0.3845712196081163,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R5C4P2",
+      "pos": 109,
+      "x": 3.875,
+      "y": 4.125,
+      "medianErrIn": 0.23027958006302338,
+      "snapAccPct": 66.66666666666666
+    },
+    {
+      "label": "R5C4P3",
+      "pos": 110,
+      "x": 3.875,
+      "y": 4.875,
+      "medianErrIn": 0.3668884234233185,
+      "snapAccPct": 66.66666666666666
+    },
+    {
+      "label": "R5C4P4",
+      "pos": 111,
+      "x": 3.125,
+      "y": 4.875,
+      "medianErrIn": 0.8806982151228429,
+      "snapAccPct": 0.0
+    },
+    {
+      "label": "R5C5P1",
+      "pos": 112,
+      "x": 4.125,
+      "y": 4.125,
+      "medianErrIn": 0.3012145321623007,
+      "snapAccPct": 100.0
+    },
+    {
+      "label": "R6C3P2",
+      "pos": 129,
+      "x": 2.875,
+      "y": 5.125,
+      "medianErrIn": 0.5260696339570448,
+      "snapAccPct": 33.33333333333333
+    },
+    {
+      "label": "R6C4P1",
+      "pos": 132,
+      "x": 3.125,
+      "y": 5.125,
+      "medianErrIn": 0.3735435087797692,
+      "snapAccPct": 33.33333333333333
+    }
+  ]
+}

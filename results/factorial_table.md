@@ -1,0 +1,39 @@
+| setup | sessions | classifier | antenna | input | n_way | chance% | CNN pos-vote% | MLP pos-vote% |
+|---|---|---|---|---|---|---|---|---|
+| A3_F4_SamMed | all4 | single | all-4 | raw | 39 | 2.6 | 97.4 +/- 3.0 | 97.4 +/- 1.8 |
+| A3_F4_SamMed | all4 | hierarchical | all-4 | physics | 39 | 2.6 | - | 96.2 +/- 2.9 |
+| A3_F4_SamMed | all4 | single | all-4 | physics | 39 | 2.6 | 97.4 +/- 2.1 | 97.4 +/- 1.8 |
+| A3_F4_SamMed | all4 | single | all-4 | tdr | 39 | 2.6 | 96.8 +/- 3.2 | 90.4 +/- 2.1 |
+| A3_F4_SamMed | all4 | single | pair 1-3 | raw | 39 | 2.6 | 95.5 +/- 1.3 | 93.6 +/- 4.3 |
+| A3_F4_SamMed | all4 | hierarchical | pair 1-3 | physics | 39 | 2.6 | 95.5 +/- 2.5 | 92.9 +/- 3.3 |
+| A3_F4_SamMed | all4 | single | pair 1-3 | physics | 39 | 2.6 | 98.1 +/- 1.3 | 92.3 +/- 3.1 |
+| A3_F4_SamMed | all4 | single | pair 1-3 | tdr | 39 | 2.6 | 92.3 +/- 0.0 | 85.3 +/- 2.8 |
+| A3_F4_SamMed | all4 | single | single 1 | raw | 39 | 2.6 | 96.8 +/- 4.9 | 91.0 +/- 5.6 |
+| A3_F4_SamMed | all4 | hierarchical | single 1 | physics | 39 | 2.6 | 92.3 +/- 5.1 | 85.9 +/- 8.2 |
+| A3_F4_SamMed | all4 | single | single 1 | physics | 39 | 2.6 | 95.5 +/- 4.4 | 91.7 +/- 5.8 |
+| A3_F4_SamMed | all4 | single | single 1 | tdr | 39 | 2.6 | 84.0 +/- 3.8 | 64.1 +/- 12.2 |
+| A3_F5_SamMed | last3 | single | all-4 | raw | 33 | 3.0 | 100.0 +/- 0.0 | 96.0 +/- 2.9 |
+| A3_F5_SamMed | last3 | hierarchical | all-4 | physics | 33 | 3.0 | - | 92.9 +/- 2.9 |
+| A3_F5_SamMed | last3 | single | all-4 | physics | 33 | 3.0 | 100.0 +/- 0.0 | 100.0 +/- 0.0 |
+| A3_F5_SamMed | last3 | single | all-4 | tdr | 33 | 3.0 | 98.0 +/- 1.7 | 75.8 +/- 4.9 |
+| A3_F5_SamMed | last3 | single | pair 1-3 | raw | 33 | 3.0 | 96.0 +/- 7.0 | 81.8 +/- 4.3 |
+| A3_F5_SamMed | last3 | hierarchical | pair 1-3 | physics | 33 | 3.0 | 91.9 +/- 3.5 | 82.8 +/- 1.4 |
+| A3_F5_SamMed | last3 | single | pair 1-3 | physics | 33 | 3.0 | 98.0 +/- 3.5 | 85.9 +/- 7.6 |
+| A3_F5_SamMed | last3 | single | pair 1-3 | tdr | 33 | 3.0 | 78.8 +/- 3.0 | 69.7 +/- 4.3 |
+| A3_F5_SamMed | last3 | single | single 1 | raw | 33 | 3.0 | 75.8 +/- 9.1 | 58.6 +/- 9.4 |
+| A3_F5_SamMed | last3 | hierarchical | single 1 | physics | 33 | 3.0 | 73.7 +/- 6.3 | 59.6 +/- 5.7 |
+| A3_F5_SamMed | last3 | single | single 1 | physics | 33 | 3.0 | 79.8 +/- 3.5 | 62.6 +/- 8.0 |
+| A3_F5_SamMed | last3 | hierarchical | single 1 | tdr | 33 | 3.0 | - | 52.5 +/- 6.2 |
+| A3_F5_SamMed | last3 | single | single 1 | tdr | 33 | 3.0 | 64.6 +/- 7.0 | 54.5 +/- 7.4 |
+| June18 | remap | single | all-4 | raw | 51 | 2.0 | 99.3 +/- 1.1 | 99.3 +/- 0.9 |
+| June18 | remap | hierarchical | all-4 | physics | 51 | 2.0 | - | 99.3 +/- 0.9 |
+| June18 | remap | single | all-4 | physics | 51 | 2.0 | 99.3 +/- 1.1 | 99.3 +/- 0.9 |
+| June18 | remap | single | all-4 | tdr | 51 | 2.0 | 99.3 +/- 1.1 | 99.3 +/- 0.9 |
+| June18 | remap | single | pair 1-3 | raw | 51 | 2.0 | 99.3 +/- 1.1 | 99.3 +/- 0.9 |
+| June18 | remap | hierarchical | pair 1-3 | physics | 51 | 2.0 | 99.3 +/- 1.1 | 99.3 +/- 0.9 |
+| June18 | remap | single | pair 1-3 | physics | 51 | 2.0 | 99.3 +/- 1.1 | 99.3 +/- 0.9 |
+| June18 | remap | single | pair 1-3 | tdr | 51 | 2.0 | 99.3 +/- 1.1 | 99.3 +/- 0.9 |
+| June18 | remap | single | single 1 | raw | 51 | 2.0 | 98.0 +/- 2.0 | 99.3 +/- 0.9 |
+| June18 | remap | hierarchical | single 1 | physics | 51 | 2.0 | 99.3 +/- 1.1 | 98.7 +/- 1.8 |
+| June18 | remap | single | single 1 | physics | 51 | 2.0 | 98.7 +/- 1.1 | 98.7 +/- 1.8 |
+| June18 | remap | single | single 1 | tdr | 51 | 2.0 | 99.3 +/- 1.1 | 95.4 +/- 2.4 |
