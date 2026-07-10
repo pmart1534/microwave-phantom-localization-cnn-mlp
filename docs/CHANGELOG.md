@@ -6,6 +6,13 @@ entry here.
 
 ## 2026-07-09
 
+- **Experiment 3 — heatmap (structured) output** (`Imager_CNN_RegLOPO.m`,
+  `HEAD_MODE=heatmap`). Head → `fc(G)→softmax→regression` over a 0.4-in anchor
+  grid, Gaussian soft target, centroid readout; fold train/predict refactored
+  into `fitPredictFold`. **Negative: F5 pooled/cell 0.895 (heatmap), 0.865
+  (heatmap+mixup)** vs 0.664 baseline; near-insert nearly doubled (centroid
+  mass-leakage pulls predictions to grid centre). **Verdict on all 3 experiments:
+  mixup is the only winner; posval and heatmap both hurt on this small dataset.**
 - **Experiment 2 — position-disjoint validation** (`Imager_CNN_RegLOPO.m`,
   `POSVAL_FRAC` flag; `trainCNNReg` gained optional validation data +
   `OutputNetwork='best-validation'`, `ValidationPatience=Inf` to isolate model

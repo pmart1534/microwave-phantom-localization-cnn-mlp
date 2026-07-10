@@ -90,6 +90,19 @@ if posValFrac > 0
     fprintf('POSVAL ON: frac=%.2f of train positions held out for best-net selection\n', posValFrac);
 end
 
+% ---- Experiment 3: structured (heatmap) output (HEAD_MODE=heatmap) ----
+% Instead of fc(2) regressing bare (x,y), output a softmax over a grid of
+% coordinate anchors, trained against a Gaussian blob centred at the true xy,
+% and read out the prediction as the distribution's centroid. Neighbouring
+% positions share output support -> smoother interpolation. Uses only built-in
+% layers (fc -> softmax -> regression on the soft target).
+headMode = lower(strtrim(getenv('HEAD_MODE'))); if isempty(headMode), headMode = 'xy'; end
+if ~ismember(headMode, {'xy', 'heatmap'}), error('HEAD_MODE must be xy|heatmap'); end
+hmSigma = str2double(getenv('HEATMAP_SIGMA')); if isnan(hmSigma), hmSigma = 0.6; end
+if strcmp(headMode, 'heatmap')
+    fprintf('HEAD=heatmap  sigma=%.2f in  (soft-argmax centroid readout)\n', hmSigma);
+end
+
 %% 1. DATA
 defaultParent = ['C:\Users\peter\Desktop\EM Imaging\BreastPhantom\HunterVNA\' ...
                  'DataMeasurements\Sam Antennas\MediumAntenna\Separated\June18'];
@@ -121,6 +134,7 @@ if isempty(setLabel), setLabel = sprintf('%dsess', nSess); end
 if meanSub, setLabel = [setLabel '-meansub']; end
 if mixAlpha > 0, setLabel = [setLabel sprintf('-mixup%s', strrep(num2str(mixAlpha), '.', 'p'))]; end
 if posValFrac > 0, setLabel = [setLabel sprintf('-posval%s', strrep(num2str(posValFrac), '.', 'p'))]; end
+if strcmp(headMode, 'heatmap'), setLabel = [setLabel sprintf('-heatmap%s', strrep(num2str(hmSigma), '.', 'p'))]; end
 
 %% 2. ANTENNAS + TARGETS
 ports = 1:4; antennaMode = 'all';   % first pass: full 4-antenna array only
@@ -163,6 +177,19 @@ if nPos < 3, error('Need >=3 common positions for LOPO.'); end
 validXY = zeros(nPos, 2);
 for p = 1:nPos, validXY(p, :) = labelToXY(validPos{p}, adjMap); end
 xyOf = containers.Map(validPos, num2cell(validXY, 2)');
+
+% heatmap anchor grid (only used if headMode=heatmap): regular 0.4-in lattice
+% covering the target extent + margin, so the centroid readout can reach every
+% true position.
+axStep = 0.4; axPad = 0.6;
+ax = (min(validXY(:,1)) - axPad) : axStep : (max(validXY(:,1)) + axPad);
+ay = (min(validXY(:,2)) - axPad) : axStep : (max(validXY(:,2)) + axPad);
+[AX, AY] = meshgrid(ax, ay);
+anchors = [AX(:), AY(:)];
+if strcmp(headMode, 'heatmap')
+    fprintf('Heatmap anchors: %d (%.1f-in grid over [%.1f,%.1f]x[%.1f,%.1f])\n', ...
+        size(anchors,1), axStep, ax(1), ax(end), ay(1), ay(end));
+end
 nearInsertMap = containers.Map(validPos, num2cell(arrayfun(@(p) isKey(adjMap, validPos{p}), 1:nPos)));
 
 % ---- define held-out units ----
@@ -202,8 +229,8 @@ if strcmp(lopoMode, 'pooled')
         TTr = labelsToXY(yTr, adjMap);
         [Xt0, Tt0, Xv0, Tv0] = posDisjointSplit(Xp(:, :, :, trMask), TTr, yTr, posValFrac);
         [Xtr_a, Ttr_a] = maybeMixup(Xt0, Tt0, mixAlpha, mixRatio);
-        net = trainCNNReg(Xtr_a, Ttr_a, numSParamRows, numFreqPoints, cfg, execEnv, Xv0, Tv0);
-        predTe = double(predict(net, Xp(:, :, :, teMask)));
+        predTe = fitPredictFold(Xtr_a, Ttr_a, Xp(:, :, :, teMask), Xv0, Tv0, ...
+                                headMode, anchors, hmSigma, numSParamRows, numFreqPoints, cfg, execEnv);
         yTe = yp(teMask);
         rec = accumUnit(rec, units{u}, yTe, predTe, xyOf, nearInsertMap, '(pooled)');
         nFoldTotal = nFoldTotal + 1;
@@ -221,8 +248,8 @@ else  % insession
             TTr = labelsToXY(yTr, adjMap);
             [Xt0, Tt0, Xv0, Tv0] = posDisjointSplit(Xs(:, :, :, trMask), TTr, yTr, posValFrac);
             [Xtr_a, Ttr_a] = maybeMixup(Xt0, Tt0, mixAlpha, mixRatio);
-            net = trainCNNReg(Xtr_a, Ttr_a, numSParamRows, numFreqPoints, cfg, execEnv, Xv0, Tv0);
-            predTe = double(predict(net, Xs(:, :, :, teMask)));
+            predTe = fitPredictFold(Xtr_a, Ttr_a, Xs(:, :, :, teMask), Xv0, Tv0, ...
+                                    headMode, anchors, hmSigma, numSParamRows, numFreqPoints, cfg, execEnv);
             rec = accumUnit(rec, units{u}, ys(teMask), predTe, xyOf, nearInsertMap, sessNames{s});
             nFoldTotal = nFoldTotal + 1;
             if mod(u, 5) == 0 || u == nUnits
@@ -294,6 +321,8 @@ result.numPositions = nPos; result.numUnits = nUnits; result.numFolds = nFoldTot
 result.epochs = cfg.Epochs;
 result.mixupAlpha = mixAlpha; result.mixupRatio = mixRatio;
 result.posValFrac = posValFrac;
+result.headMode = headMode; result.heatmapSigma = hmSigma;
+if strcmp(headMode, 'heatmap'), result.numAnchors = size(anchors, 1); end
 result.overall = overall;
 result.nearInsert = stratN; result.exterior = stratE;
 result.crossContextMedianErr = crossMedErr; result.crossContextPctHalfIn = crossPctHalf;
@@ -360,6 +389,64 @@ function [Xo, To] = maybeMixup(X, T, alpha, ratio)
         Tmix(k, :)       = l * T(ii(k), :)       + (1 - l) * T(jj(k), :);
     end
     Xo = cat(4, X, Xmix); To = [T; Tmix];
+end
+
+function predTe = fitPredictFold(Xtr, xyTr, Xte, Xval, xyVal, headMode, anchors, hmSigma, nRows, nFreq, cfg, execEnv)
+% Train one fold and return predicted (x,y) for the test samples. Dispatches on
+% head: 'xy' = fc(2)+regression; 'heatmap' = softmax over anchor grid trained on
+% a Gaussian soft target, prediction = distribution centroid.
+    if strcmp(headMode, 'heatmap')
+        TsoftTr = xyToHeatmap(xyTr, anchors, hmSigma);
+        if ~isempty(Xval), TsoftV = xyToHeatmap(xyVal, anchors, hmSigma); else, TsoftV = []; end
+        net = trainCNNHeatmap(Xtr, TsoftTr, nRows, nFreq, size(anchors,1), cfg, execEnv, Xval, TsoftV);
+        soft = double(predict(net, Xte));        % (Nte x G) softmax over anchors
+        predTe = soft * anchors;                 % centroid readout -> (Nte x 2)
+    else
+        net = trainCNNReg(Xtr, xyTr, nRows, nFreq, cfg, execEnv, Xval, xyVal);
+        predTe = double(predict(net, Xte));
+    end
+end
+
+function P = xyToHeatmap(xy, anchors, sigma)
+% Soft target: each sample -> Gaussian over the anchor grid, normalized to a
+% probability vector. (N x G)
+    n = size(xy, 1); G = size(anchors, 1);
+    P = zeros(n, G);
+    for i = 1:n
+        d2 = sum((anchors - xy(i, :)).^2, 2);
+        w = exp(-d2 / (2 * sigma^2));
+        s = sum(w); if s <= 0, w = ones(G,1); s = G; end
+        P(i, :) = (w / s)';
+    end
+end
+
+function net = trainCNNHeatmap(XTrain, Tsoft, nRows, nFreq, G, cfg, execEnv, Xval, Tval)
+% Same conv trunk as trainCNNReg but head = fc(G) -> softmax -> regression on
+% the soft (Gaussian-over-anchors) target.
+    if nargin < 8, Xval = []; Tval = []; end
+    layers = [
+        imageInputLayer([nRows nFreq 1], 'Normalization', 'zscore', 'Name', 'input')
+        convolution2dLayer([min(4,nRows) 20], cfg.Conv1, 'Padding', 'same', 'Name', 'conv1')
+        batchNormalizationLayer('Name', 'bn1'); reluLayer('Name', 'relu1')
+        convolution2dLayer([min(2,nRows) 10], cfg.Conv2, 'Padding', 'same', 'Name', 'conv2')
+        batchNormalizationLayer('Name', 'bn2'); reluLayer('Name', 'relu2')
+        fullyConnectedLayer(cfg.FC1, 'Name', 'fc1')
+        batchNormalizationLayer('Name', 'bn3'); reluLayer('Name', 'relu3')
+        dropoutLayer(cfg.Dropout, 'Name', 'dropout')
+        fullyConnectedLayer(G, 'Name', 'fc_out')
+        softmaxLayer('Name', 'softmax')
+        regressionLayer('Name', 'output')];
+    if cfg.showPlots, plt = 'training-progress'; else, plt = 'none'; end
+    args = {'MaxEpochs', cfg.Epochs, 'MiniBatchSize', cfg.BatchSize, ...
+        'InitialLearnRate', cfg.LR, 'LearnRateSchedule', 'piecewise', ...
+        'LearnRateDropPeriod', cfg.LRDropPeriod, 'LearnRateDropFactor', cfg.LRDropFactor, ...
+        'Shuffle', 'every-epoch', 'ExecutionEnvironment', execEnv, 'Verbose', false, 'Plots', plt};
+    if ~isempty(Xval)
+        iterPerEpoch = max(1, floor(size(XTrain, 4) / cfg.BatchSize));
+        args = [args, {'ValidationData', {Xval, Tval}, 'ValidationFrequency', iterPerEpoch, ...
+                       'ValidationPatience', Inf, 'OutputNetwork', 'best-validation'}];
+    end
+    net = trainNetwork(XTrain, Tsoft, layers, trainingOptions('adam', args{:}));
 end
 
 function [Xt, Tt, Xv, Tv] = posDisjointSplit(X, T, labels, frac)

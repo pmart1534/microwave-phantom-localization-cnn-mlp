@@ -100,6 +100,8 @@ raw/all-antenna, 40 epochs.
 | **+ mixup** (α=0.4, ratio=1) | **0.572** | 39% | 76% | **0.61 / 0.56** |
 | + position-disjoint val (frac=0.2) | 0.927 | 24% | 55% | 1.12 / 0.89 |
 | + mixup **&** posval | 0.722 | 33% | 70% | 0.84 / 0.72 |
+| + heatmap head (σ=0.6) | 0.895 | 15% | 58% | 1.42 / 0.85 |
+| + heatmap **&** mixup | 0.865 | 15% | 58% | 1.50 / 0.84 |
 
 **Exp 1 — mixup: helps, and helps the barrier most.** −0.09 in overall (~14%),
 and the **near-insert cells improve more than exterior** (0.75→0.61 vs
@@ -118,9 +120,22 @@ data it recovers to 0.722 — better than posval alone, but still well below
 positions for model selection is a net negative regardless; **mixup alone is the
 winner so far.**
 
-Queued (pooled/cell):
-- **Exp 3 — structured output** — heatmap-over-grid regression (centroid
-  readout) and/or a Gaussian-Process head (smooth interpolation +
-  distance-aware uncertainty).
+**Exp 3 — heatmap output: hurts (centroid bias).** The softmax-over-anchors
+head with centroid readout underperformed the plain xy head (0.895 vs 0.664),
+and mixup didn't rescue it (0.865). Near-insert error nearly doubled (0.75 →
+1.42): the centroid readout's softmax mass-leakage pulls predictions toward the
+grid centre, penalising exactly the interior/insert positions. Tunable in
+principle (sharper σ, finer anchors, temperature-scaled soft-argmax), but as a
+first pass the structured head is a net negative.
+
+### Verdict (interpolation-improvement experiments)
+
+Of the three fixes tried on F5 pooled/cell, **only mixup helps** (0.664 → 0.572,
+~14%, and it helps the glandular-barrier region most). Position-disjoint
+validation and the heatmap head both *hurt* on this small dataset — the first
+starves training of scarce positions, the second adds a center-pulling bias.
+**Mixup on a plain (x,y) head is the keeper.** Natural next steps: apply mixup
+to F4/June18 and to the LOSO models; optionally revisit the heatmap head with a
+sharper soft-argmax if structured output is wanted later.
 
 See `CHANGELOG.md` for the running log of what changed when.
