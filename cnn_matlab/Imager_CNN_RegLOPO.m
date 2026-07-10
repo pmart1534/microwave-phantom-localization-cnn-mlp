@@ -211,7 +211,7 @@ fprintf('CNN input: %d x %d  (input=%s)   env=%s\n', numSParamRows, numFreqPoint
 
 %% 4. LOPO LOOP  -> collect one record per held-out position (per context)
 HALF = 0.5;
-rec = struct('label', {}, 'sess', {}, 'err', {}, 'spread', {}, 'near', {});
+rec = struct('label', {}, 'sess', {}, 'err', {}, 'spread', {}, 'near', {}, 'predx', {}, 'predy', {});
 nFoldTotal = 0; tAll = tic;
 
 if strcmp(lopoMode, 'pooled')
@@ -285,11 +285,13 @@ else
 end
 
 % per-position (average a position's records across contexts)
-perPosition = struct('label', {}, 'x', {}, 'y', {}, 'medianErrIn', {}, 'spreadIn', {}, 'nearInsert', {});
+perPosition = struct('label', {}, 'x', {}, 'y', {}, 'predX', {}, 'predY', {}, ...
+                     'medianErrIn', {}, 'spreadIn', {}, 'nearInsert', {});
 for p = 1:nPos
     m = strcmp({rec.label}, validPos{p});
     if ~any(m), continue; end
     perPosition(end+1) = struct('label', validPos{p}, 'x', validXY(p, 1), 'y', validXY(p, 2), ...
+        'predX', mean([rec(m).predx]), 'predY', mean([rec(m).predy]), ...
         'medianErrIn', mean([rec(m).err]), 'spreadIn', mean([rec(m).spread]), ...
         'nearInsert', logical(nearInsertMap(validPos{p}))); %#ok<SAGROW>
 end
@@ -364,7 +366,8 @@ function rec = accumUnit(rec, unitLabels, yTe, predTe, xyOf, nearMap, sessTag)
         rec(end+1) = struct('label', L, 'sess', sessTag, ...
             'err', norm(med - xy), ...
             'spread', mean(vecnorm(P - med, 2, 2)), ...
-            'near', double(nearMap(L))); %#ok<AGROW>
+            'near', double(nearMap(L)), ...
+            'predx', med(1), 'predy', med(2)); %#ok<AGROW>
     end
 end
 

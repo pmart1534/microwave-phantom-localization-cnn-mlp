@@ -27,3 +27,7 @@ env/
 *.s4p
 # NOTE: result .csv/.json/.png ARE tracked (they are the deliverables); only
 # bulk raw sweeps are ignored above.
+
+# deck QA renders
+regression_deck/qa/
+regression_deck/*.pdf

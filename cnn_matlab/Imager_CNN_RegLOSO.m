@@ -238,6 +238,8 @@ HALF_CELL_IN = 0.5;
 folds = struct([]);
 posErrAcc = zeros(nPos, nSess);   % per-fold median-point error per position
 posSprAcc = zeros(nPos, nSess);   % per-fold prediction spread per position
+posPredXAcc = nan(nPos, nSess);   % per-fold predicted median x per position
+posPredYAcc = nan(nPos, nSess);   % per-fold predicted median y per position
 
 for testS = 1:nSess
     trainS = setdiff(1:nSess, testS);
@@ -268,6 +270,7 @@ for testS = 1:nSess
         posSprs(p) = mean(vecnorm(P - med, 2, 2));
         posErrAcc(p, testS) = posErrs(p);
         posSprAcc(p, testS) = posSprs(p);
+        posPredXAcc(p, testS) = med(1); posPredYAcc(p, testS) = med(2);
     end
     have = ~isnan(posErrs);
     position = errStats(posErrs(have), HALF_CELL_IN);
@@ -341,12 +344,14 @@ fprintf('---------------------------------------------------------\n');
 %% -----------------------------------------------------------------------
 %  6. SAVE RESULTS (json + mat) and FIGURES
 %  ----------------------------------------------------------------------
-perPosition = struct('label', {}, 'x', {}, 'y', {}, 'medianErrIn', {}, ...
-                     'spreadIn', {}, 'nearInsert', {});
+perPosition = struct('label', {}, 'x', {}, 'y', {}, 'predX', {}, 'predY', {}, ...
+                     'medianErrIn', {}, 'spreadIn', {}, 'nearInsert', {});
 for p = 1:nPos
     perPosition(end+1) = struct( ...
         'label', validPos{p}, ...
         'x', validXY(p, 1), 'y', validXY(p, 2), ...
+        'predX', mean(posPredXAcc(p, :), 'omitnan'), ...
+        'predY', mean(posPredYAcc(p, :), 'omitnan'), ...
         'medianErrIn', mean(posErrAcc(p, :)), ...
         'spreadIn', mean(posSprAcc(p, :)), ...
         'nearInsert', logical(nearInsert(p))); %#ok<SAGROW>
