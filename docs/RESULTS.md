@@ -156,7 +156,18 @@ infeasible). Lateral and depth error reported separately.
 
 Stable across folds (xy 2.8–4.2 mm, z 1.3–2.0 mm). **The CNN localizes a tumor in
 3D to ~3.4 mm laterally / ~1.6 mm in depth — far below the 10 mm grid, matching
-the k-NN floor on xy and beating it on z.** Depth is *not* the weak axis here:
+the k-NN floor on xy and beating it on z.**
+
+**Leave-one-depth-out** (hold out a whole depth plane, predict it from the other
+8; `SIM_CV=depth`): the CNN predicts a **completely unseen interior depth plane
+(0–25 mm) to z ≈ 1 mm** (0.8–2.3 mm), xy ≈ 3 mm — as good as the random-fold run.
+That is only possible if it learned a *continuous* signal→depth mapping, **not
+memorized depth planes**. The two edge depths (−5, +30 mm) are extrapolation (no
+training depth beyond them) and degrade to z ≈ 6–8 mm, as expected — the model
+can't reach past its sampled depth range. xy is unaffected by holding out a depth.
+Upshot: usable depth is bounded by the sim's depth *sampling range*, not the model.
+
+Depth is *not* the weak axis here:
 with fine depth sampling and full-band frequency access it resolves better than
 xy in absolute mm. (Feasibility + a physics exploration of the sim —
 `Simulation Data/SamMakin/sim_feasibility_check.py`, `sim_explore.py` — found the

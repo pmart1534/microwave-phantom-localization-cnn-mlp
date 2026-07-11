@@ -39,6 +39,7 @@ cfg.Conv1 = 32; cfg.Conv2 = 32; cfg.FC1 = 64; cfg.Dropout = 0.3;
 cfg.LRDropFactor = 0.5; cfg.LRDropPeriod = 25; cfg.showPlots = false;
 if ~isempty(getenv('CNN_LOSO_EPOCHS')), cfg.Epochs = str2double(getenv('CNN_LOSO_EPOCHS')); end
 KFOLD = 8;  if ~isempty(getenv('SIM_KFOLD')),  KFOLD  = str2double(getenv('SIM_KFOLD'));  end
+simCV = lower(strtrim(getenv('SIM_CV'))); if isempty(simCV), simCV = 'kfold'; end  % kfold | depth
 NFREQ = 256; if ~isempty(getenv('SIM_NFREQ')), NFREQ = str2double(getenv('SIM_NFREQ')); end
 mixAlpha = str2double(getenv('MIXUP_ALPHA')); if isnan(mixAlpha), mixAlpha = 0; end
 rng(42);
@@ -92,16 +93,29 @@ fprintf('CNN input image: 32 x %d   folds=%d  epochs=%d  mixup=%.2f\n', NFREQ, K
 
 if gpuDeviceCount > 0, execEnv = 'gpu'; else, execEnv = 'cpu'; end
 
-%% 2. K-FOLD POSITION CV
-fprintf('\n=== %d-fold position cross-validation ===\n', KFOLD);
-perm = randperm(N);
-foldOf = zeros(1, N);
-for i = 1:N, foldOf(perm(i)) = mod(i-1, KFOLD) + 1; end
+%% 2. CROSS-VALIDATION  (kfold random positions, OR leave-one-depth-out)
+if strcmp(simCV, 'depth')
+    zvals = unique(round(T(:, 3)));
+    testSets = arrayfun(@(z) find(round(T(:, 3)) == z), zvals, 'uni', 0);
+    foldLabel = arrayfun(@(z) sprintf('z=%+d mm', z), zvals, 'uni', 0);
+    zEdge = ismember(zvals, [min(zvals), max(zvals)]);   % edge depths = extrapolation
+    fprintf('\n=== LEAVE-ONE-DEPTH-OUT (%d depths; edges = extrapolation) ===\n', numel(zvals));
+else
+    perm = randperm(N); foldOf = zeros(1, N);
+    for i = 1:N, foldOf(perm(i)) = mod(i-1, KFOLD) + 1; end
+    testSets = arrayfun(@(f) find(foldOf == f), (1:KFOLD)', 'uni', 0);
+    foldLabel = arrayfun(@(f) sprintf('fold %d', f), (1:KFOLD)', 'uni', 0);
+    zEdge = false(numel(testSets), 1);
+    fprintf('\n=== %d-fold position cross-validation ===\n', KFOLD);
+end
+nFold = numel(testSets);
+foldRows = struct('label', {}, 'n', {}, 'xyMedMm', {}, 'zMedMm', {}, 'isEdge', {});
 
 pred = nan(N, 3);
-for f = 1:KFOLD
+for f = 1:nFold
     t0 = tic;
-    teIdx = find(foldOf == f); trIdx = find(foldOf ~= f);
+    teIdx = testSets{f}; trIdx = setdiff((1:N)', teIdx);
+    if isempty(teIdx), continue; end
     Xtr = X(:, :, :, trIdx); Ttr = T(trIdx, :);
     Xte = X(:, :, :, teIdx);
     % per-pixel z-score from TRAIN stats (applied to train + test; no leakage)
@@ -110,9 +124,13 @@ for f = 1:KFOLD
     if mixAlpha > 0, [Xtr, Ttr] = mixup3(Xtr, Ttr, mixAlpha, 1.0); end
     net = trainSimCNN(Xtr, Ttr, NFREQ, cfg, execEnv);
     pred(teIdx, :) = double(predict(net, Xte));
-    xy = hypot(pred(teIdx,1)-T(teIdx,1), pred(teIdx,2)-T(teIdx,2));
-    fprintf('  fold %d/%d: %3d test  xy med %.1f mm  z med %.1f mm  (%.0fs)\n', ...
-        f, KFOLD, numel(teIdx), median(xy), median(abs(pred(teIdx,3)-T(teIdx,3))), toc(t0));
+    xy = median(hypot(pred(teIdx,1)-T(teIdx,1), pred(teIdx,2)-T(teIdx,2)));
+    zz = median(abs(pred(teIdx,3)-T(teIdx,3)));
+    foldRows(end+1) = struct('label', foldLabel{f}, 'n', numel(teIdx), ...
+        'xyMedMm', xy, 'zMedMm', zz, 'isEdge', logical(zEdge(f))); %#ok<SAGROW>
+    tagE = ''; if zEdge(f), tagE = '  [extrap]'; end
+    fprintf('  %-12s: %3d test  xy med %5.1f mm  z med %5.1f mm  (%.0fs)%s\n', ...
+        foldLabel{f}, numel(teIdx), xy, zz, toc(t0), tagE);
 end
 
 %% 3. METRICS  (lateral xy and depth z, separately, in mm)
@@ -122,9 +140,10 @@ c = mean(T, 1);
 xyBase = hypot(T(:,1)-c(1), T(:,2)-c(2));
 zBase  = abs(T(:,3)-c(3));
 S = struct();
-S.method='CNN-SIM-3D'; S.task='regression_xyz_mm'; S.protocol=sprintf('%dfold_position_cv',KFOLD);
+S.method='CNN-SIM-3D'; S.task='regression_xyz_mm';
+if strcmp(simCV,'depth'), S.protocol='leave_one_depth_out'; else, S.protocol=sprintf('%dfold_position_cv',KFOLD); end
 S.numPositions=N; S.nfreq=NFREQ; S.epochs=cfg.Epochs; S.mixupAlpha=mixAlpha;
-S.folders={FOLDERS{:}};
+S.folders={FOLDERS{:}}; S.folds=foldRows;
 S.lateral_medianMm=median(xyErr); S.lateral_meanMm=mean(xyErr);
 S.lateral_pctWithin5mm=100*mean(xyErr<=5); S.lateral_pctWithin10mm=100*mean(xyErr<=10);
 S.depth_medianMm=median(zErr); S.depth_meanMm=mean(zErr);
@@ -145,7 +164,9 @@ fprintf('  DEPTH   (z)  error : median %.2f mm  mean %.2f  (<=5mm %.0f%%)\n', ..
 fprintf('  centroid baseline  : xy %.1f mm   z %.1f mm\n', S.lateral_centroidMedianMm, S.depth_centroidMedianMm);
 fprintf('----------------------------------------------------------------\n');
 
-if mixAlpha > 0
+if strcmp(simCV, 'depth')
+    tag = sprintf('depthCV_nf%d', NFREQ);
+elseif mixAlpha > 0
     tag = sprintf('%dfold_nf%d_mixup%s', KFOLD, NFREQ, strrep(num2str(mixAlpha), '.', 'p'));
 else
     tag = sprintf('%dfold_nf%d', KFOLD, NFREQ);

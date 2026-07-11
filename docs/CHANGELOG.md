@@ -14,6 +14,10 @@ entry here.
   (`sim_feasibility_check.py`) + physics exploration (`sim_explore.py`, in the
   Simulation Data tree) established the signal is learnable and depth-robust.
   See `RESULTS.md §5`.
+- **Leave-one-depth-out** (`SIM_CV=depth` mode added). Interior depths (0–25 mm)
+  predict an unseen depth plane to z ≈ 1 mm — proves the CNN learned a continuous
+  depth mapping, not memorized planes. Edge depths (−5/+30 mm) are extrapolation
+  and degrade to 6–8 mm (expected). xy unaffected. See `RESULTS.md §5`.
 - **Deck extended to the full phantom × protocol matrix** — predicted-vs-actual
   figures for empty/F4/F5 under both LOSO and LOPO (`regression_deck/`).
 
