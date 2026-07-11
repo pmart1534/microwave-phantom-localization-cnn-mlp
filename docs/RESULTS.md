@@ -142,7 +142,7 @@ See `CHANGELOG.md` for the running log of what changed when.
 
 ## 5. Simulated 3D (x, y, z) localization
 
-The SamMakin HFSS tumor sweep: one 10 mm lead tumor moved over **738 positions**
+The SamMakin HFSS tumor sweep: one 10 mm lead tumor moved over **751 positions**
 across a 3D grid at 9 depths (z = −5…+30 mm), one deterministic scan per
 position. `cnn_matlab/Imager_CNN_SimReg.m` reuses the CNN with a Touchstone
 (.s4p) loader, **differential dS input** (subtract each folder's empty baseline),
@@ -151,8 +151,8 @@ infeasible). Lateral and depth error reported separately.
 
 | metric | CNN | centroid (chance) | k-NN floor |
 |---|---|---|---|
-| lateral xy (median) | **3.35 mm** (71% ≤5mm, 95% ≤10mm) | 36.7 mm | 3.3 mm |
-| depth z (median)   | **1.55 mm** (88% ≤5mm) | 8.6 mm | ~2 mm |
+| lateral xy (median) | **3.36 mm** (70% ≤5mm, 95% ≤10mm) | 36.4 mm | 3.3 mm |
+| depth z (median)   | **1.53 mm** (89% ≤5mm) | 8.9 mm | ~2 mm |
 
 Stable across folds (xy 2.8–4.2 mm, z 1.3–2.0 mm). **The CNN localizes a tumor in
 3D to ~3.4 mm laterally / ~1.6 mm in depth — far below the 10 mm grid, matching
