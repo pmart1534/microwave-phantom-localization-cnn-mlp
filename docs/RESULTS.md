@@ -139,3 +139,27 @@ to F4/June18 and to the LOSO models; optionally revisit the heatmap head with a
 sharper soft-argmax if structured output is wanted later.
 
 See `CHANGELOG.md` for the running log of what changed when.
+
+## 5. Simulated 3D (x, y, z) localization
+
+The SamMakin HFSS tumor sweep: one 10 mm lead tumor moved over **738 positions**
+across a 3D grid at 9 depths (z = −5…+30 mm), one deterministic scan per
+position. `cnn_matlab/Imager_CNN_SimReg.m` reuses the CNN with a Touchstone
+(.s4p) loader, **differential dS input** (subtract each folder's empty baseline),
+an `fc(3)` head, and **8-fold position cross-validation** (true 738-fold LOPO is
+infeasible). Lateral and depth error reported separately.
+
+| metric | CNN | centroid (chance) | k-NN floor |
+|---|---|---|---|
+| lateral xy (median) | **3.35 mm** (71% ≤5mm, 95% ≤10mm) | 36.7 mm | 3.3 mm |
+| depth z (median)   | **1.55 mm** (88% ≤5mm) | 8.6 mm | ~2 mm |
+
+Stable across folds (xy 2.8–4.2 mm, z 1.3–2.0 mm). **The CNN localizes a tumor in
+3D to ~3.4 mm laterally / ~1.6 mm in depth — far below the 10 mm grid, matching
+the k-NN floor on xy and beating it on z.** Depth is *not* the weak axis here:
+with fine depth sampling and full-band frequency access it resolves better than
+xy in absolute mm. (Feasibility + a physics exploration of the sim —
+`Simulation Data/SamMakin/sim_feasibility_check.py`, `sim_explore.py` — found the
+signal is depth-robust, that low freq carries xy while high freq carries depth,
+and that reflections alone suffice; only position varies, so localization is the
+only learnable target.)

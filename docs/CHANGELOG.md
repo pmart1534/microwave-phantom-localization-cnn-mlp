@@ -4,6 +4,19 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-07-10
+
+- **Simulated 3D (x,y,z) localization** (`cnn_matlab/Imager_CNN_SimReg.m`).
+  SamMakin HFSS tumor sweep, 738 positions × 9 depths, differential dS input,
+  `fc(3)` head, 8-fold position CV. **Result: lateral 3.35 mm, depth 1.55 mm**
+  median (vs 36.7 / 8.6 mm chance) — matches k-NN floor on xy, beats it on z.
+  Depth is not the weak axis (fine z sampling + full-band freq). Feasibility
+  (`sim_feasibility_check.py`) + physics exploration (`sim_explore.py`, in the
+  Simulation Data tree) established the signal is learnable and depth-robust.
+  See `RESULTS.md §5`.
+- **Deck extended to the full phantom × protocol matrix** — predicted-vs-actual
+  figures for empty/F4/F5 under both LOSO and LOPO (`regression_deck/`).
+
 ## 2026-07-09
 
 - **Experiment 3 — heatmap (structured) output** (`Imager_CNN_RegLOPO.m`,
