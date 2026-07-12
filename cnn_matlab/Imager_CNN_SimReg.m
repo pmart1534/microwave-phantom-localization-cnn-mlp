@@ -50,7 +50,7 @@ resultsDir = fullfile(fileparts(thisDir), 'results');
 if ~isfolder(resultsDir), mkdir(resultsDir); end
 
 SIM_ROOT = 'C:\Users\peter\Desktop\EM Imaging\Simulation Data\SamMakin';
-FOLDERS = {'Depth3_Results', 'ALL_RESULTS', 'b1_2_ALL_RESULTS'};
+FOLDERS = {'Depth3_Results', 'ALL_RESULTS', 'b1_2_ALL_RESULTS', 'b1_3_ALL_RESULTS'};
 grid = linspace(2e9, 8e9, NFREQ);
 
 %% 1. LOAD  (per-folder differential dS -> raw mag/phase image)

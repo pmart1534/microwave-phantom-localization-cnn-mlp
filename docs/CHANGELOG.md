@@ -4,6 +4,16 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-07-11
+
+- **Sim depth range extended to z = −15…+45 mm** (added b1_3_ALL_RESULTS →
+  1134 positions, 14 depths). 8-fold: xy 3.71 mm, z 1.98 mm. Per-depth
+  leave-one-depth-out shows (a) a **genuine gradual depth falloff** — z-error
+  0.8 mm near the antenna plane climbing to ~3.7 mm at +40 mm; (b) the earlier
+  "hard edges" −5/+30 mm were pure **extrapolation** — with neighbors on both
+  sides they drop to 1.5/2.5 mm; new edges −15/+45 mm are the ~8–10 mm limits.
+  Usable depth is bounded by the sampling range, not the model. See `RESULTS.md §5`.
+
 ## 2026-07-10
 
 - **Simulated 3D (x,y,z) localization** (`cnn_matlab/Imager_CNN_SimReg.m`).

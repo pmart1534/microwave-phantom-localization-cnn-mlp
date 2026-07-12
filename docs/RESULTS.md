@@ -142,34 +142,39 @@ See `CHANGELOG.md` for the running log of what changed when.
 
 ## 5. Simulated 3D (x, y, z) localization
 
-The SamMakin HFSS tumor sweep: one 10 mm lead tumor moved over **751 positions**
-across a 3D grid at 9 depths (z = −5…+30 mm), one deterministic scan per
+The SamMakin HFSS tumor sweep: one 10 mm lead tumor moved over **1134 positions**
+across a 3D grid at **14 depths (z = −15…+45 mm)**, one deterministic scan per
 position. `cnn_matlab/Imager_CNN_SimReg.m` reuses the CNN with a Touchstone
 (.s4p) loader, **differential dS input** (subtract each folder's empty baseline),
-an `fc(3)` head, and **8-fold position cross-validation** (true 738-fold LOPO is
-infeasible). Lateral and depth error reported separately.
+an `fc(3)` head, and **8-fold position cross-validation** (true per-position LOPO
+is infeasible). Lateral and depth error reported separately.
 
 | metric | CNN | centroid (chance) | k-NN floor |
 |---|---|---|---|
-| lateral xy (median) | **3.36 mm** (70% ≤5mm, 95% ≤10mm) | 36.4 mm | 3.3 mm |
-| depth z (median)   | **1.53 mm** (89% ≤5mm) | 8.9 mm | ~2 mm |
+| lateral xy (median) | **3.71 mm** (67% ≤5mm, 93% ≤10mm) | 36.2 mm | 3.3 mm |
+| depth z (median)   | **1.98 mm** (84% ≤5mm) | 14.9 mm | ~2 mm |
 
-Stable across folds (xy 2.8–4.2 mm, z 1.3–2.0 mm). **The CNN localizes a tumor in
-3D to ~3.4 mm laterally / ~1.6 mm in depth — far below the 10 mm grid, matching
-the k-NN floor on xy and beating it on z.**
+**The CNN localizes a tumor in 3D to ~3.7 mm laterally / ~2.0 mm in depth** over
+the full ±(15–45) mm depth span — far below the 10 mm grid.
 
-**Leave-one-depth-out** (hold out a whole depth plane, predict it from the other
-8; `SIM_CV=depth`): the CNN predicts a **completely unseen interior depth plane
-(0–25 mm) to z ≈ 1 mm** (0.8–2.3 mm), xy ≈ 3 mm — as good as the random-fold run.
-That is only possible if it learned a *continuous* signal→depth mapping, **not
-memorized depth planes**. The two edge depths (−5, +30 mm) are extrapolation (no
-training depth beyond them) and degrade to z ≈ 6–8 mm, as expected — the model
-can't reach past its sampled depth range. xy is unaffected by holding out a depth.
-Upshot: usable depth is bounded by the sim's depth *sampling range*, not the model.
+**Depth accuracy varies smoothly with depth (leave-one-depth-out, `SIM_CV=depth`,
+per-depth z-error):** best near the antenna plane (z = 3–5 mm → **0.8–0.9 mm**),
+climbing steadily with distance (20→30→35→40 mm = 1.4→2.5→3.1→3.7 mm). A gradual
+range-resolution falloff for far tumors, *not* a cliff — and a genuine depth
+effect: it persists on fully-trained interior depths.
 
-Depth is *not* the weak axis here:
-with fine depth sampling and full-band frequency access it resolves better than
-xy in absolute mm. (Feasibility + a physics exploration of the sim —
+**The "edges" are extrapolation, not hard depths.** In the earlier −5…+30 mm
+dataset, the extreme depths −5 and +30 gave z ≈ 6–8 mm — but once b1_3 extended
+the range to −15…+45 (giving them neighbors on both sides), **−5 dropped to 1.5 mm
+and +30 to 2.5 mm**. The model just can't reach past its sampled depth range; the
+new extremes −15/+45 mm are now the ~8–10 mm extrapolation limits. **Usable depth
+is bounded by the depth *sampling range*, not the model** — and interior unseen
+depths are predicted as well as trained ones (8-fold ≈ depth-out in the interior),
+proving a *continuous* learned depth mapping.
+
+Depth is competitive with the lateral axis here:
+with fine depth sampling and full-band frequency access it resolves to ~1–2 mm
+through the bulk of the range. (Feasibility + a physics exploration of the sim —
 `Simulation Data/SamMakin/sim_feasibility_check.py`, `sim_explore.py` — found the
 signal is depth-robust, that low freq carries xy while high freq carries depth,
 and that reflections alone suffice; only position varies, so localization is the
