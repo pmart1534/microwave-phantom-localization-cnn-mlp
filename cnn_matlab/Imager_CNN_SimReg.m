@@ -49,39 +49,56 @@ thisDir = fileparts(mfilename('fullpath')); if isempty(thisDir), thisDir = pwd; 
 resultsDir = fullfile(fileparts(thisDir), 'results');
 if ~isfolder(resultsDir), mkdir(resultsDir); end
 
-SIM_ROOT = 'C:\Users\peter\Desktop\EM Imaging\Simulation Data\SamMakin';
-FOLDERS = {'Depth3_Results', 'ALL_RESULTS', 'b1_2_ALL_RESULTS', 'b1_3_ALL_RESULTS'};
+% Consolidated tumor sweep (all depths in one folder) with PER-BATCH empty
+% baselines: each depth came from one HFSS batch, so the differential dS must
+% subtract that batch's baseline. z=3 mm is off the 5 mm depth grid (a leftover
+% odd depth) and is EXCLUDED by default.
+SIM_DIR = getenv('SIM_DIR');
+if isempty(SIM_DIR)
+    SIM_DIR = ['C:\Users\peter\Desktop\EM Imaging\Simulation Data\SamMakin\' ...
+               'Data Results\A3_Metal_1cm'];
+end
+EXCLUDE_Z = 3; if ~isempty(getenv('SIM_EXCLUDE_Z')), EXCLUDE_Z = str2double(getenv('SIM_EXCLUDE_Z')); end
 grid = linspace(2e9, 8e9, NFREQ);
 
-%% 1. LOAD  (per-folder differential dS -> raw mag/phase image)
-fprintf('--- Loading s4p (differential vs each folder''s empty baseline) ---\n');
-Xc = {}; T = []; folderId = [];
-for fi = 1:numel(FOLDERS)
-    fdir = fullfile(SIM_ROOT, FOLDERS{fi});
-    basePath = findBaseline(fdir);
-    if isempty(basePath), fprintf('  [skip] no baseline in %s\n', FOLDERS{fi}); continue; end
-    [fb, Sb] = readTouchstoneMA(basePath);
-    Sb_r = resampleC(fb, Sb, grid);                       % NFREQ x 16
-    files = listPosFiles(fdir);
-    n0 = size(T, 1);
-    for k = 1:numel(files)
-        [xyz, ok] = posFromName(files(k).name);
-        if ~ok, continue; end
-        [fq, S] = readTouchstoneMA(files(k).name_full);
-        if size(S, 2) ~= 16, continue; end
-        S_r = resampleC(fq, S, grid);
-        dS = S_r - Sb_r;                                  % NFREQ x 16
-        img = zeros(32, NFREQ);
-        for c = 1:16
-            img(2*c-1, :) = abs(dS(:, c)).';
-            img(2*c,   :) = angle(dS(:, c)).';
-        end
-        Xc{end+1} = img;               %#ok<AGROW>
-        T(end+1, :) = xyz;             %#ok<AGROW>
-        folderId(end+1) = fi;          %#ok<AGROW>
-    end
-    fprintf('  %-18s %4d positions\n', FOLDERS{fi}, size(T,1) - n0);
+% depth (mm) -> batch baseline file  (z=3 would be Depth3, but it's excluded)
+baseMap = { [0 5 10],           'baseline_empty_b1.s4p'; ...
+            [-5 15 20 25 30],   'baseline_empty_b1_2.s4p'; ...
+            [-15 -10 35 40 45], 'baseline_empty_b1_3.s4p' };
+
+%% 1. LOAD  (per-batch differential dS -> raw mag/phase image)
+fprintf('--- Loading s4p from %s ---\n', SIM_DIR);
+fprintf('    excluding z=%g mm; per-batch baselines\n', EXCLUDE_Z);
+Sb_g = cell(size(baseMap, 1), 1);
+for b = 1:size(baseMap, 1)
+    [fb, Sb] = readTouchstoneMA(fullfile(SIM_DIR, baseMap{b, 2}));
+    Sb_g{b} = resampleC(fb, Sb, grid);
 end
+Xc = {}; T = []; nExcl = 0; nNoBase = 0;
+files = dir(fullfile(SIM_DIR, 'P*.s4p'));
+for k = 1:numel(files)
+    [xyz, ok] = posFromName(files(k).name);
+    if ~ok, continue; end
+    z = round(xyz(3));
+    if z == EXCLUDE_Z, nExcl = nExcl + 1; continue; end
+    bi = 0;
+    for b = 1:size(baseMap, 1)
+        if ismember(z, baseMap{b, 1}), bi = b; break; end
+    end
+    if bi == 0, nNoBase = nNoBase + 1; continue; end     % depth with no mapped baseline
+    [fq, S] = readTouchstoneMA(fullfile(SIM_DIR, files(k).name));
+    if size(S, 2) ~= 16, continue; end
+    S_r = resampleC(fq, S, grid);
+    dS = S_r - Sb_g{bi};                                 % NFREQ x 16
+    img = zeros(32, NFREQ);
+    for c = 1:16
+        img(2*c-1, :) = abs(dS(:, c)).';
+        img(2*c,   :) = angle(dS(:, c)).';
+    end
+    Xc{end+1} = img;   %#ok<AGROW>
+    T(end+1, :) = xyz; %#ok<AGROW>
+end
+fprintf('  excluded z=%g: %d    unmapped-depth skipped: %d\n', EXCLUDE_Z, nExcl, nNoBase);
 N = size(T, 1);
 if N < 20, error('Too few positions loaded (%d).', N); end
 X = zeros(32, NFREQ, 1, N);
@@ -143,7 +160,7 @@ S = struct();
 S.method='CNN-SIM-3D'; S.task='regression_xyz_mm';
 if strcmp(simCV,'depth'), S.protocol='leave_one_depth_out'; else, S.protocol=sprintf('%dfold_position_cv',KFOLD); end
 S.numPositions=N; S.nfreq=NFREQ; S.epochs=cfg.Epochs; S.mixupAlpha=mixAlpha;
-S.folders={FOLDERS{:}}; S.folds=foldRows;
+S.simDir=SIM_DIR; S.excludeZ=EXCLUDE_Z; S.folds=foldRows;
 S.lateral_medianMm=median(xyErr); S.lateral_meanMm=mean(xyErr);
 S.lateral_pctWithin5mm=100*mean(xyErr<=5); S.lateral_pctWithin10mm=100*mean(xyErr<=10);
 S.depth_medianMm=median(zErr); S.depth_meanMm=mean(zErr);
@@ -164,12 +181,13 @@ fprintf('  DEPTH   (z)  error : median %.2f mm  mean %.2f  (<=5mm %.0f%%)\n', ..
 fprintf('  centroid baseline  : xy %.1f mm   z %.1f mm\n', S.lateral_centroidMedianMm, S.depth_centroidMedianMm);
 fprintf('----------------------------------------------------------------\n');
 
+xtag = ''; if EXCLUDE_Z == 3, xtag = '_5mmgrid'; elseif ~isnan(EXCLUDE_Z), xtag = sprintf('_noZ%g', EXCLUDE_Z); end
 if strcmp(simCV, 'depth')
-    tag = sprintf('depthCV_nf%d', NFREQ);
+    tag = sprintf('depthCV_nf%d%s', NFREQ, xtag);
 elseif mixAlpha > 0
-    tag = sprintf('%dfold_nf%d_mixup%s', KFOLD, NFREQ, strrep(num2str(mixAlpha), '.', 'p'));
+    tag = sprintf('%dfold_nf%d_mixup%s%s', KFOLD, NFREQ, strrep(num2str(mixAlpha), '.', 'p'), xtag);
 else
-    tag = sprintf('%dfold_nf%d', KFOLD, NFREQ);
+    tag = sprintf('%dfold_nf%d%s', KFOLD, NFREQ, xtag);
 end
 jsonPath = fullfile(resultsDir, sprintf('cnn_simreg_%s.json', tag));
 fid=fopen(jsonPath,'w'); fprintf(fid,'%s',jsonencode(S,'PrettyPrint',true)); fclose(fid);

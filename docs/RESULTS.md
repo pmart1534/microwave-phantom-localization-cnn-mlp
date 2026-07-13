@@ -142,35 +142,38 @@ See `CHANGELOG.md` for the running log of what changed when.
 
 ## 5. Simulated 3D (x, y, z) localization
 
-The SamMakin HFSS tumor sweep: one 10 mm lead tumor moved over **1134 positions**
-across a 3D grid at **14 depths (z = −15…+45 mm)**, one deterministic scan per
-position. `cnn_matlab/Imager_CNN_SimReg.m` reuses the CNN with a Touchstone
-(.s4p) loader, **differential dS input** (subtract each folder's empty baseline),
-an `fc(3)` head, and **8-fold position cross-validation** (true per-position LOPO
-is infeasible). Lateral and depth error reported separately.
+The SamMakin HFSS tumor sweep: one 10 mm lead tumor moved over **1074 positions**
+on a **uniform 5 mm depth grid, 13 depths (z = −15…+45 mm)** — the off-grid z=3 mm
+plane is excluded so depth spacing is uniform. `cnn_matlab/Imager_CNN_SimReg.m`
+reuses the CNN with a Touchstone (.s4p) loader, **differential dS input**
+(subtract each depth's own HFSS-batch empty baseline), an `fc(3)` head, and
+**8-fold position cross-validation** (true per-position LOPO is infeasible).
+Lateral and depth error reported separately.
 
 | metric | CNN | centroid (chance) | k-NN floor |
 |---|---|---|---|
-| lateral xy (median) | **3.71 mm** (67% ≤5mm, 93% ≤10mm) | 36.2 mm | 3.3 mm |
-| depth z (median)   | **1.98 mm** (84% ≤5mm) | 14.9 mm | ~2 mm |
+| lateral xy (median) | **3.92 mm** (64% ≤5mm, 93% ≤10mm) | 36.5 mm | 3.3 mm |
+| depth z (median)   | **2.09 mm** (82% ≤5mm) | 16.3 mm | ~2 mm |
 
-**The CNN localizes a tumor in 3D to ~3.7 mm laterally / ~2.0 mm in depth** over
+**The CNN localizes a tumor in 3D to ~3.9 mm laterally / ~2.1 mm in depth** over
 the full ±(15–45) mm depth span — far below the 10 mm grid.
 
 **Depth accuracy varies smoothly with depth (leave-one-depth-out, `SIM_CV=depth`,
-per-depth z-error):** best near the antenna plane (z = 3–5 mm → **0.8–0.9 mm**),
-climbing steadily with distance (20→30→35→40 mm = 1.4→2.5→3.1→3.7 mm). A gradual
-range-resolution falloff for far tumors, *not* a cliff — and a genuine depth
-effect: it persists on fully-trained interior depths.
+per-depth z-error):** ~1.2–1.5 mm through the interior (−5 to +20 mm), climbing
+steadily at the deep end (25→30→40 mm = 2.3→2.8→3.2 mm). A gradual
+range-resolution falloff for far tumors, *not* a cliff — a genuine depth effect
+that persists on fully-trained interior depths. (An earlier z=3-included run read
+0.8 mm at z=5 mm; that was the odd 3 mm plane acting as a 2 mm-away helper — on
+the uniform grid z=5 is 1.5 mm, the honest value.)
 
 **The "edges" are extrapolation, not hard depths.** In the earlier −5…+30 mm
-dataset, the extreme depths −5 and +30 gave z ≈ 6–8 mm — but once b1_3 extended
-the range to −15…+45 (giving them neighbors on both sides), **−5 dropped to 1.5 mm
-and +30 to 2.5 mm**. The model just can't reach past its sampled depth range; the
-new extremes −15/+45 mm are now the ~8–10 mm extrapolation limits. **Usable depth
-is bounded by the depth *sampling range*, not the model** — and interior unseen
-depths are predicted as well as trained ones (8-fold ≈ depth-out in the interior),
-proving a *continuous* learned depth mapping.
+dataset, the extreme depths −5 and +30 gave z ≈ 6–8 mm — but once the range was
+extended to −15…+45 (giving them neighbors on both sides), **−5 dropped to ~1.2 mm
+and +30 to ~2.8 mm**. The model just can't reach past its sampled depth range; the
+extremes −15/+45 mm are the ~8–10 mm extrapolation limits. **Usable depth is
+bounded by the depth *sampling range*, not the model** — and interior unseen
+depths are predicted about as well as trained ones (8-fold ≈ depth-out in the
+interior), proving a *continuous* learned depth mapping.
 
 Depth is competitive with the lateral axis here:
 with fine depth sampling and full-band frequency access it resolves to ~1–2 mm

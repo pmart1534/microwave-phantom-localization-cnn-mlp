@@ -6,6 +6,13 @@ entry here.
 
 ## 2026-07-11
 
+- **Clean 5 mm depth grid** — data consolidated to `Data Results/A3_Metal_1cm`
+  (single folder, per-batch empty baselines); loader rewritten to subtract each
+  depth's own HFSS-batch baseline and to **exclude the off-grid z=3 mm plane**
+  (`SIM_EXCLUDE_Z`). 1074 positions, 13 uniform depths. 8-fold: xy 3.92 mm,
+  z 2.09 mm. Removing z=3 raised z=5's depth-out error 0.8→1.5 mm — z=3 had been
+  a 2 mm-away helper; 1.5 mm is the honest uniform-grid value. Results tagged
+  `_5mmgrid` (z=3-included versions preserved). See `RESULTS.md §5`.
 - **Sim depth range extended to z = −15…+45 mm** (added b1_3_ALL_RESULTS →
   1134 positions, 14 depths). 8-fold: xy 3.71 mm, z 1.98 mm. Per-depth
   leave-one-depth-out shows (a) a **genuine gradual depth falloff** — z-error
