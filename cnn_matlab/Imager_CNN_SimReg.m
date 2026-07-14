@@ -121,6 +121,15 @@ for i = 1:N, X(:, :, 1, i) = Xc{i}; end
 clear Xc;
 fprintf('Loaded %d positions.  x[%.0f,%.0f] y[%.0f,%.0f] z[%.0f,%.0f] mm\n', ...
     N, min(T(:,1)),max(T(:,1)), min(T(:,2)),max(T(:,2)), min(T(:,3)),max(T(:,3)));
+% Optional: restrict to a SINGLE depth plane (for a fair single-layer comparison
+% to the measured data, which is one depth with far fewer positions).
+oneDepth = strtrim(getenv('SIM_ONE_DEPTH'));
+if ~isempty(oneDepth)
+    zsel = str2double(oneDepth);
+    keep = round(T(:,3)) == zsel;
+    X = X(:, :, :, keep); T = T(keep, :); N = size(T, 1);
+    fprintf('  [SIM_ONE_DEPTH=%g mm] -> %d positions on this single layer\n', zsel, N);
+end
 fprintf('CNN input image: 32 x %d   folds=%d  epochs=%d  mixup=%.2f\n', NFREQ, KFOLD, cfg.Epochs, mixAlpha);
 
 if gpuDeviceCount > 0, execEnv = 'gpu'; else, execEnv = 'cpu'; end
@@ -132,6 +141,11 @@ if strcmp(simCV, 'depth')
     foldLabel = arrayfun(@(z) sprintf('z=%+d mm', z), zvals, 'uni', 0);
     zEdge = ismember(zvals, [min(zvals), max(zvals)]);   % edge depths = extrapolation
     fprintf('\n=== LEAVE-ONE-DEPTH-OUT (%d depths; edges = extrapolation) ===\n', numel(zvals));
+elseif strcmp(simCV, 'loo')
+    testSets = arrayfun(@(i) i, (1:N)', 'uni', 0);       % each position its own fold
+    foldLabel = arrayfun(@(i) sprintf('pos %d', i), (1:N)', 'uni', 0);
+    zEdge = false(N, 1);
+    fprintf('\n=== TRUE LEAVE-ONE-POSITION-OUT (%d positions) ===\n', N);
 else
     perm = randperm(N); foldOf = zeros(1, N);
     for i = 1:N, foldOf(perm(i)) = mod(i-1, KFOLD) + 1; end
@@ -161,8 +175,10 @@ for f = 1:nFold
     foldRows(end+1) = struct('label', foldLabel{f}, 'n', numel(teIdx), ...
         'xyMedMm', xy, 'zMedMm', zz, 'isEdge', logical(zEdge(f))); %#ok<SAGROW>
     tagE = ''; if zEdge(f), tagE = '  [extrap]'; end
-    fprintf('  %-12s: %3d test  xy med %5.1f mm  z med %5.1f mm  (%.0fs)%s\n', ...
-        foldLabel{f}, numel(teIdx), xy, zz, toc(t0), tagE);
+    if nFold <= 25 || mod(f, 15) == 0 || f == nFold   % sparse print when many folds
+        fprintf('  %-12s: %3d test  xy med %5.1f mm  z med %5.1f mm  (%.0fs)%s\n', ...
+            foldLabel{f}, numel(teIdx), xy, zz, toc(t0), tagE);
+    end
 end
 
 %% 3. METRICS  (lateral xy and depth z, separately, in mm)
@@ -173,7 +189,10 @@ xyBase = hypot(T(:,1)-c(1), T(:,2)-c(2));
 zBase  = abs(T(:,3)-c(3));
 S = struct();
 S.method='CNN-SIM-3D'; S.task='regression_xyz_mm';
-if strcmp(simCV,'depth'), S.protocol='leave_one_depth_out'; else, S.protocol=sprintf('%dfold_position_cv',KFOLD); end
+if strcmp(simCV,'depth'), S.protocol='leave_one_depth_out';
+elseif strcmp(simCV,'loo'), S.protocol='leave_one_position_out';
+else, S.protocol=sprintf('%dfold_position_cv',KFOLD); end
+S.oneDepth = oneDepth;
 S.numPositions=N; S.nfreq=NFREQ; S.epochs=cfg.Epochs; S.mixupAlpha=mixAlpha;
 S.simDir=SIM_DIR; S.excludeZ=EXCLUDE_Z; S.folds=foldRows;
 S.lateral_medianMm=median(xyErr); S.lateral_meanMm=mean(xyErr);
@@ -197,13 +216,12 @@ fprintf('  centroid baseline  : xy %.1f mm   z %.1f mm\n', S.lateral_centroidMed
 fprintf('----------------------------------------------------------------\n');
 
 xtag = ''; if EXCLUDE_Z == 3, xtag = '_5mmgrid'; elseif ~isnan(EXCLUDE_Z), xtag = sprintf('_noZ%g', EXCLUDE_Z); end
-if strcmp(simCV, 'depth')
-    tag = sprintf('depthCV_nf%d%s', NFREQ, xtag);
-elseif mixAlpha > 0
-    tag = sprintf('%dfold_nf%d_mixup%s%s', KFOLD, NFREQ, strrep(num2str(mixAlpha), '.', 'p'), xtag);
-else
-    tag = sprintf('%dfold_nf%d%s', KFOLD, NFREQ, xtag);
-end
+if strcmp(simCV, 'depth'),     cvpart = 'depthCV';
+elseif strcmp(simCV, 'loo'),   cvpart = 'loo';
+elseif mixAlpha > 0,           cvpart = sprintf('%dfold_mixup%s', KFOLD, strrep(num2str(mixAlpha), '.', 'p'));
+else,                          cvpart = sprintf('%dfold', KFOLD); end
+tag = sprintf('%s_nf%d%s', cvpart, NFREQ, xtag);
+if ~isempty(oneDepth), tag = [tag '_z' strrep(oneDepth, '-', 'm')]; end
 simLabel = strtrim(getenv('SIM_LABEL')); if ~isempty(simLabel), tag = [tag '_' simLabel]; end
 S.label = simLabel;
 jsonPath = fullfile(resultsDir, sprintf('cnn_simreg_%s.json', tag));

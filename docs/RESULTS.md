@@ -86,18 +86,28 @@ Near-insert vs exterior median error (LOPO whole-cell):
    the barrier, where the field is non-smooth and interpolation fails hardest.
    The interpolation test surfaces physics the session-transfer test masked.
 
-**Single-point LOPO — the measured CNN recognizes, it does not interpolate.**
-Holding out ONE sub-position (pooled, F5; `LOPO_UNIT=subpos`) — with its 3
-cell-mates 19 mm away and adjacent-cell neighbours ~6.5 mm away all still in
-training — gives **0.55 in (14 mm)**, barely better than whole-cell LOPO
-(0.66 in) and ~3.5× worse than LOSO (0.16 in). The nearby neighbours barely help.
-So on real hardware the model localizes by **recognizing positions it has seen**
-(LOSO: the position is present via other sessions → 4 mm), not by interpolating
-the spatial field to unseen ones. This is the crux of the sim↔real gap: the
-noiseless sim signal is spatially *smooth* so unseen positions interpolate well
-(8-fold ~4 mm, §5), but the measured signal is spatially *rough* (noise + session
-drift), so interpolation to a gap fails — the sim's rosy interpolation numbers do
-**not** transfer to the bench.
+**Sim vs. measured, done right (model-agnostic k-NN, matched single layer).**
+Comparing the CNN across sim and measured is confounded by data volume (the sim's
+multi-depth sweep has ~940 training samples; a single sim layer has only ~82 —
+too few to train a conv net, so the single-layer CNN LOO *collapses* to 29.5 mm
+even though the signal is fine). Stripping that out with a training-free **k-NN
+leave-one-position-out** on one layer, oil-only:
+
+| single-layer k-NN LOO | xy error | chance |
+|---|---|---|
+| sim empty (z=+5) | 6.7 mm | 36 |
+| **measured empty** | **6.0 mm** | 34 |
+| measured F5 (glandular insert) | 13.4 mm | 33 |
+
+**Sim ≈ measured for the oil-only phantom (6.7 vs 6.0 mm)** — the sim signal is
+*not* unrealistically smooth; the real bench interpolates just as well. Two things
+had masked this: (1) the CNN's sim advantage was **data quantity**, not signal
+quality; (2) the **glandular insert** — not "sim vs real" — is what makes F5 hard:
+F5 k-NN is 13.4 mm and the F5 single-point CNN LOPO was 14 mm, so they *match* —
+the CNN hit F5's genuine ~13 mm interpolation floor set by the insert, it did not
+"fail to interpolate." On the empty phantom that floor is ~6 mm in both sim and
+measured. (Single-point LOPO ran via `LOPO_UNIT=subpos`; the single-layer sim LOO
+via `SIM_CV=loo SIM_ONE_DEPTH`.)
 
 ## 4. Improving interpolation (LOPO pooled/cell experiments)
 
