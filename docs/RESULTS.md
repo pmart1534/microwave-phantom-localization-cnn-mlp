@@ -86,8 +86,18 @@ Near-insert vs exterior median error (LOPO whole-cell):
    the barrier, where the field is non-smooth and interpolation fails hardest.
    The interpolation test surfaces physics the session-transfer test masked.
 
-> Sub-position LOPO granularity is parked (gentle interpolation, ~5× the fold
-> cost); run only if whole-cell proves insufficient.
+**Single-point LOPO — the measured CNN recognizes, it does not interpolate.**
+Holding out ONE sub-position (pooled, F5; `LOPO_UNIT=subpos`) — with its 3
+cell-mates 19 mm away and adjacent-cell neighbours ~6.5 mm away all still in
+training — gives **0.55 in (14 mm)**, barely better than whole-cell LOPO
+(0.66 in) and ~3.5× worse than LOSO (0.16 in). The nearby neighbours barely help.
+So on real hardware the model localizes by **recognizing positions it has seen**
+(LOSO: the position is present via other sessions → 4 mm), not by interpolating
+the spatial field to unseen ones. This is the crux of the sim↔real gap: the
+noiseless sim signal is spatially *smooth* so unseen positions interpolate well
+(8-fold ~4 mm, §5), but the measured signal is spatially *rough* (noise + session
+drift), so interpolation to a gap fails — the sim's rosy interpolation numbers do
+**not** transfer to the bench.
 
 ## 4. Improving interpolation (LOPO pooled/cell experiments)
 
