@@ -182,3 +182,14 @@ through the bulk of the range. (Feasibility + a physics exploration of the sim �
 signal is depth-robust, that low freq carries xy while high freq carries depth,
 and that reflections alone suffice; only position varies, so localization is the
 only learnable target.)
+
+**Metal vs. dielectric (beet) tumor — localizes as well.** The same sweep with a
+beet (dielectric) tumor instead of the lead one — ~81% of the metal signal
+magnitude — run identically (`SIM_LABEL=beet`, single baseline, 1065 positions,
+`Dense_Run_Bundle/ALL_RESULTS`): **xy 3.64 mm, z 2.07 mm**, statistically
+identical to metal (3.92 / 2.09) with the same per-depth structure. In the
+*noiseless* sim the ~19% weaker dielectric contrast costs nothing — the signal is
+still far above the numerical floor and equally position-coherent, so
+localization is unaffected. Realistic dielectric tumors are as localizable as
+metal here. (Caveat: on real measured data a noise floor could change this — beet
+sits closer to it; a sim↔measured check would tell.)

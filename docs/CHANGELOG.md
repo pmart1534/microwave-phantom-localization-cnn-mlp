@@ -6,6 +6,12 @@ entry here.
 
 ## 2026-07-11
 
+- **Beet (dielectric) tumor localization.** Loader now auto-detects a single
+  `baseline_empty.s4p` (beet) vs the per-batch map (metal); `SIM_LABEL` tags
+  outputs. 8-fold on the beet sweep (1065 pos): **xy 3.64 mm, z 2.07 mm** —
+  statistically identical to metal (3.92 / 2.09). In the noiseless sim the ~19%
+  weaker dielectric contrast costs nothing (signal still far above the numerical
+  floor, equally position-coherent). See `RESULTS.md §5`.
 - **Clean 5 mm depth grid** — data consolidated to `Data Results/A3_Metal_1cm`
   (single folder, per-batch empty baselines); loader rewritten to subtract each
   depth's own HFSS-batch baseline and to **exclude the off-grid z=3 mm plane**

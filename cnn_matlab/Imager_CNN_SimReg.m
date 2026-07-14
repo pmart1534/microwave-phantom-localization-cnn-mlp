@@ -66,13 +66,23 @@ baseMap = { [0 5 10],           'baseline_empty_b1.s4p'; ...
             [-5 15 20 25 30],   'baseline_empty_b1_2.s4p'; ...
             [-15 -10 35 40 45], 'baseline_empty_b1_3.s4p' };
 
-%% 1. LOAD  (per-batch differential dS -> raw mag/phase image)
+%% 1. LOAD  (differential dS -> raw mag/phase image)
+% Baseline: a single baseline_empty.s4p if present (e.g., beet), otherwise the
+% per-batch map above (metal, where each depth came from a different HFSS batch).
 fprintf('--- Loading s4p from %s ---\n', SIM_DIR);
-fprintf('    excluding z=%g mm; per-batch baselines\n', EXCLUDE_Z);
-Sb_g = cell(size(baseMap, 1), 1);
-for b = 1:size(baseMap, 1)
-    [fb, Sb] = readTouchstoneMA(fullfile(SIM_DIR, baseMap{b, 2}));
-    Sb_g{b} = resampleC(fb, Sb, grid);
+singlePath = fullfile(SIM_DIR, 'baseline_empty.s4p');
+useSingle = isfile(singlePath);
+if useSingle
+    [fb, Sb] = readTouchstoneMA(singlePath);
+    SbSingle = resampleC(fb, Sb, grid);
+    fprintf('    baseline: single (baseline_empty.s4p);  excluding z=%g mm\n', EXCLUDE_Z);
+else
+    Sb_g = cell(size(baseMap, 1), 1);
+    for b = 1:size(baseMap, 1)
+        [fb, Sb] = readTouchstoneMA(fullfile(SIM_DIR, baseMap{b, 2}));
+        Sb_g{b} = resampleC(fb, Sb, grid);
+    end
+    fprintf('    baseline: per-batch (%d);  excluding z=%g mm\n', size(baseMap,1), EXCLUDE_Z);
 end
 Xc = {}; T = []; nExcl = 0; nNoBase = 0;
 files = dir(fullfile(SIM_DIR, 'P*.s4p'));
@@ -81,15 +91,20 @@ for k = 1:numel(files)
     if ~ok, continue; end
     z = round(xyz(3));
     if z == EXCLUDE_Z, nExcl = nExcl + 1; continue; end
-    bi = 0;
-    for b = 1:size(baseMap, 1)
-        if ismember(z, baseMap{b, 1}), bi = b; break; end
+    if useSingle
+        SbUse = SbSingle;
+    else
+        bi = 0;
+        for b = 1:size(baseMap, 1)
+            if ismember(z, baseMap{b, 1}), bi = b; break; end
+        end
+        if bi == 0, nNoBase = nNoBase + 1; continue; end   % depth with no mapped baseline
+        SbUse = Sb_g{bi};
     end
-    if bi == 0, nNoBase = nNoBase + 1; continue; end     % depth with no mapped baseline
     [fq, S] = readTouchstoneMA(fullfile(SIM_DIR, files(k).name));
     if size(S, 2) ~= 16, continue; end
     S_r = resampleC(fq, S, grid);
-    dS = S_r - Sb_g{bi};                                 % NFREQ x 16
+    dS = S_r - SbUse;                                    % NFREQ x 16
     img = zeros(32, NFREQ);
     for c = 1:16
         img(2*c-1, :) = abs(dS(:, c)).';
@@ -189,6 +204,8 @@ elseif mixAlpha > 0
 else
     tag = sprintf('%dfold_nf%d%s', KFOLD, NFREQ, xtag);
 end
+simLabel = strtrim(getenv('SIM_LABEL')); if ~isempty(simLabel), tag = [tag '_' simLabel]; end
+S.label = simLabel;
 jsonPath = fullfile(resultsDir, sprintf('cnn_simreg_%s.json', tag));
 fid=fopen(jsonPath,'w'); fprintf(fid,'%s',jsonencode(S,'PrettyPrint',true)); fclose(fid);
 save(fullfile(resultsDir, sprintf('cnn_simreg_%s.mat', tag)), 'S');
