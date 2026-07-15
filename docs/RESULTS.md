@@ -213,3 +213,13 @@ still far above the numerical floor and equally position-coherent, so
 localization is unaffected. Realistic dielectric tumors are as localizable as
 metal here. (Caveat: on real measured data a noise floor could change this — beet
 sits closer to it; a sim↔measured check would tell.)
+
+**CNN data-quantity threshold (why the single-layer LOO collapses).** 8-fold xy
+error vs. number of depth planes included (metal; `SIM_DEPTHS`): 1 depth (82
+samples) 33 mm ≈ chance → 3 depths (245) 11 mm → 5 depths (410) 4.8 mm → plateau
+~3.8 mm from 7 depths (570 samples) on. So the conv net needs **~400–500 training
+samples** to localize; below ~250 it's poor, at ~82 it's dead. This is why a
+single sim layer collapses (82 samples) while the measured empty pooled (~2400
+samples) works — and why the training-free **k-NN** (no samples needed) is the
+right probe of *signal* interpolability, decoupled from the CNN's data hunger.
+Figure: `regression_deck/sim_depth_learning_curve.png`.

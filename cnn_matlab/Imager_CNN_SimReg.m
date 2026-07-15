@@ -130,6 +130,15 @@ if ~isempty(oneDepth)
     X = X(:, :, :, keep); T = T(keep, :); N = size(T, 1);
     fprintf('  [SIM_ONE_DEPTH=%g mm] -> %d positions on this single layer\n', zsel, N);
 end
+% Optional: restrict to a SUBSET of depths (comma/space list) -- for the
+% "how many depths does the CNN need to learn?" data-quantity curve.
+depthList = strtrim(getenv('SIM_DEPTHS'));
+if ~isempty(depthList)
+    dsel = str2num(depthList); %#ok<ST2NM>
+    keep = ismember(round(T(:,3)), round(dsel(:).'));
+    X = X(:, :, :, keep); T = T(keep, :); N = size(T, 1);
+    fprintf('  [SIM_DEPTHS=%s] -> %d positions across %d depths\n', depthList, N, numel(dsel));
+end
 fprintf('CNN input image: 32 x %d   folds=%d  epochs=%d  mixup=%.2f\n', NFREQ, KFOLD, cfg.Epochs, mixAlpha);
 
 if gpuDeviceCount > 0, execEnv = 'gpu'; else, execEnv = 'cpu'; end
@@ -222,6 +231,7 @@ elseif mixAlpha > 0,           cvpart = sprintf('%dfold_mixup%s', KFOLD, strrep(
 else,                          cvpart = sprintf('%dfold', KFOLD); end
 tag = sprintf('%s_nf%d%s', cvpart, NFREQ, xtag);
 if ~isempty(oneDepth), tag = [tag '_z' strrep(oneDepth, '-', 'm')]; end
+if ~isempty(depthList), tag = [tag sprintf('_d%d', numel(str2num(depthList)))]; end %#ok<ST2NM>
 simLabel = strtrim(getenv('SIM_LABEL')); if ~isempty(simLabel), tag = [tag '_' simLabel]; end
 S.label = simLabel;
 jsonPath = fullfile(resultsDir, sprintf('cnn_simreg_%s.json', tag));
