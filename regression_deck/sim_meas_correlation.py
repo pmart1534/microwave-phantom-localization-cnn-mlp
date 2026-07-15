@@ -90,11 +90,12 @@ print(f"held-out learned |S| corr (linear): {learned_r:.3f}")
 # ---- figure: (a) one port raw vs learned, (b) predicted-vs-actual scatter on test freqs
 fig,(a1,a2)=plt.subplots(1,2,figsize=(12.8,5.2))
 g=grid/1e9
+def dB(x): return 20*np.log10(np.maximum(np.abs(x),1e-6))
 k=0  # S11
-a1.plot(g,np.abs(Xs[:,k]),color=TEAL,lw=1.8,label="sim |S11| (input)")
-a1.plot(g,np.abs(Xm[:,k]),color=CORAL,lw=1.8,label="measured |S11| (target)")
-a1.plot(g,np.abs(pred_cplx[:,k]),color=BLUE,lw=1.7,ls="--",label="sim after linear map → measured")
-a1.set_xlabel("frequency (GHz)",fontsize=11); a1.set_ylabel("|S11|",fontsize=11)
+a1.plot(g,dB(Xs[:,k]),color=TEAL,lw=1.8,label="sim |S11| (input)")
+a1.plot(g,dB(Xm[:,k]),color=CORAL,lw=1.8,label="measured |S11| (target)")
+a1.plot(g,dB(pred_cplx[:,k]),color=BLUE,lw=1.7,ls="--",label="sim after linear map → measured")
+a1.set_xlabel("frequency (GHz)",fontsize=11); a1.set_ylabel("|S11| (dB)",fontsize=11)
 a1.set_title("Linear map pulls sim toward measured, port S11",fontsize=12.5,fontweight="bold",color=INK)
 a1.legend(fontsize=9.5,framealpha=0.95); a1.grid(True,color="#EAF0F4",lw=0.7); a1.set_axisbelow(True)
 

@@ -41,7 +41,7 @@ const rows=[
   ["","Simulated (HFSS)","Measured (bench VNA)"],
   ["Antennas","'Sam' model, full-wave solve","'Sam Medium', physical build"],
   ["Grid","uniform 10 mm lattice, 91 positions","6×6 cells, 4 corners each; 51 measured"],
-  ["Depth","13 planes, z = −15 … +45 mm","single tumor height only"],
+  ["Depth","13 planes, z = −15 … +45 mm","single height (≈ +40 mm in sim frame)"],
   ["Frequency","2–8 GHz, 3001 points","0.1–8 GHz, 791 points"],
   ["Noise / drift","none (deterministic solve)","measurement noise + cross-session drift"],
   ["Repeats","one solve per position","16 takes × 3 sessions per position"],
