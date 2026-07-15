@@ -4,6 +4,24 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-07-15
+
+- **Three presentation decks** (`regression_deck/deck{1,2,3}_*.js` →
+  `Deck1_Measured_Regression.pptx`, `Deck2_Simulated_Regression.pptx`,
+  `Deck3_Sim_vs_Measured.pptx`). Deck 1: measured setup/algorithm + LOSO,
+  LOPO-cell, LOPO-subpos across empty/F4/F5. Deck 2: sim setup, |ΔS|-vs-depth,
+  data-need learning curve, 8-fold 3D result, depth generalization, per-depth
+  examples. Deck 3: sim-vs-measured grids, raw S-param domain gap, the corrected
+  numerical comparison (signal ~6 mm both; CNN gap = distinct-position coverage),
+  and an exploratory sim→measured transfer. Reusable `render_pptx.ps1`
+  (PowerPoint COM → PNG). QA renders gitignored.
+- **New figures** (`regression_deck/`): `sim_dS_vs_depth.png` (tumor
+  perturbation peaks at z≈15–20 mm, falls off both ways), `sim_depth_lopo.png`
+  (leave-one-depth-out; interior ~1–3 mm, edges extrapolate), `grid_sim_vs_physical.png`
+  (uniform 10 mm sim vs 6×6 physical cells, 51 measured), `raw_sparam_sim_vs_meas.png`
+  (antenna domain gap), `sim_meas_correlation.png` (linear sim→measured transfer
+  R²=0.65 on held-out freqs; MLP overfits, R²<0).
+
 ## 2026-07-14
 
 - **Measured-empty single-point CNN LOPO (closes the sim↔measured comparison).**

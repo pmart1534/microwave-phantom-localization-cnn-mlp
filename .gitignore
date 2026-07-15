@@ -9,6 +9,9 @@ __pycache__/
 *.m~
 slprj/
 
+# --- Deck QA renders (regenerable via render_pptx.ps1) ---
+regression_deck/qa*/
+
 # --- OS cruft ---
 .DS_Store
 Thumbs.db
