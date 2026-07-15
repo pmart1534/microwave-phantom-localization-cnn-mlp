@@ -109,6 +109,27 @@ the CNN hit F5's genuine ~13 mm interpolation floor set by the insert, it did no
 measured. (Single-point LOPO ran via `LOPO_UNIT=subpos`; the single-layer sim LOO
 via `SIM_CV=loo SIM_ONE_DEPTH`.)
 
+**Measured-empty single-point CNN LOPO closes the loop (9.9 mm — the CNN is the
+starved one).** Trained conv net, true leave-one-position-out on the empty
+phantom, 3 sessions pooled (June18 ×3), 51 positions, raw/all-antenna:
+**median 9.9 mm** (mean 12.0; 66.7% ≤0.5 in, 96.1% ≤1 in; spread 0.039 in — very
+confident). Note this **loses to training-free k-NN (6.0 mm)** on the *same*
+leave-one-position task — and that is the point: pooled empty gives only ~150
+training samples (3 sessions × 51 pos), and the sim learning curve predicts
+~10–11 mm at that volume (3 depths = 245 samples → 11.4 mm). So the measured CNN
+lands exactly where the data-quantity curve says it should. The whole sim↔measured
+CNN gap (sim 3.9 mm vs measured LOPO 9.9 mm) is **training-sample count, not
+sim-vs-real fidelity**: the signal interpolates to ~6 mm on both benches (k-NN),
+the CNN only beats that once it has ~400–500 samples, and measured empty simply
+never supplies them. To match the sim's 3.9 mm on real data we'd need far more
+measured positions/sessions, not a better model. (`LOPO_MODE=pooled
+LOPO_UNIT=subpos`, result `cnn_reglopo_pooled_subpos_June18_remap_raw.json`.)
+
+Protocol note: measured empty **LOSO** is 3.9 mm but tests an unseen *session* at
+*seen* positions (easier); **LOPO** (9.9 mm) tests an unseen *position* — the hard,
+apples-to-apples match to k-NN. The 3.9→9.9 mm jump is that protocol difference
+plus the data starvation above.
+
 ## 4. Improving interpolation (LOPO pooled/cell experiments)
 
 Baseline = plain LOPO pooled/cell (§3). Testbed = **F5** (hardest setup),

@@ -4,6 +4,21 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-07-14
+
+- **Measured-empty single-point CNN LOPO (closes the sim↔measured comparison).**
+  True leave-one-position-out on the empty A3 phantom, 3 June18 sessions pooled,
+  51 positions, raw/all-antenna: **median 9.9 mm** (mean 12.0; 66.7% ≤0.5 in).
+  Loses to training-free k-NN (6.0 mm) on the same task — because pooled empty
+  gives only ~150 training samples and the depth-count learning curve predicts
+  ~10–11 mm there. The entire sim (3.9 mm) vs measured-LOPO (9.9 mm) CNN gap is
+  **training-sample count, not sim-vs-real fidelity**. `RESULTS.md §3`.
+- **Sim CNN data-quantity learning curve** (`SIM_DEPTHS` filter). 8-fold xy vs #
+  depth planes (metal): 1 depth (82) 33 mm ≈ chance → 3 (245) 11 mm → 5 (410)
+  4.8 mm → plateau ~3.8 mm from 7 (570). CNN needs ~400–500 samples to localize.
+  Explains why single-layer LOO collapses while multi-depth works. Figure
+  `sim_depth_learning_curve.png`, `RESULTS.md §5`.
+
 ## 2026-07-11
 
 - **Beet (dielectric) tumor localization.** Loader now auto-detects a single
