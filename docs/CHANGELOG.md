@@ -9,10 +9,14 @@ entry here.
 - **Measured-empty single-point CNN LOPO (closes the sim↔measured comparison).**
   True leave-one-position-out on the empty A3 phantom, 3 June18 sessions pooled,
   51 positions, raw/all-antenna: **median 9.9 mm** (mean 12.0; 66.7% ≤0.5 in).
-  Loses to training-free k-NN (6.0 mm) on the same task — because pooled empty
-  gives only ~150 training samples and the depth-count learning curve predicts
-  ~10–11 mm there. The entire sim (3.9 mm) vs measured-LOPO (9.9 mm) CNN gap is
-  **training-sample count, not sim-vs-real fidelity**. `RESULTS.md §3`.
+  Loses to training-free k-NN (6.0 mm) on the same task. Correction to first
+  draft: each position is measured 16× (takes `T01…T16`) and `buildSession` uses
+  every take as a sample, so training is ~2,400 raw samples — raw count is *not*
+  the limiter. The limiter is **distinct spatial positions (~50)**; takes and
+  sessions are repeat measurements of the same grid points, so they add
+  robustness (→ LOSO 3.9 mm) but no new locations (→ LOPO 9.9 mm). The sim hit
+  3.9 mm via ~1,000 *distinct* locations (13 depths × ~82). Gap is
+  **distinct-position coverage, not sim-vs-real fidelity**. `RESULTS.md §3`.
 - **Sim CNN data-quantity learning curve** (`SIM_DEPTHS` filter). 8-fold xy vs #
   depth planes (metal): 1 depth (82) 33 mm ≈ chance → 3 (245) 11 mm → 5 (410)
   4.8 mm → plateau ~3.8 mm from 7 (570). CNN needs ~400–500 samples to localize.

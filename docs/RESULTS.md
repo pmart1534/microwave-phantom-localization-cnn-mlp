@@ -109,20 +109,35 @@ the CNN hit F5's genuine ~13 mm interpolation floor set by the insert, it did no
 measured. (Single-point LOPO ran via `LOPO_UNIT=subpos`; the single-layer sim LOO
 via `SIM_CV=loo SIM_ONE_DEPTH`.)
 
-**Measured-empty single-point CNN LOPO closes the loop (9.9 mm — the CNN is the
-starved one).** Trained conv net, true leave-one-position-out on the empty
-phantom, 3 sessions pooled (June18 ×3), 51 positions, raw/all-antenna:
-**median 9.9 mm** (mean 12.0; 66.7% ≤0.5 in, 96.1% ≤1 in; spread 0.039 in — very
-confident). Note this **loses to training-free k-NN (6.0 mm)** on the *same*
-leave-one-position task — and that is the point: pooled empty gives only ~150
-training samples (3 sessions × 51 pos), and the sim learning curve predicts
-~10–11 mm at that volume (3 depths = 245 samples → 11.4 mm). So the measured CNN
-lands exactly where the data-quantity curve says it should. The whole sim↔measured
-CNN gap (sim 3.9 mm vs measured LOPO 9.9 mm) is **training-sample count, not
-sim-vs-real fidelity**: the signal interpolates to ~6 mm on both benches (k-NN),
-the CNN only beats that once it has ~400–500 samples, and measured empty simply
-never supplies them. To match the sim's 3.9 mm on real data we'd need far more
-measured positions/sessions, not a better model. (`LOPO_MODE=pooled
+**Measured-empty single-point CNN LOPO closes the loop (9.9 mm — starved on
+distinct positions, not on raw samples).** Trained conv net, true
+leave-one-position-out on the empty phantom, 3 sessions pooled (June18 ×3), 51
+positions, raw/all-antenna: **median 9.9 mm** (mean 12.0; 66.7% ≤0.5 in, 96.1%
+≤1 in; spread 0.039 in — very confident). This **loses to training-free k-NN
+(6.0 mm)** on the *same* task, and the reason is subtle and important. Each grid
+position is measured **16 times** (takes `T01…T16`); `buildSession` uses **every
+take as its own sample**, so pooled empty is ~50 pos × 16 takes × 3 sessions ≈
+**2,400 raw training samples** — plenty. Raw count is *not* the limiter. The
+limiter is **distinct spatial positions (~50)**: the 16 takes and the 3 sessions
+are *repeat measurements of the same grid points* (differing only by noise and
+drift), so they add no new tumor locations. The map signal→(x,y) is anchored by
+only ~50 places. The sim learning curve's real x-axis is distinct positions (the
+sim has no repeat takes — noiseless): 82 → collapse, 245 → 11 mm, ~400–500 →
+~4 mm; the sim hit 3.9 mm by sampling ~1,000 *distinct* locations (13 depth
+planes × ~82). Measured empty's ~50 distinct locations sit in that starved
+region → ~10 mm, exactly as seen.
+
+The takes/sessions still help — but on a *different* axis: they teach a
+noise/drift-robust map at **known** positions, which is precisely **LOSO**
+(unseen session, seen positions) = **3.9 mm**; they do nothing for **LOPO**
+(unseen position) because re-measuring the 50 known points says nothing about the
+51st. That LOSO-vs-LOPO split is the fingerprint. And k-NN extracts 6 mm from the
+same data without fitting anything, so the information is present — the CNN simply
+can't *learn* a spatial map from ~50 anchor points, however many noisy copies of
+each it sees. So the sim↔measured CNN gap (3.9 vs 9.9 mm) is **distinct-position
+coverage, not sim-vs-real fidelity**: to match 3.9 mm on the bench we'd need many
+more distinct measured locations (denser grid and/or multiple tumor depths, as
+the sim has), not more takes and not a better model. (`LOPO_MODE=pooled
 LOPO_UNIT=subpos`, result `cnn_reglopo_pooled_subpos_June18_remap_raw.json`.)
 
 Protocol note: measured empty **LOSO** is 3.9 mm but tests an unseen *session* at
@@ -236,11 +251,15 @@ metal here. (Caveat: on real measured data a noise floor could change this — b
 sits closer to it; a sim↔measured check would tell.)
 
 **CNN data-quantity threshold (why the single-layer LOO collapses).** 8-fold xy
-error vs. number of depth planes included (metal; `SIM_DEPTHS`): 1 depth (82
-samples) 33 mm ≈ chance → 3 depths (245) 11 mm → 5 depths (410) 4.8 mm → plateau
-~3.8 mm from 7 depths (570 samples) on. So the conv net needs **~400–500 training
-samples** to localize; below ~250 it's poor, at ~82 it's dead. This is why a
-single sim layer collapses (82 samples) while the measured empty pooled (~2400
-samples) works — and why the training-free **k-NN** (no samples needed) is the
-right probe of *signal* interpolability, decoupled from the CNN's data hunger.
-Figure: `regression_deck/sim_depth_learning_curve.png`.
+error vs. number of depth planes included (metal; `SIM_DEPTHS`) — and the axis
+that matters is **distinct positions**: the sim is noiseless with no repeat takes,
+so each sample *is* a distinct location. 1 depth (82 distinct positions) 33 mm ≈
+chance → 3 depths (245) 11 mm → 5 depths (410) 4.8 mm → plateau ~3.8 mm from 7
+depths (570) on. So the conv net needs **~400–500 distinct labeled positions** to
+localize; below ~250 it's poor, at ~82 it's dead. Distinct positions — not raw
+sample count. That's why a single sim layer collapses (82 positions), and why the
+measured empty CNN **LOPO** is stuck at 9.9 mm *despite* ~2,400 raw samples: those
+are 16 repeat takes × 3 sessions of only ~50 distinct grid points (§3). The
+training-free **k-NN** (fits nothing) is therefore the right probe of *signal*
+interpolability, decoupled from the CNN's hunger for distinct positions. Figure:
+`regression_deck/sim_depth_learning_curve.png`.
