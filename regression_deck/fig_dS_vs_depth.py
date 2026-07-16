@@ -75,22 +75,22 @@ print("per-depth mean|dS| median:", dict(zip(zs.tolist(), np.round(med,4).tolist
 fig, ax = plt.subplots(figsize=(9.8, 5.4))
 ax.fill_between(zs, q1, q3, color=TEAL, alpha=0.15, label="inter-quartile range")
 ax.plot(zs, med, "-o", color=BLUE, lw=2.4, ms=8, zorder=3, label="median over positions")
-ymax = max(q3)*1.08
-# antenna patch / port plane (from the HFSS geometry) at z = +3 mm
+ymax = max(q3)*1.10
+# antenna PORT / feed point at z = +3 mm
 ax.axvline(3, color=CORAL, lw=1.8, ls="--", zorder=2)
-ax.annotate("antenna port plane\n(patch, z = +3 mm)", (3, ymax),
-            textcoords="offset points", xytext=(6, -2), ha="left", va="top",
-            fontsize=9.8, color=CORAL, fontweight="bold")
+ax.annotate("antenna port / feed\n(z = +3 mm)", (3, ymax),
+            textcoords="offset points", xytext=(-8, -2), ha="right", va="top",
+            fontsize=9.5, color=CORAL, fontweight="bold")
+# radiating PATCH element sits ~15-20 mm in (feed-line offset) — where ΔS peaks
+ax.axvspan(15, 20, color=AMBER, alpha=0.18, zorder=1)
+ax.annotate("antenna patch (radiator, ~15–20 mm)\n— ΔS peaks here", (17.5, ymax),
+            textcoords="offset points", xytext=(0, -2), ha="center", va="top",
+            fontsize=9.7, color="#9A6D00", fontweight="bold")
 # measured-tumor depth reference (sim↔real match) at z = +40 mm
 ax.axvline(40, color=MUTE, lw=1.4, ls=":", zorder=2)
-ax.annotate("measured tumor depth\n(z = +40 mm)", (40, ymax),
+ax.annotate("measured tumor\ndepth (z = +40 mm)", (40, ymax),
             textcoords="offset points", xytext=(-6, -2), ha="right", va="top",
-            fontsize=9.5, color=MUTE, fontweight="bold")
-imax=int(np.argmax(med))
-ax.annotate("peak perturbation\n(4-antenna sensitivity max)",
-            (zs[imax], med[imax]), textcoords="offset points", xytext=(16, 6),
-            fontsize=10, color=BLUE, fontweight="bold",
-            arrowprops=dict(arrowstyle="->", color=BLUE, lw=1.4))
+            fontsize=9.3, color=MUTE, fontweight="bold")
 ax.set_ylim(top=ymax)
 ax.set_xlabel("tumor depth z (mm)", fontsize=12)
 ax.set_ylabel("mean |ΔS|  (tumor − empty, over freq & all 16 S-params)", fontsize=11.5)
@@ -100,9 +100,9 @@ ax.grid(True, color="#EAF0F4", lw=0.7); ax.set_axisbelow(True)
 for s in ax.spines.values(): s.set_color("#D8E2EA")
 ax.legend(fontsize=10.5, framealpha=0.95, loc="lower center")
 fig.text(0.5, -0.03,
-    "The 4-antenna combined sensitivity peaks ~15 mm into the phantom (not at the patch plane) and falls off with distance. "
-    "Less signal at far depths is exactly why localization degrades there.",
-    ha="center", va="top", fontsize=10.3, color=MUTE, style="italic")
+    "The port/feed is at +3 mm, but the radiating patch sits ~15–20 mm in (feed-line offset) — and the perturbation peaks right there, "
+    "where the tumor is nearest the radiator. It falls off with distance, so far depths carry the least signal.",
+    ha="center", va="top", fontsize=10.2, color=MUTE, style="italic")
 fig.tight_layout(rect=[0,0.06,1,1])
 p=os.path.join(OUT,"sim_dS_vs_depth.png")
 fig.savefig(p, dpi=160, bbox_inches="tight"); print("wrote", p)

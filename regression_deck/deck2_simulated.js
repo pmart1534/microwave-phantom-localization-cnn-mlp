@@ -48,15 +48,15 @@ setup.forEach((st,i)=>{const y=1.75+i*1.28; card(s,0.6,y,W-1.2,1.12);
 
 // ============ 3. DEPTH STRUCTURE + dS-vs-depth
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Depth planes and the signal they carry","13 tumor heights — the perturbation peaks mid-phantom and fades with distance");
+title(s,"Depth planes and the signal they carry","13 tumor heights — the perturbation peaks at the radiating patch and fades with distance");
 s.addImage({path:"sim_dS_vs_depth.png",x:0.55,y:1.75,w:8.0,h:4.85});
 card(s,8.8,1.75,3.95,4.85);
 s.addText("The physical driver",{x:9.05,y:1.95,w:3.5,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:BLUE,margin:0});
 bullets(s,9.05,2.5,3.55,4.0,[
   "ΔS = tumor − empty, averaged over frequency and all 16 S-parameters.",
-  "Antenna patch/port plane sits at z = +3 mm; the measured tumor sat at z = +40 mm.",
-  "Combined 4-antenna sensitivity peaks ~15 mm into the phantom — not at the patch.",
-  "Falls off smoothly both ways; far depths carry the least signal → localization degrades there.",
+  "Port/feed is at z = +3 mm, but the radiating patch sits ~15–20 mm in (feed-line offset).",
+  "ΔS peaks right at the patch (~15–20 mm) — where the tumor is nearest the radiator.",
+  "Falls off both ways; far depths carry the least signal → localization degrades there. (Measured tumor sat at z = +40 mm.)",
 ],12);
 
 // ============ 4. ALGORITHM

@@ -21,12 +21,13 @@ entry here.
   (uniform 10 mm sim vs 6×6 physical cells, 51 measured), `raw_sparam_sim_vs_meas.png`
   (antenna domain gap), `sim_meas_correlation.png` (linear sim→measured transfer
   R²=0.65 on held-out freqs; MLP overfits, R²<0).
-- **Figure fixes.** `sim_dS_vs_depth.png` now marks the antenna patch/port plane
-  (z = +3 mm) and the measured-tumor depth (z = +40 mm), from the HFSS geometry
-  (`run_tumor_sweep_pyaedt.py`); corrected the peak label — the |ΔS| max at
-  ~15 mm is the 4-antenna combined-sensitivity maximum, NOT "tumor nearest the
-  antennas" (the patch is at +3 mm). All raw S-parameter plots now display in dB
-  (`sim_meas_correlation.png` S11 panel converted; `raw_sparam_*` already dB).
+- **Figure fixes.** `sim_dS_vs_depth.png` now distinguishes the antenna **port /
+  feed** (z = +3 mm) from the **radiating patch** (~15–20 mm in, due to the
+  feed-line offset), plus the measured-tumor depth (z = +40 mm). The |ΔS| peak at
+  ~15 mm coincides with the patch radiator — the tumor is nearest the *radiating
+  element* there, not the feed. (Earlier drafts wrongly put the antenna at +3 mm
+  and called the peak a pure array effect.) All raw S-parameter plots now display
+  in dB (`sim_meas_correlation.png` S11 panel converted; `raw_sparam_*` already dB).
 
 ## 2026-07-14
 
