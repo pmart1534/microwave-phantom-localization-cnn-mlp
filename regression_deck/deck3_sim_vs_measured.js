@@ -86,10 +86,15 @@ s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"Transmission (coupling) per pair, sim vs measured","Four representative antenna-to-antenna terms; couplings also differ between domains");
 s.addImage({path:"transmission_sim_vs_meas.png",x:2.35,y:1.7,w:8.6,h:5.28});
 
-// ============ 5. DETECTABLE-DIFFERENCE PER S-PARAMETER
+// ============ 5. DETECTABLE-DIFFERENCE PER S-PARAMETER (reflection)
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Detectable difference by S-parameter","Each reflection Sii localizes near an antenna, in measured (top) and simulated (bottom)");
+title(s,"Detectable difference by reflection S-parameter","Each reflection Sii localizes on its antenna, in measured (top) and simulated (bottom)");
 s.addImage({path:"dd_per_sparam.png",x:0.3,y:1.55,w:12.7,h:5.55});
+
+// ============ 5b. DETECTABLE-DIFFERENCE PER S-PARAMETER (transmission)
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Detectable difference by transmission S-parameter","Each coupling Sij peaks between its two antennas (sim remapped to physical numbering)");
+s.addImage({path:"dd_per_sparam_trans.png",x:0.3,y:1.55,w:12.7,h:5.55});
 
 // ============ 6. NUMERICAL COMPARISON
 s=pres.addSlide(); s.background={color:LIGHT};
