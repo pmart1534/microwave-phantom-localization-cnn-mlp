@@ -4,6 +4,21 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-07-16
+
+- **Deck 1 revision (measured).** (1) Predicted-vs-actual plots now overlay the
+  TRACED A3 phantom bowl + F4/F5 glandular outlines (from
+  detectable_change/A3_hunter/paper_figure_A3.py) instead of a binary
+  near/exterior guess, so insert membership is read directly off the figure.
+  (2) UofU warm-red theme (crimson/gold/maroon) across all slides; all em dashes
+  removed. (3) New protocol-explainer slide (LOSO vs LOPO-cell vs single-position,
+  with schematics + difficulty ladder). (4) LOPO slides now state the model (CNN)
+  and define pooled vs in-session. (5) Single-position split into a graphical
+  slide + an accuracy slide, matching the other two protocols. (6) Mixup slide
+  reframed ("lower is better; grey = worse, crimson = the only win"). F4
+  single-position run launched (pooled/subpos, 39 positions) to complete the set;
+  its figure/number are placeholders until it lands.
+
 ## 2026-07-15
 
 - **Three presentation decks** (`regression_deck/deck{1,2,3}_*.js` →
