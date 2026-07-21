@@ -17,6 +17,9 @@ function card(s,x,y,w,h,fill){s.addShape(pres.shapes.ROUNDED_RECTANGLE,{x,y,w,h,
   fill:{color:fill||CARD},line:{color:LINE,width:1},shadow:shadow()});}
 function bullets(s,x,y,w,h,arr,fs){s.addText(arr.map(b=>({text:b,options:{bullet:true,breakLine:true,paraSpaceAfter:8}})),
   {x,y,w,h,fontFace:BODY,fontSize:fs||13,color:INK,valign:"top",margin:0});}
+function imgCaption(s,x,y,w,h,path,cap){card(s,x-0.1,y-0.1,w+0.2,h+0.55);
+  s.addImage({path,x,y,w,h});
+  s.addText(cap,{x:x-0.1,y:y+h+0.02,w:w+0.2,h:0.4,align:"center",fontFace:BODY,fontSize:13,bold:true,color:INK,margin:0});}
 function titleLight(s,part,ttl,sub,stats){s.background={color:CREAMBG};
   s.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:0.26,fill:{color:CRIMSON},line:{type:"none"}});
   s.addShape(pres.shapes.RECTANGLE,{x:0.9,y:2.02,w:0.09,h:1.5,fill:{color:CRIMSON},line:{type:"none"}});
@@ -41,6 +44,12 @@ let s=pres.addSlide();
 titleLight(s,"PART 3 . SIM vs MEASURED","Comparing simulation and bench, empty phantom",
   "Do the two agree? The signal interpolates equally well on both; the apparent gap is data coverage, not simulation fidelity",
   [["6.7 vs 6.0 mm","k-NN signal floor: sim ~ measured"],["distinct positions","the real driver of the CNN gap"],["R2 = 0.65","a learnable sim->measured transfer"]]);
+
+// ============ 1b. THE TWO SETUPS
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"The two setups, side by side","The physical A3 phantom on its grid, and the HFSS model of the same phantom");
+imgCaption(s,1.7,1.9,3.62,4.3,"setup_photos/A3.jpg","Measured: A3 phantom + 6x6 grid + antennas");
+imgCaption(s,6.6,1.9,5.03,4.3,"setup_photos/SimulatedImage01.png","Simulated: HFSS phantom, oil, antennas, tumor");
 
 // ============ 2. TWO GRIDS + OVERLAY
 s=pres.addSlide(); s.background={color:LIGHT};

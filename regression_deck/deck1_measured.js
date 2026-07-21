@@ -82,13 +82,11 @@ numberedCards(s,[
   ["Repeats & sessions","16 takes per position; 3 to 4 sessions per phantom (re-set between sessions, so real drift). Three variants: empty, F4 (small insert), F5 (large insert)."],
 ],CRIMSON);
 
-// ============ 2b. SETUP IN PICTURES
+// ============ 2b. SETUP IN PICTURES (3 phantoms)
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"The measurement setup, in pictures","The bench VNA, the 4-antenna array, and the A3 phantom on the grid");
-imgCaption(s,1.15,1.9,5.2,3.9,"setup_photos/measured_bench.png","Bench: VNA + antenna array");
-imgCaption(s,6.95,1.9,5.2,3.9,"setup_photos/measured_grid.png","Phantom in oil on the grid");
-s.addText("Replace the placeholders in regression_deck/setup_photos/ (measured_bench.*, measured_grid.*) with real photos.",
-  {x:0.6,y:6.05,w:W-1.2,h:0.5,fontFace:BODY,fontSize:12.5,italic:true,color:MUTE,align:"center",margin:0});
+title(s,"The three phantoms, in pictures","6x6 measurement grid over the oil-filled A3 phantom; red mounts hold the 4 antennas");
+[["setup_photos/A3.jpg","Empty (A3)"],["setup_photos/A3F4.jpg","F4 insert"],["setup_photos/A3F5.jpg","F5 insert"]].forEach((e,i)=>{
+  const x=0.82+i*4.0; imgCaption(s,x,1.75,3.7,4.4,e[0],e[1]);});
 
 // ============ 3. ALGORITHM & TRAINING
 s=pres.addSlide(); s.background={color:LIGHT};

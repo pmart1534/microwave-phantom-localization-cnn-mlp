@@ -67,11 +67,9 @@ numberedCards(s,[
 
 // ============ 3. SETUP IN PICTURES
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"The simulated setup, in pictures","HFSS model of the antenna array, phantom and tumor");
-imgCaption(s,1.15,1.9,5.2,3.9,"setup_photos/sim_model.png","Full HFSS model");
-imgCaption(s,6.95,1.9,5.2,3.9,"setup_photos/sim_closeup.png","Antennas + tumor closeup");
-s.addText("Replace the placeholders in regression_deck/setup_photos/ (sim_model.*, sim_closeup.*) with real HFSS screenshots.",
-  {x:0.6,y:6.05,w:W-1.2,h:0.5,fontFace:BODY,fontSize:12.5,italic:true,color:MUTE,align:"center",margin:0});
+title(s,"The simulated setup, in pictures","HFSS model of the phantom, oil, antennas and tumor");
+imgCaption(s,1.35,1.95,5.15,4.4,"setup_photos/SimulatedImage01.png","Full HFSS model (phantom, oil, tumor)");
+imgCaption(s,6.85,1.95,5.15,3.9,"setup_photos/SimulatedImage02.png","Antennas around the phantom bowl");
 
 // ============ 4. DEPTH STRUCTURE + dS-vs-depth
 s=pres.addSlide(); s.background={color:LIGHT};
