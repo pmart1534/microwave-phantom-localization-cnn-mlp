@@ -163,13 +163,13 @@ triPanel(s,[["pred_vs_actual_loso_empty.png","Empty","0.15 in"],["pred_vs_actual
 // ============ 7. SINGLE-POSITION RESULTS (bar)
 s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"Interpolating to an unseen position (single-position LOPO, CNN)","Hold out one sub-position; its three cell-mates remain in training");
-barChart(s,[{name:"single-position median error",labels:["Empty","F4 insert","F5 insert"],values:[0.392,null,0.546]}],
+barChart(s,[{name:"single-position median error",labels:["Empty","F4 insert","F5 insert"],values:[0.392,0.514,0.546]}],
   {x:0.6,y:1.7,w:7.7,h:5.1,chartColors:[CRIMSON],dataLabelFontSize:12,showLegend:false,valAxisMaxVal:0.7});
 card(s,8.6,1.7,4.1,5.1);
 s.addText("Reading it",{x:8.85,y:1.9,w:3.6,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
 bullets(s,8.85,2.4,3.6,4.2,[
   "Empty 0.39 in (9.9 mm), F5 0.55 in (13.9 mm).",
-  "F4 result is being computed and will be added.",
+  "F4 0.51 in (13.1 mm), between empty and F5.",
   "Both are below the matching whole-cell values, since the three cell-mates provide close anchors.",
   "Both remain above the roughly 6 mm signal floor, indicating the CNN is data-limited at about 50 distinct positions.",
 ]);
@@ -177,7 +177,7 @@ bullets(s,8.85,2.4,3.6,4.2,[
 // ============ 8. SINGLE-POSITION EXAMPLES (spatial)
 s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"Predicted vs. actual, single-position (CNN, pooled)","Hold out one sub-position; its three cell-mates remain in training");
-triPanel(s,[["pred_vs_actual_subpos_empty.png","Empty","0.39 in"],["pred_vs_actual_subpos_f4.png","F4 insert","pending"],["pred_vs_actual_subpos_f5.png","F5 insert","0.55 in"]],
+triPanel(s,[["pred_vs_actual_subpos_empty.png","Empty","0.39 in"],["pred_vs_actual_subpos_f4.png","F4 insert","0.51 in"],["pred_vs_actual_subpos_f5.png","F5 insert","0.55 in"]],
   "With close cell-mates retained in training, single-position error is lower than the whole-cell hold-out (empty 0.39 vs 0.47 in, F5 0.55 vs 0.67 in).");
 
 // ============ 9. LOPO-CELL RESULTS (bar)
@@ -207,7 +207,7 @@ s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"All three protocols side by side","Difficulty of each generalization task (raw CNN median error, inches)");
 barChart(s,[
   {name:"LOSO (new session)",labels:["Empty","F4","F5"],values:[0.154,0.164,0.223]},
-  {name:"single-position (1 point)",labels:["Empty","F4","F5"],values:[0.392,null,0.546]},
+  {name:"single-position (1 point)",labels:["Empty","F4","F5"],values:[0.392,0.514,0.546]},
   {name:"LOPO-cell (whole cell)",labels:["Empty","F4","F5"],values:[0.473,0.487,0.667]},
 ],{x:0.6,y:1.7,w:7.7,h:5.1,chartColors:[GOLD,REDMID,CRIMSONDK],dataLabelFontSize:10,showLegend:true,legendPos:"t",valAxisMaxVal:0.8});
 card(s,8.6,1.7,4.1,5.1);
