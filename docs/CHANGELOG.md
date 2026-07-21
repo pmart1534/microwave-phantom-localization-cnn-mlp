@@ -21,7 +21,14 @@ entry here.
 - **Located measured multi-depth data**: `.../Separated/July10/A3TumorDepthTesting_JULY10`,
   4 sessions at tumor heights (port-relative) -20, -7, +15, +25 mm (the 1227
   session's "2.5 cm below" is actually +25 above). The measured analog to the sim
-  depth sweep; analysis pending scope confirmation.
+  depth sweep.
+- **Measured |dS| vs depth** (`fig_measured_dS_vs_depth.py` -> `measured_dS_vs_depth.png`,
+  new Deck 2 slide "The bench sees the same depth shape"). Mean |dS| (tumor minus
+  empty baseline, per-position averaged over 16 takes) at the 4 measured heights:
+  -20 mm 0.0023, -7 mm 0.0042, +15 mm 0.0053 (peak), +25 mm 0.0044. The bench
+  perturbation peaks at the radiating patch (+15 mm) and falls off both ways, the
+  same shape the noiseless sim shows: an independent measured confirmation of the
+  depth story.
 
 ## 2026-07-16
 

@@ -86,6 +86,19 @@ bullets(s,8.95,2.55,3.6,4.0,[
   "Falls off both ways; far depths carry the least signal, so localization degrades there. (Measured tumor sat at z = +40 mm.)",
 ],12);
 
+// ============ 4b. MEASURED CONFIRMS THE DEPTH SHAPE
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"The bench sees the same depth shape","Measured tumor perturbation across 4 heights, independent of the simulation");
+s.addImage({path:"measured_dS_vs_depth.png",x:0.45,y:1.95,w:8.0,h:4.70});
+card(s,8.7,1.8,4.05,4.85);
+s.addText("Same story on the bench",{x:8.95,y:2.0,w:3.6,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
+bullets(s,8.95,2.55,3.6,4.0,[
+  "4 measured tumor heights (July10), a full 51-position grid at each.",
+  "Mean |dS| peaks at +15 mm, right at the radiating patch, exactly like the sim.",
+  "Falls off both ways; the bench and the simulation agree on where the signal lives.",
+  "Depths are port-relative; the +25 mm session was mislabeled '2.5 cm below' in the README.",
+],12);
+
 // ============ 5. ALGORITHM
 s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"The 3D localization network","Same architecture as the measured CNN, with one extra output for depth");
