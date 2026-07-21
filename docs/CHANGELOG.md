@@ -4,6 +4,25 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-07-16 (later)
+
+- **Deck 2 revision (simulated) + shared style fixes.** (1) Light title/closing
+  slides (mostly white, crimson highlights) replacing the dark maroon, applied to
+  Deck 1 and Deck 2. (2) Deck 2 reskinned to the UofU warm-red theme; all em
+  dashes removed. (3) "Sam's Medium antennas" naming. (4) `fig_dS_vs_depth`
+  caption now wraps (3 lines) so the plot is no longer squished; figure saved at
+  fixed aspect and placed undistorted. (5) `fig_learning_curve.py` (new,
+  replacing the inline figure): point labels clarified ("1 plane", then plane
+  counts) with an explicit "point label = number of depth planes" box; plateau
+  label moved clear of the point labels. (6) `fig_depth_lopo` renames "range
+  edge" to "outer edge depth". (7) New "setup in pictures" slide in Deck 1 and
+  Deck 2; placeholders live in `regression_deck/setup_photos/` (measured_bench,
+  measured_grid, sim_model, sim_closeup) for the user to replace.
+- **Located measured multi-depth data**: `.../Separated/July10/A3TumorDepthTesting_JULY10`,
+  4 sessions at tumor heights (port-relative) -20, -7, +15, +25 mm (the 1227
+  session's "2.5 cm below" is actually +25 above). The measured analog to the sim
+  depth sweep; analysis pending scope confirmation.
+
 ## 2026-07-16
 
 - **Deck 1 revision (measured).** (1) Predicted-vs-actual plots now overlay the

@@ -4,7 +4,8 @@ const pptxgen = require("pptxgenjs");
 // ---- warm University-of-Utah palette ----
 const CRIMSON="BE0000", CRIMSONDK="8E1010", DARK="2E1214", GOLD="C8890B",
       ROSE="E0A99E", REDMID="C0564A", INK="2A1618", MUTE="836A68",
-      LIGHT="FFFFFF", CARD="FBF4F2", LINE="E7D6D1", CREAM="EAD3CB", GRAYW="C9B3AE";
+      LIGHT="FFFFFF", CARD="FBF4F2", LINE="E7D6D1", CREAM="EAD3CB", GRAYW="C9B3AE",
+      CREAMBG="FDF8F6";
 const HEAD="Cambria", BODY="Calibri";
 const shadow=()=>({type:"outer",color:"7A5C5E",blur:7,offset:3,angle:90,opacity:0.18});
 const pres=new pptxgen();
@@ -43,18 +44,33 @@ function statcard(s,x,y,w,big,small,col){card(s,x,y,w,1.55);
   s.addText(small,{x:x+0.1,y:y+0.95,w:w-0.2,h:0.5,align:"center",fontFace:BODY,fontSize:12.5,color:MUTE,margin:0});}
 function dot(s,cx,cy,r,fill,ln){s.addShape(pres.shapes.OVAL,{x:cx-r,y:cy-r,w:2*r,h:2*r,
   fill:{color:fill},line:ln?{color:ln,width:1}:{type:"none"}});}
+function titleLight(s,part,ttl,sub,stats){s.background={color:CREAMBG};
+  s.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:0.26,fill:{color:CRIMSON},line:{type:"none"}});
+  s.addShape(pres.shapes.RECTANGLE,{x:0.9,y:2.02,w:0.09,h:1.5,fill:{color:CRIMSON},line:{type:"none"}});
+  s.addText(part,{x:1.2,y:2.02,w:11,h:0.45,fontFace:BODY,fontSize:15,color:CRIMSON,bold:true,charSpacing:3,margin:0});
+  s.addText(ttl,{x:1.2,y:2.5,w:11.2,h:1.0,fontFace:HEAD,fontSize:36,bold:true,color:INK,margin:0});
+  s.addText(sub,{x:1.2,y:3.62,w:11.0,h:0.7,fontFace:BODY,fontSize:15.5,color:MUTE,margin:0});
+  stats.forEach((c,i)=>{const x=1.2+i*3.95;
+    s.addText(c[0],{x,y:4.95,w:3.7,h:0.7,fontFace:HEAD,fontSize:28,bold:true,color:CRIMSON,margin:0});
+    s.addText(c[1],{x,y:5.62,w:3.85,h:0.6,fontFace:BODY,fontSize:12.5,color:MUTE,margin:0});});}
+function closingLight(s,heading,items){s.background={color:CREAMBG};
+  s.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:0.26,fill:{color:CRIMSON},line:{type:"none"}});
+  s.addText(heading,{x:0.9,y:0.7,w:11,h:0.8,fontFace:HEAD,fontSize:28,bold:true,color:CRIMSON,margin:0});
+  items.forEach((c,i)=>{const y=1.7+i*1.06;
+    s.addShape(pres.shapes.OVAL,{x:0.9,y:y+0.05,w:0.42,h:0.42,fill:{color:CRIMSON}});
+    s.addText(String(i+1),{x:0.9,y:y+0.05,w:0.42,h:0.42,align:"center",valign:"middle",fontFace:HEAD,fontSize:15,bold:true,color:LIGHT,margin:0});
+    s.addText([{text:c[0]+":  ",options:{bold:true,color:INK}},{text:c[1],options:{color:MUTE}}],
+      {x:1.5,y:y-0.05,w:11.2,h:0.95,fontFace:BODY,fontSize:14,valign:"middle",margin:0});});
+  s.addText("github.com/pmart1534/microwave-phantom-localization-cnn-mlp",{x:0.9,y:7.0,w:11.5,h:0.35,fontFace:BODY,fontSize:11,color:CRIMSON,margin:0});}
+function imgCaption(s,x,y,w,h,path,cap){card(s,x-0.1,y-0.1,w+0.2,h+0.55);
+  s.addImage({path,x,y,w,h});
+  s.addText(cap,{x:x-0.1,y:y+h+0.02,w:w+0.2,h:0.4,align:"center",fontFace:BODY,fontSize:13,bold:true,color:INK,margin:0});}
 
-// ============ 1. TITLE
-let s=pres.addSlide(); s.background={color:DARK};
-s.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:0.22,fill:{color:CRIMSON},line:{type:"none"}});
-s.addText("PART 1 . PHYSICAL MEASUREMENTS",{x:0.9,y:2.05,w:11.5,h:0.5,fontFace:BODY,fontSize:15,color:GOLD,bold:true,charSpacing:3,margin:0});
-s.addText("(x, y) tumor localization on the A3 phantom",{x:0.9,y:2.6,w:11.5,h:1.1,fontFace:HEAD,fontSize:38,bold:true,color:LIGHT,margin:0});
-s.addText("Bench VNA S-parameters to continuous coordinate regression: CNN vs MLP, under LOSO, LOPO-cell and single-position hold-out",
-  {x:0.9,y:3.85,w:11.4,h:0.7,fontFace:BODY,fontSize:15.5,color:CREAM,margin:0});
-[["0.15 in","best cross-session error (empty)"],["3.9 mm","about a sixth of a grid cell"],["3 phantoms","empty, F4, F5 inserts"]].forEach((c,i)=>{
-  const x=0.9+i*3.95;
-  s.addText(c[0],{x,y:4.95,w:3.7,h:0.7,fontFace:HEAD,fontSize:28,bold:true,color:GOLD,margin:0});
-  s.addText(c[1],{x,y:5.62,w:3.7,h:0.6,fontFace:BODY,fontSize:12.5,color:CREAM,margin:0});});
+// ============ 1. TITLE (light)
+let s=pres.addSlide();
+titleLight(s,"PART 1 . PHYSICAL MEASUREMENTS","(x, y) tumor localization on the A3 phantom",
+  "Bench VNA S-parameters to continuous coordinate regression: CNN vs MLP, under LOSO, LOPO-cell and single-position hold-out",
+  [["0.15 in","best cross-session error (empty)"],["3.9 mm","about a sixth of a grid cell"],["3 phantoms","empty, F4, F5 inserts"]]);
 
 // ============ 2. MEASUREMENT SETUP
 s=pres.addSlide(); s.background={color:LIGHT};
@@ -65,6 +81,14 @@ numberedCards(s,[
   ["Sampling grid","6x6 array of cells, pitch about 25.4 x 23.85 mm. Each cell has 4 sub-positions at its corners (about 9.5 mm in). Roughly 51 sub-positions on the empty phantom."],
   ["Repeats & sessions","16 takes per position; 3 to 4 sessions per phantom (re-set between sessions, so real drift). Three variants: empty, F4 (small insert), F5 (large insert)."],
 ],CRIMSON);
+
+// ============ 2b. SETUP IN PICTURES
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"The measurement setup, in pictures","The bench VNA, the 4-antenna array, and the A3 phantom on the grid");
+imgCaption(s,1.15,1.9,5.2,3.9,"setup_photos/measured_bench.png","Bench: VNA + antenna array");
+imgCaption(s,6.95,1.9,5.2,3.9,"setup_photos/measured_grid.png","Phantom in oil on the grid");
+s.addText("Replace the placeholders in regression_deck/setup_photos/ (measured_bench.*, measured_grid.*) with real photos.",
+  {x:0.6,y:6.05,w:W-1.2,h:0.5,fontFace:BODY,fontSize:12.5,italic:true,color:MUTE,align:"center",margin:0});
 
 // ============ 3. ALGORITHM & TRAINING
 s=pres.addSlide(); s.background={color:LIGHT};
@@ -212,20 +236,14 @@ s.addText([
   {text:"one starves the ~30 scarce training positions; the other biases predictions toward centre.",options:{fontSize:12}},
 ],{x:9.1,y:2.45,w:3.4,h:4.3,fontFace:BODY,fontSize:13,color:INK,valign:"top",margin:0});
 
-// ============ 13. CONCLUSIONS
-s=pres.addSlide(); s.background={color:DARK};
-s.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:W,h:0.22,fill:{color:CRIMSON},line:{type:"none"}});
-s.addText("Part 1, bottom line",{x:0.9,y:0.7,w:11,h:0.8,fontFace:HEAD,fontSize:28,bold:true,color:LIGHT,margin:0});
-[["The CNN localizes to a sixth of a cell","about 0.15 in (3.9 mm) cross-session on empty, under a quarter inch with a glandular insert. Regression works, and the CNN owns it."],
+// ============ 13. CONCLUSIONS (light)
+s=pres.addSlide();
+closingLight(s,"Part 1, bottom line",[
+ ["The CNN localizes to a sixth of a cell","about 0.15 in (3.9 mm) cross-session on empty, under a quarter inch with a glandular insert. Regression works, and the CNN owns it."],
  ["Raw beats physics for regression","physics features are redundant for the CNN and break the MLP, the reverse of the classification result."],
  ["Difficulty ladder: LOSO < single-position < cell","a new scan of known spots is easy; an unseen single point is medium; an unseen whole cell is 3 to 4x harder than LOSO."],
  ["The glandular insert is visible in the errors","LOPO predictions pull inward and concentrate over the traced insert, which the CNN never sampled."],
  ["Mixup is the one lever that helps","teaching a smooth signal-to-coordinate map cuts error 14 percent; validation-splitting and heatmap output hurt on this small set."],
-].forEach((c,i)=>{const y=1.7+i*1.06;
-  s.addShape(pres.shapes.OVAL,{x:0.9,y:y+0.05,w:0.42,h:0.42,fill:{color:GOLD}});
-  s.addText(String(i+1),{x:0.9,y:y+0.05,w:0.42,h:0.42,align:"center",valign:"middle",fontFace:HEAD,fontSize:15,bold:true,color:DARK,margin:0});
-  s.addText([{text:c[0]+":  ",options:{bold:true,color:LIGHT}},{text:c[1],options:{color:CREAM}}],
-    {x:1.5,y:y-0.05,w:11.2,h:0.95,fontFace:BODY,fontSize:14,valign:"middle",margin:0});});
-s.addText("github.com/pmart1534/microwave-phantom-localization-cnn-mlp",{x:0.9,y:7.0,w:11.5,h:0.35,fontFace:BODY,fontSize:11,color:GOLD,margin:0});
+]);
 
 pres.writeFile({fileName:"Deck1_Measured_Regression.pptx"}).then(f=>console.log("wrote "+f));

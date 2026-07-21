@@ -1,4 +1,4 @@
-"""Deck 2 — how much overall 'difference' the tumor makes vs depth.
+"""Deck 2 - how much overall 'difference' the tumor makes vs depth.
 
 For every position s4p, dS = S_tumor - S_empty (batch-matched baseline). Reduce
 to one scalar per position: mean |dS| over frequency and all 16 S-parameters.
@@ -81,9 +81,9 @@ ax.axvline(3, color=CORAL, lw=1.8, ls="--", zorder=2)
 ax.annotate("antenna port / feed\n(z = +3 mm)", (3, ymax),
             textcoords="offset points", xytext=(-8, -2), ha="right", va="top",
             fontsize=9.5, color=CORAL, fontweight="bold")
-# radiating PATCH element sits ~15-20 mm in (feed-line offset) — where ΔS peaks
+# radiating PATCH element sits ~15-20 mm in (feed-line offset), where ΔS peaks
 ax.axvspan(15, 20, color=AMBER, alpha=0.18, zorder=1)
-ax.annotate("antenna patch (radiator, ~15–20 mm)\n— ΔS peaks here", (17.5, ymax),
+ax.annotate("antenna patch (radiator, ~15-20 mm)\nΔS peaks here", (17.5, ymax),
             textcoords="offset points", xytext=(0, -2), ha="center", va="top",
             fontsize=9.7, color="#9A6D00", fontweight="bold")
 # measured-tumor depth reference (sim↔real match) at z = +40 mm
@@ -99,10 +99,11 @@ ax.set_title("How much the tumor perturbs the signal, by depth",
 ax.grid(True, color="#EAF0F4", lw=0.7); ax.set_axisbelow(True)
 for s in ax.spines.values(): s.set_color("#D8E2EA")
 ax.legend(fontsize=10.5, framealpha=0.95, loc="lower center")
-fig.text(0.5, -0.03,
-    "The port/feed is at +3 mm, but the radiating patch sits ~15–20 mm in (feed-line offset) — and the perturbation peaks right there, "
-    "where the tumor is nearest the radiator. It falls off with distance, so far depths carry the least signal.",
-    ha="center", va="top", fontsize=10.2, color=MUTE, style="italic")
-fig.tight_layout(rect=[0,0.06,1,1])
+fig.text(0.5, 0.015,
+    "The port/feed is at +3 mm, but the radiating patch sits ~15-20 mm in (feed-line offset), and the\n"
+    "perturbation peaks right there, where the tumor is nearest the radiator. It falls off with distance,\n"
+    "so far depths carry the least signal.",
+    ha="center", va="bottom", fontsize=10.0, color=MUTE, style="italic")
+fig.subplots_adjust(left=0.12, right=0.97, top=0.90, bottom=0.24)
 p=os.path.join(OUT,"sim_dS_vs_depth.png")
-fig.savefig(p, dpi=160, bbox_inches="tight"); print("wrote", p)
+fig.savefig(p, dpi=160); print("wrote", p)

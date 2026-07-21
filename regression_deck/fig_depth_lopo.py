@@ -1,4 +1,4 @@
-"""Deck 2 — leave-one-depth-out error vs depth, edges highlighted.
+"""Deck 2 - leave-one-depth-out error vs depth, edges highlighted.
 
 Shows the CNN predicts an *unseen* depth plane to ~1-3 mm through the interior,
 while the two range extremes (extrapolation) blow up. Annotates the key finding:
@@ -33,12 +33,12 @@ for ax, val, lbl, col in [(ax1, xy, "lateral (xy) error", BLUE),
     ax.plot(z, val, "-", color=col, lw=2.2, zorder=2)
     ax.plot(z[~edge], val[~edge], "o", color=col, ms=9, zorder=3, label="interior (unseen, interpolated)")
     ax.plot(z[edge], val[edge], "o", color=CORAL, ms=13, mfc="none", mew=2.6, zorder=4,
-            label="range edge (extrapolated)")
+            label="outer edge depth (extrapolated)")
     for zi, vi in zip(z[edge], val[edge]):
         ax.annotate(f"{vi:.1f}", (zi, vi), textcoords="offset points", xytext=(0, 10),
                     ha="center", color=CORAL, fontsize=10, fontweight="bold")
     ax.set_xlabel("tumor depth z (mm)", fontsize=11)
-    ax.set_ylabel(f"{lbl} — median (mm)", fontsize=11)
+    ax.set_ylabel(f"{lbl}, median (mm)", fontsize=11)
     ax.grid(True, color="#EAF0F4", lw=0.7)
     ax.set_axisbelow(True)
     ax.legend(loc="upper center", fontsize=9.5, framealpha=0.95)
@@ -52,10 +52,10 @@ ax2.set_title("Depth resolves to ~1-3 mm through the interior",
 
 # key finding callout across the bottom
 fig.text(0.5, -0.02,
-    "Interior depths are predicted almost as well as trained ones — a continuous learned depth map.  "
-    "The extremes -15 / +45 mm are pure extrapolation.\n"
-    "Earlier, when the sweep stopped at -5 / +30 mm, THOSE planes were the bad edges (z-error 6-8 mm); "
-    "extending the range made them interior -> ~1-3 mm.  Usable depth is bounded by the sampling range, not the model.",
+    "Interior depths are predicted almost as well as trained ones, a continuous learned depth map.  "
+    "The two outer edge depths (-15 / +45 mm) are pure extrapolation.\n"
+    "Earlier, when the sweep stopped at -5 / +30 mm, THOSE planes were the bad outer edges (z error 6-8 mm); "
+    "extending the range made them interior, dropping to ~1-3 mm.  Usable depth is bounded by the sampling range, not the model.",
     ha="center", va="top", fontsize=10.2, color=MUTE, style="italic")
 
 fig.tight_layout(rect=[0, 0.08, 1, 1])
