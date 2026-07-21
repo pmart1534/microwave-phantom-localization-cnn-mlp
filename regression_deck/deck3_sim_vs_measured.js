@@ -128,16 +128,20 @@ s.addText("The sim vs measured CNN gap is distinct-position COVERAGE, not fideli
 // ============ 7. SIM->MEASURED TRANSFER (exploratory)
 s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"Can a model bridge the gap? (exploratory)","Learn a sim to measured map on the empty baseline, test on unseen frequencies");
-s.addImage({path:"sim_meas_correlation.png",x:0.5,y:1.9,w:8.5,h:3.45});
-card(s,9.2,1.8,3.55,4.1);
-s.addText("How to read it",{x:9.4,y:1.97,w:3.2,h:0.4,fontFace:HEAD,fontSize:15,bold:true,color:CRIMSON,margin:0});
-bullets(s,9.4,2.42,3.25,3.4,[
+s.addImage({path:"sim_meas_correlation.png",x:0.5,y:1.75,w:8.5,h:3.45});
+card(s,9.2,1.7,3.55,4.35);
+s.addText("How to read it",{x:9.4,y:1.85,w:3.2,h:0.4,fontFace:HEAD,fontSize:15,bold:true,color:CRIMSON,margin:0});
+bullets(s,9.4,2.3,3.25,3.6,[
   "Left: for one port, the dashed line is the simulated S11 after the learned map. A perfect map would land on the measured (red) curve; it moves toward it but does not fully match.",
   "Right: predicted vs measured on held-out frequencies. Points on the diagonal are exact; R2 = 0.65 means the linear map captures most, not all, of the relationship.",
   "A flexible MLP overfits the single paired baseline (R2 < 0).",
 ],10.5);
-s.addText("Preliminary: only the empty baseline is cleanly paired. Nonlinear domain adaptation (and any use for calibrating sim toward the bench) needs far more paired data: multiple sessions and, ideally, matched tumor positions.",
-  {x:0.6,y:6.6,w:W-1.2,h:0.6,fontFace:BODY,fontSize:12.5,italic:true,color:MUTE,align:"center",margin:0});
+card(s,0.5,5.4,8.5,1.55,CARD);
+s.addText([{text:"How the map is built.  ",options:{bold:true,color:CRIMSON}},
+  {text:"On the empty baseline, at each frequency f form a 32-D vector x = [Re, Im of the 16 S-parameters]. Fit a ridge (L2) linear regression  y = W x + b  that maps the SIMULATED vector to the MEASURED vector, learning the 32x32 matrix W and offset b. Trained on 70% of frequencies, tested on the held-out 30%. 'Sim after linear map' = W x_sim + b.",options:{color:INK}}],
+  {x:0.7,y:5.5,w:8.1,h:1.35,fontFace:BODY,fontSize:11,valign:"top",margin:0});
+s.addText("Preliminary: only the empty baseline is cleanly paired. Nonlinear domain adaptation needs far more paired data (multiple sessions, matched tumor positions).",
+  {x:0.5,y:7.05,w:12.3,h:0.4,fontFace:BODY,fontSize:11,italic:true,color:MUTE,align:"center",margin:0});
 
 // ============ 7b. BEET VS METAL
 s=pres.addSlide(); s.background={color:LIGHT};

@@ -80,7 +80,7 @@ fig.suptitle("Differential signal: beet (dielectric) vs metal tumor, simulated a
 fig.text(0.5,0.005,
    f"In simulation (identical size and position, only the material differs) the beet produces {sr*100:.0f}% of the metal signal, near the Clausius-Mossotti\n"
    f"estimate (~85%). On the bench the beet produces {mr*100:.0f}% of the metal signal; the larger gap likely reflects object size / placement differences\n"
-   f"between the two measurements, or a weaker real-beet contrast than the sim model (eps_r=50 placeholder) assumes. Worth a matched-size, matched-depth check.",
+   f"between the two measurements, or a weaker real-beet contrast than the sim model (eps_r=50 placeholder) assumes.",
    ha="center",va="bottom",fontsize=9.6,color=MUTE,style="italic")
 fig.subplots_adjust(left=0.08,right=0.97,top=0.84,bottom=0.20,wspace=0.22)
 p=os.path.join(HERE,"beet_vs_metal_dS.png")
