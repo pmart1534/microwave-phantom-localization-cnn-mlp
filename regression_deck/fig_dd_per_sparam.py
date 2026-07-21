@@ -24,11 +24,13 @@ HERE=os.path.dirname(__file__)
 A3H=r"C:\Users\peter\Desktop\EM Imaging\Research Paper\github_repo\detectable_change\A3_hunter\results\detectable_diff_A3_Empty.npz"
 SIM=r"C:\Users\peter\Desktop\EM Imaging\Simulation Data\SamMakin\Data Results\A3_Metal_1cm"
 GPG=r"C:\Users\peter\Desktop\EM Imaging\Simulation Data\SamMakin\grid_placed_global.csv"
-# MEASURED antenna layout: 1=BL, 2=TL, 3=TR, 4=BR (antenna_positions_A3.json)
+# Physical antenna layout: 1=BL, 2=TL, 3=TR, 4=BR (antenna_positions_A3.json).
+# The sim data is REMAPPED into this same physical convention (see PERM below),
+# so both rows use one numbering and the same Sii lands in the same corner.
 ANT={1:(1.242,4.494),2:(1.237,1.636),3:(4.97,1.544),4:(5.002,4.587)}
-# SIMULATED antenna layout differs: 1=TL, 2=TR, 3=BL, 4=BR (verified: each Sii
-# peaks at that corner). Same 4 corner positions, different numbering.
-ANT_SIM={1:(1.237,1.636),2:(4.97,1.544),3:(1.242,4.494),4:(5.002,4.587)}
+# sim port index for each physical antenna (0-based): phys 1(BL)=sim3, 2(TL)=sim1,
+# 3(TR)=sim2, 4(BR)=sim4  ->  S_phys = S_sim[PERM][:,PERM]
+PERM=[2,0,1,3]
 BOWL=(3.124,3.028); RX=1.901; RY=3.233
 REFL=["S11","S22","S33","S44"]; REFL_IDX={"S11":(0,0),"S22":(1,1),"S33":(2,2),"S44":(3,3)}
 
@@ -59,6 +61,7 @@ def read_s4p(path):
     v=np.asarray(vals); per=1+2*16; nf=len(v)//per; v=v[:nf*per].reshape(nf,per)
     b=v[:,1:].reshape(nf,16,2); return (b[:,:,0]*np.exp(1j*np.deg2rad(b[:,:,1]))).reshape(nf,4,4)
 base=read_s4p(os.path.join(SIM,"baseline_empty_b1_2.s4p"))
+base=base[:,PERM][:,:,PERM]                                    # remap sim -> physical antenna order
 gl=[l.split(",") for l in open(GPG).read().splitlines()[1:]]
 gsim=np.array([[float(r[3]),float(r[4])] for r in gl]); gloc=np.array([[float(r[1]),float(r[2])] for r in gl])
 M=np.column_stack([gsim,np.ones(len(gsim))]); cx=np.linalg.lstsq(M,gloc[:,0],rcond=None)[0]; cy=np.linalg.lstsq(M,gloc[:,1],rcond=None)[0]
@@ -67,6 +70,7 @@ for f in glob.glob(os.path.join(SIM,"P*DenseZ15_*.s4p")):
     js=f[:-4]+".json"
     if not os.path.exists(js): continue
     m=json.load(open(js)); S=read_s4p(f)
+    S=S[:,PERM][:,:,PERM]                                     # remap sim -> physical antenna order
     if S.shape!=base.shape: continue
     lx=cx[0]*m["tumor_x_mm"]+cx[1]*m["tumor_y_mm"]+cx[2]; ly=cy[0]*m["tumor_x_mm"]+cy[1]*m["tumor_y_mm"]+cy[2]
     sx.append(lx/25.4); sy.append((145.9-ly)/23.85)
@@ -81,17 +85,17 @@ for col,sp in enumerate(REFL):
     sc=ax.scatter(mx,my,c=v,s=90,cmap="jet",vmin=np.percentile(v,5),vmax=np.percentile(v,95),edgecolor="k",linewidth=0.3,zorder=3)
     ax.set_title(sp,fontsize=13,fontweight="bold",color=INK)
     if col==0: ax.text(-0.13,0.5,"MEASURED",transform=ax.transAxes,rotation=90,va="center",ha="center",fontsize=12,fontweight="bold",color=INK)
-    # sim (bottom) - sim antenna numbering (1=TL, 2=TR, 3=BL, 4=BR)
-    ax=axes[1,col]; draw(ax, ANT_SIM); v=np.array(sdd[sp])
+    # sim (bottom) - remapped to physical antenna numbering (same as measured)
+    ax=axes[1,col]; draw(ax); v=np.array(sdd[sp])
     ax.scatter(sx,sy,c=v,s=70,cmap="jet",vmin=np.percentile(v,5),vmax=np.percentile(v,95),edgecolor="k",linewidth=0.3,zorder=3)
     if col==0: ax.text(-0.13,0.5,"SIMULATED",transform=ax.transAxes,rotation=90,va="center",ha="center",fontsize=12,fontweight="bold",color=INK)
 
 fig.suptitle("Per-antenna reflection: detectable difference by S-parameter (each Sii peaks near antenna i)",
              fontsize=14,fontweight="bold",color=INK,y=0.99)
 fig.text(0.5,0.01,
-   "Each reflection Sii localizes on its own antenna in both domains (color = detectable difference, dB), confirming the expected physics. "
-   "The antenna numbering\ndiffers between the setups (measured 1=BL,2=TL,3=TR,4=BR; simulated 1=TL,2=TR,3=BL,4=BR), so the markers are labeled per domain. "
-   "Measured DD = 95% CI-gap over the 16 repeat takes (detdifplot); simulated DD = |dS| directly (deterministic solve). Colour is scaled per panel.",
+   "The sim S-parameters are remapped into the physical antenna numbering (1=BL, 2=TL, 3=TR, 4=BR), so the same Sii lands in the same corner in both rows: "
+   "each\nreflection localizes on its own antenna, and measured and simulated now line up directly. Measured DD = 95% CI-gap over the 16 repeat takes "
+   "(detdifplot);\nsimulated DD = |dS| directly (deterministic solve, no confidence interval). Colour is scaled per panel.",
    ha="center",va="bottom",fontsize=9.4,color=MUTE,style="italic")
 fig.subplots_adjust(left=0.03,right=0.99,top=0.93,bottom=0.14,hspace=0.10,wspace=0.06)
 p=os.path.join(HERE,"dd_per_sparam.png")
