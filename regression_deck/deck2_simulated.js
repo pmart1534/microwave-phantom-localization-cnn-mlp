@@ -83,7 +83,7 @@ bullets(s,8.95,2.55,3.6,4.0,[
   "dS = tumor minus empty, averaged over frequency and all 16 S-parameters.",
   "Port/feed is at z = +3 mm, but the radiating patch sits ~15 to 20 mm in (feed-line offset).",
   "dS peaks right at the patch (~15 to 20 mm), where the tumor is nearest the radiator.",
-  "Falls off both ways; far depths carry the least signal, so localization degrades there. (Measured tumor sat at z = +40 mm.)",
+  "Falls off both ways; far depths carry the least signal, so localization degrades there. (The main measured data sits near the patch, ~5 to 20 mm.)",
 ],12);
 
 // ============ 4b. MEASURED CONFIRMS THE DEPTH SHAPE

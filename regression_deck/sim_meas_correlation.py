@@ -94,7 +94,7 @@ def dB(x): return 20*np.log10(np.maximum(np.abs(x),1e-6))
 k=0  # S11
 a1.plot(g,dB(Xs[:,k]),color=TEAL,lw=1.8,label="sim |S11| (input)")
 a1.plot(g,dB(Xm[:,k]),color=CORAL,lw=1.8,label="measured |S11| (target)")
-a1.plot(g,dB(pred_cplx[:,k]),color=BLUE,lw=1.7,ls="--",label="sim after linear map → measured")
+a1.plot(g,dB(pred_cplx[:,k]),color=BLUE,lw=1.7,ls="--",label="sim after linear map to measured")
 a1.set_xlabel("frequency (GHz)",fontsize=11); a1.set_ylabel("|S11| (dB)",fontsize=11)
 a1.set_title("Linear map pulls sim toward measured, port S11",fontsize=12.5,fontweight="bold",color=INK)
 a1.legend(fontsize=9.5,framealpha=0.95); a1.grid(True,color="#EAF0F4",lw=0.7); a1.set_axisbelow(True)
@@ -104,20 +104,21 @@ a2.scatter(Bt.ravel(), ridge.predict(z(At)).ravel(), s=8, color=BLUE, alpha=0.35
 lim=[min(Bt.min(),-1.05), max(Bt.max(),1.05)]
 a2.plot(lim,lim,color=MUTE,lw=1.2,ls="--")
 a2.set_xlabel("measured (actual)",fontsize=11); a2.set_ylabel("linear-map predicted",fontsize=11)
-a2.set_title(f"Held-out frequencies — R² = {r2_ridge:.2f} (linear)",fontsize=12.5,fontweight="bold",color=INK)
+a2.set_title(f"Held-out frequencies, R2 = {r2_ridge:.2f} (linear)",fontsize=12.5,fontweight="bold",color=INK)
 a2.grid(True,color="#EAF0F4",lw=0.7); a2.set_axisbelow(True); a2.set_aspect("equal")
 for ax in (a1,a2):
     for s in ax.spines.values(): s.set_color("#D8E2EA")
 
-fig.suptitle("Exploratory: can a model bridge the sim↔measured antenna gap? (empty baseline)",
-             fontsize=14,fontweight="bold",color=INK,y=1.0)
-fig.text(0.5,-0.03,
-   f"Raw sim-vs-measured |S| correlation is {raw_r:.2f}. A LINEAR transfer maps sim→measured to R²={r2_ridge:.2f} on frequencies it never saw — "
-   f"a real, learnable relationship. A flexible MLP overfits the single paired baseline (R²={r2_mlp:.2f}); nonlinear domain adaptation needs far more paired data.",
-   ha="center",va="top",fontsize=10.0,color=MUTE,style="italic")
-fig.tight_layout(rect=[0,0.06,1,0.97])
+fig.suptitle("Exploratory: can a model bridge the sim vs measured antenna gap? (empty baseline)",
+             fontsize=14,fontweight="bold",color=INK,y=0.99)
+fig.text(0.5,0.02,
+   f"Raw sim-vs-measured |S| correlation is {raw_r:.2f}. A LINEAR transfer maps sim to measured at R2={r2_ridge:.2f} on frequencies\n"
+   f"it never saw, a real learnable relationship. A flexible MLP overfits the single paired baseline (R2={r2_mlp:.2f}); nonlinear\n"
+   f"domain adaptation needs far more paired data.",
+   ha="center",va="bottom",fontsize=10.0,color=MUTE,style="italic")
+fig.subplots_adjust(left=0.07,right=0.97,top=0.88,bottom=0.24,wspace=0.22)
 p=os.path.join(HERE,"sim_meas_correlation.png")
-fig.savefig(p,dpi=160,bbox_inches="tight"); print("wrote",p)
+fig.savefig(p,dpi=160); print("wrote",p)
 
 # save metrics for the deck
 import json

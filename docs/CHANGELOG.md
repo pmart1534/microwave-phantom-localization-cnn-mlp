@@ -4,7 +4,23 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
-## 2026-07-16 (later)
+## 2026-07-17
+
+- **Deck 3 revision (sim vs measured).** Reskinned to warm UofU theme with light
+  title/closing slides; all em dashes removed. (1) Grid slide is now 3 panels:
+  sim lattice, physical grid with the traced A3 bowl, and a true OVERLAY
+  registered into one physical frame via `grid_placed_global.csv` (exact affine,
+  0.0 mm residual). (2) Setup table: antennas are the SAME design ("Sam's Medium
+  Antennas") in both; measured depth corrected to ~5 to 20 mm (near the patch),
+  not +40 mm. (3) Raw S-parameters now shown PER PORT (2x2), not averaged, with
+  measured clipped to 2-8 GHz: sim ports near-identical, measured ports differ.
+  (4) New detectable-difference slide: measured empty DD (from the
+  detectable_change program's npz) vs sim empty DD at z=+15 mm, same physical
+  frame, showing the same spatial pattern (`fig_dd_compare.py`). (5) Numbers
+  slide adds a "What is k-NN?" explainer and shows measured CNN LOSO (3.9 mm) vs
+  LOPO single-position (9.9 mm). (6) Correlation figure caption wraps (no longer
+  squished). Also removed the wrong +40 mm measured marker from the Deck 2 dS
+  figure.
 
 - **Deck 2 revision (simulated) + shared style fixes.** (1) Light title/closing
   slides (mostly white, crimson highlights) replacing the dark maroon, applied to

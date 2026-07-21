@@ -86,11 +86,6 @@ ax.axvspan(15, 20, color=AMBER, alpha=0.18, zorder=1)
 ax.annotate("antenna patch (radiator, ~15-20 mm)\nΔS peaks here", (17.5, ymax),
             textcoords="offset points", xytext=(0, -2), ha="center", va="top",
             fontsize=9.7, color="#9A6D00", fontweight="bold")
-# measured-tumor depth reference (sim↔real match) at z = +40 mm
-ax.axvline(40, color=MUTE, lw=1.4, ls=":", zorder=2)
-ax.annotate("measured tumor\ndepth (z = +40 mm)", (40, ymax),
-            textcoords="offset points", xytext=(-6, -2), ha="right", va="top",
-            fontsize=9.3, color=MUTE, fontweight="bold")
 ax.set_ylim(top=ymax)
 ax.set_xlabel("tumor depth z (mm)", fontsize=12)
 ax.set_ylabel("mean |ΔS|  (tumor − empty, over freq & all 16 S-params)", fontsize=11.5)
