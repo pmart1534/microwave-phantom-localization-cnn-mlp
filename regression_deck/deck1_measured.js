@@ -152,6 +152,7 @@ bullets(s,8.75,2.4,3.7,4.2,[
   "Raw and physics inputs are equivalent for the CNN, so raw is preferred (simpler, faster).",
   "The MLP error is 3 to 4x higher; with physics features it degrades to the predict-centre baseline.",
   "At least 90 percent of positions fall within the half-cell on all three phantoms.",
+  "A dielectric (beet) tumor in the empty phantom localizes to 0.19 in (4.8 mm) under LOSO, nearly matching the metal target.",
 ]);
 
 // ============ 6. LOSO EXAMPLES (spatial)
@@ -218,6 +219,25 @@ bullets(s,8.85,2.4,3.6,4.2,[
   "LOPO-cell (0.47 to 0.67): unseen 1 in cell, no anchor. Hardest.",
   "Larger inserts increase error at every protocol, and the gap widens as the task becomes harder.",
 ]);
+
+// ============ 11b. ANTENNA / PARAMETER REDUCTION (LOSO)
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Reducing antennas and parameters (LOSO)","From all 16 S-parameters to reflection-only with fewer antennas (shared axis)");
+const cfgL=["all 16","refl x4","refl 1&3","refl 1"];
+s.addText("CNN (raw)",{x:0.4,y:1.5,w:6.1,h:0.32,align:"center",fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
+barChart(s,[
+  {name:"Empty",labels:cfgL,values:[0.154,0.191,0.193,0.220]},
+  {name:"F4",labels:cfgL,values:[0.164,0.253,0.234,0.323]},
+  {name:"F5",labels:cfgL,values:[0.223,0.339,0.390,0.769]},
+],{x:0.35,y:1.85,w:6.15,h:4.35,chartColors:[GOLD,REDMID,CRIMSONDK],dataLabelFontSize:7,showLegend:true,legendPos:"t",valAxisMaxVal:1.1,catAxisLabelFontSize:11});
+s.addText("MLP (raw)",{x:6.85,y:1.5,w:6.1,h:0.32,align:"center",fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
+barChart(s,[
+  {name:"Empty",labels:cfgL,values:[0.481,0.406,0.473,0.412]},
+  {name:"F4",labels:cfgL,values:[0.695,0.563,0.447,0.554]},
+  {name:"F5",labels:cfgL,values:[0.759,0.672,0.682,1.011]},
+],{x:6.8,y:1.85,w:6.15,h:4.35,chartColors:[GOLD,REDMID,CRIMSONDK],dataLabelFontSize:7,showLegend:true,legendPos:"t",valAxisMaxVal:1.1,catAxisLabelFontSize:11,valAxisTitle:" ",showValAxisTitle:false});
+s.addText("The CNN stays well below the MLP at every reduction: even a single reflection (CNN 0.22 to 0.77 in) beats the MLP with all 16 (0.48 to 0.76). The CNN degrades gracefully as antennas drop, except one reflection on F5. For the MLP, reflection-only can help, but it never approaches the CNN.",
+  {x:0.6,y:6.45,w:W-1.2,h:0.7,fontFace:BODY,fontSize:11.5,italic:true,color:MUTE,align:"center",margin:0});
 
 // ============ 12. IMPROVING INTERPOLATION (clarified)
 s=pres.addSlide(); s.background={color:LIGHT};
