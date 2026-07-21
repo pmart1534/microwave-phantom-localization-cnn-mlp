@@ -14,18 +14,20 @@ function title(s, kicker, t) {
   s.background = { color: WHITE };
   s.addText(kicker.toUpperCase(), { x: 0.5, y: 0.26, w: 9, h: 0.28, fontSize: 12,
     color: RED, bold: true, charSpacing: 2, fontFace: "Calibri", margin: 0, valign: "top" });
-  s.addText(t, { x: 0.5, y: 0.56, w: 9.0, h: 0.6, fontSize: 26, color: DARK,
-    bold: true, fontFace: "Calibri", margin: 0, valign: "top" });
+  s.addText(t, { x: 0.5, y: 0.56, w: 9.0, h: 0.6, fontSize: 25, color: "2A1618",
+    bold: true, fontFace: "Cambria", margin: 0, valign: "top" });
 }
 function divider(kicker, t, sub) {
   const s = p.addSlide();
-  s.background = { color: RED };
-  s.addText(kicker.toUpperCase(), { x: 0.7, y: 1.75, w: 8.6, h: 0.4, fontSize: 14,
-    color: "F5B8B8", bold: true, charSpacing: 3, fontFace: "Calibri", margin: 0 });
-  s.addText(t, { x: 0.7, y: 2.15, w: 8.6, h: 1.0, fontSize: 40, color: WHITE,
-    bold: true, fontFace: "Calibri", margin: 0 });
-  if (sub) s.addText(sub, { x: 0.7, y: 3.25, w: 8.6, h: 0.9, fontSize: 15,
-    color: "FFD9D9", fontFace: "Calibri", margin: 0 });
+  s.background = { color: "FDF8F6" };
+  s.addShape(p.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.20, fill: { color: RED }, line: { type: "none" } });
+  s.addShape(p.shapes.RECTANGLE, { x: 0.68, y: 2.02, w: 0.07, h: 1.15, fill: { color: RED }, line: { type: "none" } });
+  s.addText(kicker.toUpperCase(), { x: 0.92, y: 2.05, w: 8.4, h: 0.35, fontSize: 12.5,
+    color: RED, bold: true, charSpacing: 3, fontFace: "Calibri", margin: 0 });
+  s.addText(t, { x: 0.92, y: 2.42, w: 8.4, h: 0.75, fontSize: 33, color: "2A1618",
+    bold: true, fontFace: "Cambria", margin: 0 });
+  if (sub) s.addText(sub, { x: 0.92, y: 3.28, w: 8.2, h: 0.8, fontSize: 13.5,
+    color: "836A68", fontFace: "Calibri", margin: 0 });
   return s;
 }
 function bullets(s, items, opt) {
@@ -74,17 +76,19 @@ function notebox(s, txt, y, h, fs) {
 // ================================================================ 1. TITLE
 {
   const s = p.addSlide();
-  s.background = { color: RED };
-  s.addText("TUMOR LOCALIZATION IN BREAST PHANTOMS", { x: 0.7, y: 1.5, w: 8.6, h: 0.4,
-    fontSize: 15, color: "F5B8B8", bold: true, charSpacing: 3, fontFace: "Calibri", margin: 0 });
-  s.addText("CNN vs MLP", { x: 0.7, y: 1.95, w: 8.6, h: 1.1, fontSize: 60, color: WHITE,
-    bold: true, fontFace: "Calibri", margin: 0 });
+  s.background = { color: "FDF8F6" };
+  s.addShape(p.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.20, fill: { color: RED }, line: { type: "none" } });
+  s.addShape(p.shapes.RECTANGLE, { x: 0.68, y: 1.52, w: 0.07, h: 1.62, fill: { color: RED }, line: { type: "none" } });
+  s.addText("TUMOR LOCALIZATION IN BREAST PHANTOMS", { x: 0.92, y: 1.55, w: 8.4, h: 0.35,
+    fontSize: 13, color: RED, bold: true, charSpacing: 3, fontFace: "Calibri", margin: 0 });
+  s.addText("CNN vs MLP", { x: 0.92, y: 1.95, w: 8.4, h: 1.0, fontSize: 54, color: "2A1618",
+    bold: true, fontFace: "Cambria", margin: 0 });
   s.addText("A matched, head-to-head comparison of two machine-learning approaches\nfor microwave tumor localization",
-    { x: 0.7, y: 3.15, w: 8.6, h: 0.8, fontSize: 16, color: "FFD9D9", fontFace: "Calibri", margin: 0 });
+    { x: 0.92, y: 3.1, w: 8.2, h: 0.75, fontSize: 15, color: "836A68", fontFace: "Calibri", margin: 0 });
   s.addText("Peter Martin  ·  University of Utah  ·  Electrical & Computer Engineering",
-    { x: 0.7, y: 4.85, w: 8.6, h: 0.35, fontSize: 13, color: "F5B8B8", fontFace: "Calibri", margin: 0 });
+    { x: 0.92, y: 4.75, w: 8.4, h: 0.35, fontSize: 12.5, color: "836A68", fontFace: "Calibri", margin: 0 });
   s.addText("Preprocessing pipeline v1 (includes session-mean subtraction)",
-    { x: 0.7, y: 5.2, w: 8.6, h: 0.3, fontSize: 11, italic: true, color: "F5B8B8",
+    { x: 0.92, y: 5.12, w: 8.4, h: 0.3, fontSize: 11, italic: true, color: "836A68",
       fontFace: "Calibri", margin: 0 });
 }
 

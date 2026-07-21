@@ -222,7 +222,10 @@ fprintf('CNN input image: %d rows x %d cols  (input=%s)\n', numSParamRows, numFr
 %% -----------------------------------------------------------------------
 %  4. EXECUTION ENVIRONMENT
 %  ----------------------------------------------------------------------
-if gpuDeviceCount > 0
+if strcmp(strtrim(getenv('CNN_LOSO_FORCE_CPU')), '1')
+    execEnv = 'cpu';
+    fprintf('\nCNN_LOSO_FORCE_CPU=1 -- training on CPU.\n');
+elseif gpuDeviceCount > 0
     execEnv = 'gpu';
     fprintf('\nGPU detected (%s) -- training on GPU.\n', gpuDevice().Name);
 else
