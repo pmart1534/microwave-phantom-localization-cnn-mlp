@@ -81,10 +81,15 @@ s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"Reflection per antenna, sim vs measured","Same design, yet the measured ports differ from each other; the sim ones are near-identical");
 s.addImage({path:"raw_sparam_sim_vs_meas.png",x:2.35,y:1.7,w:8.6,h:5.28});
 
-// ============ 5. DETECTABLE-DIFFERENCE PATTERN
+// ============ 4b. TRANSMISSION (COUPLING)
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Detectable-difference pattern, measured vs sim","The tumor's detectable change per position; the spatial pattern matches");
-s.addImage({path:"dd_measured_vs_sim.png",x:0.9,y:1.75,w:11.5,h:5.35});
+title(s,"Transmission (coupling) per pair, sim vs measured","Four representative antenna-to-antenna terms; couplings also differ between domains");
+s.addImage({path:"transmission_sim_vs_meas.png",x:2.35,y:1.7,w:8.6,h:5.28});
+
+// ============ 5. DETECTABLE-DIFFERENCE PER S-PARAMETER
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Detectable difference by S-parameter","Each reflection Sii localizes near an antenna, in measured (top) and simulated (bottom)");
+s.addImage({path:"dd_per_sparam.png",x:0.3,y:1.55,w:12.7,h:5.55});
 
 // ============ 6. NUMERICAL COMPARISON
 s=pres.addSlide(); s.background={color:LIGHT};
@@ -129,13 +134,18 @@ bullets(s,9.4,2.42,3.25,3.4,[
 s.addText("Preliminary: only the empty baseline is cleanly paired. Nonlinear domain adaptation (and any use for calibrating sim toward the bench) needs far more paired data: multiple sessions and, ideally, matched tumor positions.",
   {x:0.6,y:6.6,w:W-1.2,h:0.6,fontFace:BODY,fontSize:12.5,italic:true,color:MUTE,align:"center",margin:0});
 
+// ============ 7b. BEET VS METAL
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Beet (dielectric) vs metal tumor, sim and measured","How much differential signal a realistic dielectric target produces relative to metal");
+s.addImage({path:"beet_vs_metal_dS.png",x:0.9,y:1.9,w:11.5,h:5.35});
+
 // ============ 8. CONCLUSIONS (light)
 s=pres.addSlide();
 closingLight(s,"Part 3, bottom line",[
  ["Sim and measured agree at the signal level","the empty phantom interpolates to ~6 mm on both (k-NN), indicating the simulated signal is realistic."],
  ["The detectable-difference pattern matches","bench and sim place the tumor's strongest change in the same regions (toward the antenna sides)."],
  ["The CNN gap is data coverage, not fidelity","sim's 3.9 mm comes from ~1000 distinct positions; measured's 9.9 mm from only ~50. Same model, different coverage."],
- ["Takes and sessions are not new positions","16 takes x 3 sessions add robustness (great for LOSO) but no new tumor locations (no help for interpolation)."],
+ ["Sim predicts beet approximately equals metal, but the bench does not","in sim the beet produces 93% of the metal signal; on the bench only 42%, flagging an object-size / depth mismatch or an optimistic sim beet model."],
  ["A sim to measured transfer is learnable","a linear map already reaches R2 = 0.65 on unseen frequencies, a promising if preliminary calibration path."],
 ]);
 
