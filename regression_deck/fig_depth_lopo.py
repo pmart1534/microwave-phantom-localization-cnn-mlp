@@ -50,14 +50,14 @@ ax1.set_title("Predicting an UNSEEN depth plane (leave-one-depth-out)",
 ax2.set_title("Depth resolves to ~1-3 mm through the interior",
               fontsize=12.5, fontweight="bold", color=INK)
 
-# key finding callout across the bottom
-fig.text(0.5, -0.02,
-    "Interior depths are predicted almost as well as trained ones, a continuous learned depth map.  "
-    "The two outer edge depths (-15 / +45 mm) are pure extrapolation.\n"
-    "Earlier, when the sweep stopped at -5 / +30 mm, THOSE planes were the bad outer edges (z error 6-8 mm); "
-    "extending the range made them interior, dropping to ~1-3 mm.  Usable depth is bounded by the sampling range, not the model.",
-    ha="center", va="top", fontsize=10.2, color=MUTE, style="italic")
+# key finding callout across the bottom (wrapped so the plot is not squished)
+fig.text(0.5, 0.02,
+    "Interior depths are predicted almost as well as trained ones (a continuous learned depth map); the two outer\n"
+    "edge depths (-15 / +45 mm) are pure extrapolation. Earlier, when the sweep stopped at -5 / +30 mm, those planes\n"
+    "were the bad outer edges (z error 6-8 mm); extending the range made them interior, dropping to ~1-3 mm.\n"
+    "Usable depth is bounded by the sampling range, not the model.",
+    ha="center", va="bottom", fontsize=10.0, color=MUTE, style="italic")
 
-fig.tight_layout(rect=[0, 0.08, 1, 1])
+fig.subplots_adjust(left=0.06, right=0.98, top=0.90, bottom=0.24, wspace=0.16)
 p = os.path.join(OUT, "sim_depth_lopo.png")
-fig.savefig(p, dpi=160, bbox_inches="tight"); print("wrote", p)
+fig.savefig(p, dpi=160); print("wrote", p)

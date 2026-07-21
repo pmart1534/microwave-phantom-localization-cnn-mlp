@@ -137,74 +137,74 @@ protos.forEach((p,i)=>{const x=px0[i]; card(s,x,cy,cw,ch);
   s.addText(p.diff,{x:x+0.2,y:cy+ch-0.5,w:1.5,h:0.34,align:"center",valign:"middle",fontFace:BODY,fontSize:11,bold:true,color:LIGHT,margin:0});
 });
 
-// ============ 5. LOSO RESULTS
+// ============ 5. LOSO RESULTS (bar)
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"New scan of a known grid (LOSO)","Median localization error: the CNN nails it; the MLP lags and physics features break it");
+title(s,"New scan of a known grid (LOSO)","Median localization error by model, across the three phantoms");
 barChart(s,[
   {name:"CNN (raw)",labels:["Empty","F4 insert","F5 insert"],values:[0.154,0.164,0.223]},
   {name:"MLP (raw)",labels:["Empty","F4 insert","F5 insert"],values:[0.481,0.695,0.759]},
   {name:"predict-centre (chance)",labels:["Empty","F4 insert","F5 insert"],values:[1.34,1.73,1.30]},
 ],{x:0.6,y:1.7,w:7.5,h:5.1,chartColors:[CRIMSON,GOLD,GRAYW],showLegend:true,legendPos:"t",valAxisMaxVal:2});
 card(s,8.5,1.7,4.2,5.1);
-s.addText("What it says",{x:8.75,y:1.9,w:3.7,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
+s.addText("Summary",{x:8.75,y:1.9,w:3.7,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
 bullets(s,8.75,2.4,3.7,4.2,[
-  "CNN wins everywhere: 0.15 in (3.9 mm) on empty, under a quarter inch even on F5.",
-  "Raw is as good as physics for the CNN, so raw is the pick (simpler, faster).",
-  "MLP is 3 to 4x worse; with physics it collapses to the predict-centre baseline.",
-  "At least 90 percent of positions land within the half-cell on all three phantoms.",
+  "The CNN achieves the lowest error: 0.15 in (3.9 mm) on empty, under a quarter inch on F5.",
+  "Raw and physics inputs are equivalent for the CNN, so raw is preferred (simpler, faster).",
+  "The MLP error is 3 to 4x higher; with physics features it degrades to the predict-centre baseline.",
+  "At least 90 percent of positions fall within the half-cell on all three phantoms.",
 ]);
 
-// ============ 6. LOSO EXAMPLES
+// ============ 6. LOSO EXAMPLES (spatial)
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Predicted vs. actual, LOSO (CNN)","Crimson diamonds = prediction, open circles = true position, arrow = the error");
+title(s,"Predicted vs. actual, LOSO (CNN)","Crimson diamonds = prediction, open circles = true position, arrow = error");
 triPanel(s,[["pred_vs_actual_loso_empty.png","Empty","0.15 in"],["pred_vs_actual_loso_f4.png","F4 insert","0.16 in"],["pred_vs_actual_loso_f5.png","F5 insert","0.22 in"]],
-  "Across empty, small (F4) and large (F5) inserts the CNN lands within a fifth of a cell. A new measurement session is not a problem.");
+  "Across the empty, F4 and F5 phantoms the CNN localizes to within a fifth of a cell; a new measurement session does not degrade performance.");
 
-// ============ 7. LOPO-CELL RESULTS
+// ============ 7. SINGLE-POSITION RESULTS (bar)
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Interpolating to an unseen cell (LOPO-cell, CNN)","Hold a whole 1 in cell out of training, then predict a spot with no signature nearby");
-barChart(s,[
-  {name:"pooled (train on all other sessions + positions)",labels:["Empty","F4 insert","F5 insert"],values:[0.473,0.487,0.667]},
-  {name:"in-session (train + test within one session)",labels:["Empty","F4 insert","F5 insert"],values:[0.661,0.609,0.753]},
-],{x:0.6,y:1.7,w:7.5,h:5.1,chartColors:[CRIMSON,ROSE],dataLabelFontSize:11,showLegend:true,legendPos:"t",valAxisMaxVal:1});
-card(s,8.5,1.7,4.2,5.1);
-s.addText("Three findings",{x:8.75,y:1.9,w:3.7,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
-bullets(s,8.75,2.4,3.7,4.2,[
-  "Model = CNN (raw, all 4 antennas), same as LOSO.",
-  "Pooled = the held-out cell is removed from EVERY session, train on all the rest. In-session = train and test inside one session (drift removed).",
-  "Interpolation is 3 to 4x harder than a new session (0.47 to 0.67 vs 0.15 to 0.22 in).",
-  "Pooled beats in-session on all three: for interpolation, more data beats removing drift.",
-]);
-
-// ============ 8. LOPO-CELL EXAMPLES
-s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Predicted vs. actual, LOPO-cell (CNN, pooled)","Predicting locations never sampled; the dashed outline is the glandular insert");
-triPanel(s,[["pred_vs_actual_lopo_empty.png","Empty","0.47 in"],["pred_vs_actual_lopo_f4.png","F4 insert","0.49 in"],["pred_vs_actual_lopo_f5.png","F5 insert","0.67 in"]],
-  "Interpolation error climbs with insert size (0.47, 0.49, 0.67 in) and predictions pull inward, concentrating over the glandular insert the CNN never sampled.");
-
-// ============ 9. LOPO SINGLE-POSITION EXAMPLES
-s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Predicted vs. actual, single-position (CNN, pooled)","Hold out one sub-position; its 3 cell-mates stay in training");
-triPanel(s,[["pred_vs_actual_subpos_empty.png","Empty","0.39 in"],["pred_vs_actual_subpos_f4.png","F4 insert","pending"],["pred_vs_actual_subpos_f5.png","F5 insert","0.55 in"]],
-  "With close cell-mates left in training, single-position error is lower than the whole-cell hold-out (empty 0.39 vs 0.47 in, F5 0.55 vs 0.67 in).");
-
-// ============ 10. LOPO SINGLE-POSITION RESULTS
-s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Single-position accuracy (CNN, pooled)","Leaving cell-mates in training makes this the middle rung of difficulty");
+title(s,"Interpolating to an unseen position (single-position LOPO, CNN)","Hold out one sub-position; its three cell-mates remain in training");
 barChart(s,[{name:"single-position median error",labels:["Empty","F4 insert","F5 insert"],values:[0.392,null,0.546]}],
   {x:0.6,y:1.7,w:7.7,h:5.1,chartColors:[CRIMSON],dataLabelFontSize:12,showLegend:false,valAxisMaxVal:0.7});
 card(s,8.6,1.7,4.1,5.1);
 s.addText("Reading it",{x:8.85,y:1.9,w:3.6,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
 bullets(s,8.85,2.4,3.6,4.2,[
   "Empty 0.39 in (9.9 mm), F5 0.55 in (13.9 mm).",
-  "F4 is running and will drop in here.",
-  "Both are below the matching whole-cell numbers, since the 3 cell-mates give close anchors.",
-  "Still above the roughly 6 mm signal floor, so the CNN is data-limited on about 50 positions.",
+  "F4 result is being computed and will be added.",
+  "Both are below the matching whole-cell values, since the three cell-mates provide close anchors.",
+  "Both remain above the roughly 6 mm signal floor, indicating the CNN is data-limited at about 50 distinct positions.",
 ]);
+
+// ============ 8. SINGLE-POSITION EXAMPLES (spatial)
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Predicted vs. actual, single-position (CNN, pooled)","Hold out one sub-position; its three cell-mates remain in training");
+triPanel(s,[["pred_vs_actual_subpos_empty.png","Empty","0.39 in"],["pred_vs_actual_subpos_f4.png","F4 insert","pending"],["pred_vs_actual_subpos_f5.png","F5 insert","0.55 in"]],
+  "With close cell-mates retained in training, single-position error is lower than the whole-cell hold-out (empty 0.39 vs 0.47 in, F5 0.55 vs 0.67 in).");
+
+// ============ 9. LOPO-CELL RESULTS (bar)
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Interpolating to an unseen cell (LOPO-cell, CNN)","Hold a whole 1 in cell out of training, then predict a location with no nearby signature");
+barChart(s,[
+  {name:"pooled (train on all other sessions + positions)",labels:["Empty","F4 insert","F5 insert"],values:[0.473,0.487,0.667]},
+  {name:"in-session (train + test within one session)",labels:["Empty","F4 insert","F5 insert"],values:[0.661,0.609,0.753]},
+],{x:0.6,y:1.7,w:7.5,h:5.1,chartColors:[CRIMSON,ROSE],dataLabelFontSize:11,showLegend:true,legendPos:"t",valAxisMaxVal:1});
+card(s,8.5,1.7,4.2,5.1);
+s.addText("Findings",{x:8.75,y:1.9,w:3.7,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
+bullets(s,8.75,2.4,3.7,4.2,[
+  "Model = CNN (raw, all 4 antennas), same as LOSO.",
+  "Pooled = the held-out cell is removed from every session, training on all remaining data. In-session = training and testing within one session (drift removed).",
+  "Interpolation is 3 to 4x harder than a new session (0.47 to 0.67 vs 0.15 to 0.22 in).",
+  "Pooled outperforms in-session on all three phantoms: for interpolation, additional data outweighs drift removal.",
+]);
+
+// ============ 10. LOPO-CELL EXAMPLES (spatial)
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Predicted vs. actual, LOPO-cell (CNN, pooled)","Predicting locations never sampled; the dashed outline is the glandular insert");
+triPanel(s,[["pred_vs_actual_lopo_empty.png","Empty","0.47 in"],["pred_vs_actual_lopo_f4.png","F4 insert","0.49 in"],["pred_vs_actual_lopo_f5.png","F5 insert","0.67 in"]],
+  "Interpolation error increases with insert size (0.47, 0.49, 0.67 in) and predictions pull inward, concentrating over the glandular insert the CNN never sampled.");
 
 // ============ 11. PROTOCOL COMPARISON
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"All three protocols side by side","How hard is each generalization task? (raw CNN median error, inches)");
+title(s,"All three protocols side by side","Difficulty of each generalization task (raw CNN median error, inches)");
 barChart(s,[
   {name:"LOSO (new session)",labels:["Empty","F4","F5"],values:[0.154,0.164,0.223]},
   {name:"single-position (1 point)",labels:["Empty","F4","F5"],values:[0.392,null,0.546]},
@@ -216,32 +216,32 @@ bullets(s,8.85,2.4,3.6,4.2,[
   "LOSO (0.15 to 0.22 in): a new scan of KNOWN positions. Easiest.",
   "Single-position (0.39 to 0.55): unseen point, close anchors. Medium.",
   "LOPO-cell (0.47 to 0.67): unseen 1 in cell, no anchor. Hardest.",
-  "Insert size raises every bar; the gap widens as the task gets harder.",
+  "Larger inserts increase error at every protocol, and the gap widens as the task becomes harder.",
 ]);
 
 // ============ 12. IMPROVING INTERPOLATION (clarified)
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Can we teach it to interpolate better?","Three tricks tried on the HARDEST case (F5 LOPO-cell, baseline 0.664 in); only one helps");
+title(s,"Improving interpolation on the hardest case","Three techniques evaluated on F5 LOPO-cell (baseline 0.664 in); only one reduces error");
 barChart(s,[{name:"median error",labels:["baseline","+mixup","+posval","+mix&pos","+heatmap","+heat&mix"],values:[0.664,0.572,0.927,0.722,0.895,0.865]}],
   {x:0.6,y:1.75,w:8.0,h:5.0,chartColors:[GRAYW,CRIMSON,GRAYW,GRAYW,GRAYW,GRAYW],dataLabelFontSize:11,showLegend:false,valAxisMaxVal:1});
 card(s,8.85,1.75,3.85,5.0);
 s.addText("What this shows",{x:9.1,y:1.95,w:3.4,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
 s.addText([
-  {text:"Lower is better. Grey bars made it worse than the baseline; the crimson bar is the only improvement.",options:{breakLine:true,paraSpaceAfter:10,fontSize:12}},
-  {text:"Mixup, WIN",options:{bold:true,color:CRIMSON,breakLine:true}},
-  {text:"blend sample pairs and their (x,y): 0.664 to 0.572, and it helps the insert region most.",options:{breakLine:true,paraSpaceAfter:9,fontSize:12}},
-  {text:"Position-split validation and heatmap output, NO",options:{bold:true,color:MUTE,breakLine:true}},
-  {text:"one starves the ~30 scarce training positions; the other biases predictions toward centre.",options:{fontSize:12}},
+  {text:"Lower is better. Grey bars increased error relative to the baseline; the crimson bar is the only reduction.",options:{breakLine:true,paraSpaceAfter:10,fontSize:12}},
+  {text:"Mixup: effective",options:{bold:true,color:CRIMSON,breakLine:true}},
+  {text:"blending sample pairs and their (x,y) targets reduces error 0.664 to 0.572, with the largest gain in the insert region.",options:{breakLine:true,paraSpaceAfter:9,fontSize:12}},
+  {text:"Position-split validation and heatmap output: not effective",options:{bold:true,color:MUTE,breakLine:true}},
+  {text:"the former reduces the ~30 available training positions; the latter biases predictions toward the grid centre.",options:{fontSize:12}},
 ],{x:9.1,y:2.45,w:3.4,h:4.3,fontFace:BODY,fontSize:13,color:INK,valign:"top",margin:0});
 
 // ============ 13. CONCLUSIONS (light)
 s=pres.addSlide();
-closingLight(s,"Part 1, bottom line",[
- ["The CNN localizes to a sixth of a cell","about 0.15 in (3.9 mm) cross-session on empty, under a quarter inch with a glandular insert. Regression works, and the CNN owns it."],
- ["Raw beats physics for regression","physics features are redundant for the CNN and break the MLP, the reverse of the classification result."],
- ["Difficulty ladder: LOSO < single-position < cell","a new scan of known spots is easy; an unseen single point is medium; an unseen whole cell is 3 to 4x harder than LOSO."],
- ["The glandular insert is visible in the errors","LOPO predictions pull inward and concentrate over the traced insert, which the CNN never sampled."],
- ["Mixup is the one lever that helps","teaching a smooth signal-to-coordinate map cuts error 14 percent; validation-splitting and heatmap output hurt on this small set."],
+closingLight(s,"Part 1, summary",[
+ ["The CNN localizes to a sixth of a cell","about 0.15 in (3.9 mm) cross-session on empty, under a quarter inch with a glandular insert. Continuous regression is feasible, and the CNN is the stronger model."],
+ ["Raw input outperforms physics features","physics features are redundant for the CNN and degrade the MLP, the reverse of the classification result."],
+ ["Difficulty ordering: LOSO < single-position < cell","a new scan of known positions is the easiest task; an unseen single position is intermediate; an unseen whole cell is 3 to 4x harder than LOSO."],
+ ["The glandular insert is measurable in the errors","under LOPO, predictions pull inward and concentrate over the traced insert, which the CNN never sampled."],
+ ["Mixup is the only effective augmentation","learning a continuous signal-to-coordinate map reduces error 14 percent; validation-splitting and heatmap output increase error on this small dataset."],
 ]);
 
 pres.writeFile({fileName:"Deck1_Measured_Regression.pptx"}).then(f=>console.log("wrote "+f));

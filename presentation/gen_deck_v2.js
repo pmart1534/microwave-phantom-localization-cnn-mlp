@@ -183,7 +183,8 @@ divider("Part 1", "Methods", "The measurement, the two models, and how they diff
     { t: "Two convolution layers (32 filters each) detect local patterns such as resonance shifts and ripples anywhere along the spectrum, sharing weights across frequency.", },
     { t: "Batch-normalisation + ReLU after every layer; 30% dropout fights overfitting.", },
     { t: "One network, trained 100 epochs with Adam (batch 16) on the GPU; softmax outputs one probability per grid position.", },
-  ], { x: 0.5, y: 3.55, w: 9.0, h: 1.9, fontSize: 13.5, gap: 8 });
+    { t: "Cost: 5-45 min per LOSO fold on a laptop GPU (input-size dependent); the slowest configs take hours per evaluation.", },
+  ], { x: 0.5, y: 3.5, w: 9.0, h: 2.0, fontSize: 13, gap: 6 });
 }
 
 // ================================================================ 8. MLP
@@ -196,7 +197,8 @@ divider("Part 1", "Methods", "The measurement, the two models, and how they diff
     { t: "Two dense layers (256 → 128, ReLU): every feature can interact with every other, but nothing is shared or localized.", },
     { t: "Early stopping on a held-out validation split prevents overtraining.", },
     { t: "Ensemble: 3 networks with different random seeds are averaged, plus a logistic-regression model; the ensemble vote is the prediction.", },
-  ], { x: 0.5, y: 3.55, w: 9.0, h: 1.9, fontSize: 13.5, gap: 8 });
+    { t: "Cost: seconds to a few minutes per LOSO fold on a plain CPU; the full study sweep trains ~10x faster than the CNN's.", },
+  ], { x: 0.5, y: 3.5, w: 9.0, h: 2.0, fontSize: 13, gap: 6 });
 }
 
 // ================================================================ 9. STRUCTURAL COMPARISON
@@ -213,15 +215,16 @@ divider("Part 1", "Methods", "The measurement, the two models, and how they diff
     ["Parameters", "Small conv filters + FC (~0.5–2 M)", "Huge first layer (features × 256)"],
     ["Training", "Fixed 100 epochs, single network", "Early stopping, 3-seed ensemble + LogReg"],
     ["Framework", "MATLAB Deep Learning Toolbox (GPU)", "Python scikit-learn (CPU)"],
+    ["Training time", "5-45 min per LOSO fold (GPU); ~20 h for the full sweep", "10 s-7 min per fold (CPU); ~3-4 h for the same sweep"],
   ];
   const body = rows.map((r, i) => {
     const fill = { color: i % 2 ? TINT : WHITE };
     return [c(r[0], { bold: true, fill }), c(r[1], { fill }), c(r[2], { fill })];
   });
   s.addTable([[hdr(""), hdr("CNN"), hdr("MLP")], ...body],
-    { x: 0.5, y: 1.55, w: 9.0, colW: [2.3, 3.35, 3.35], border: { pt: 0.75, color: "D9D9D9" },
-      rowH: 0.5, fontFace: "Calibri" });
-  notebox(s, "Same job, opposite philosophies: the CNN assumes frequency-local structure; the MLP assumes nothing. Everything else in this study is held identical.", 4.75, 0.62);
+    { x: 0.5, y: 1.5, w: 9.0, colW: [2.3, 3.35, 3.35], border: { pt: 0.75, color: "D9D9D9" },
+      rowH: 0.44, fontFace: "Calibri" });
+  notebox(s, "Same job, opposite philosophies: the CNN assumes frequency-local structure; the MLP assumes nothing. The CNN buys its accuracy with compute: roughly 10x the training time, even with a GPU. Inference is milliseconds for both.", 4.78, 0.72, 12.5);
 }
 
 // ================================================================ 10. DIVIDER: PIPELINE
@@ -487,7 +490,7 @@ divider("Part 4", "Physics-informed features", "Squeezing more out of the same m
     s.addText(small, { x: x + 0.25, y: y + 0.52, w: 3.9, h: 0.55, fontSize: 11.5,
       color: DARK, fontFace: "Calibri", margin: 0 });
   };
-  cc(0.5, 1.45, "CNN ≥ MLP, everywhere", "On matched inputs the CNN ties easy cases and wins hard ones by up to 16 points.");
+  cc(0.5, 1.45, "CNN ≥ MLP, everywhere", "On matched inputs the CNN ties easy cases and wins hard ones by up to 16 points, at ~10x the training cost.");
   cc(5.15, 1.45, "The gap grows with difficulty", "Fewer antennas + bigger glandular insert = bigger CNN advantage.");
   cc(0.5, 2.75, "Preprocessing drives robustness", "Per-session z-score eliminated the CNN's cross-session failures; the v1 mean-sub step proved unnecessary.");
   cc(5.15, 2.75, "Physics features add accuracy at no cost", "Derived views (+TDR) add up to 4 points on the hardest configurations.");

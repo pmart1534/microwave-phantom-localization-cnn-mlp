@@ -86,15 +86,15 @@ bullets(s,8.95,2.55,3.6,4.0,[
 
 // ============ 4b. MEASURED CONFIRMS THE DEPTH SHAPE
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"The bench sees the same depth shape","Measured tumor perturbation across 4 heights, independent of the simulation");
+title(s,"Same pattern on measured data","Measured tumor perturbation across 4 tumor heights, independent of the simulation");
 s.addImage({path:"measured_dS_vs_depth.png",x:0.45,y:1.95,w:8.0,h:4.70});
 card(s,8.7,1.8,4.05,4.85);
-s.addText("Same story on the bench",{x:8.95,y:2.0,w:3.6,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
+s.addText("Measured, same trend",{x:8.95,y:2.0,w:3.6,h:0.4,fontFace:HEAD,fontSize:16,bold:true,color:CRIMSON,margin:0});
 bullets(s,8.95,2.55,3.6,4.0,[
-  "4 measured tumor heights (July10), a full 51-position grid at each.",
-  "Mean |dS| peaks at +15 mm, right at the radiating patch, exactly like the sim.",
-  "Falls off both ways; the bench and the simulation agree on where the signal lives.",
-  "Depths are port-relative; the +25 mm session was mislabeled '2.5 cm below' in the README.",
+  "4 measured tumor heights, a full 51-position grid at each.",
+  "Mean |dS| peaks at +15 mm, at the radiating patch, consistent with the simulation.",
+  "The perturbation falls off with distance in both directions.",
+  "Measurement and simulation agree on which depths carry the strongest signal.",
 ],12);
 
 // ============ 5. ALGORITHM
@@ -170,7 +170,7 @@ closingLight(s,"Part 2, bottom line",[
  ["Depth is a strong axis, not a weak one","fine depth sampling and full-band frequency make z (~2 mm) actually beat the lateral floor."],
  ["The CNN needs ~400 to 500 distinct positions","below that it degrades fast; at one depth plane (82) it collapses to chance. A concrete data target."],
  ["Depth generalizes across the sampled range","unseen interior depths interpolate to ~1 to 3 mm; only the outer edge depths extrapolate and fail."],
- ["Metal is about equal to dielectric in the noiseless sim","a beet tumor localizes as well as metal, so realistic contrast is not the bottleneck here."],
+ ["Metal and dielectric localize equivalently in the noiseless sim","the realistic beet model produces enough differential signal for the CNN to localize as accurately as the metal target (3.6 vs 3.9 mm)."],
 ]);
 
 pres.writeFile({fileName:"Deck2_Simulated_Regression.pptx"}).then(f=>console.log("wrote "+f));

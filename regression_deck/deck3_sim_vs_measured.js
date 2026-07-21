@@ -108,7 +108,7 @@ s.addText("A training-free baseline: to locate a held-out spot it just averages 
 card(s,8.5,3.95,4.25,2.75,CARD);
 s.addText("What the numbers mean",{x:8.7,y:4.1,w:3.8,h:0.35,fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
 bullets(s,8.7,4.5,3.85,2.1,[
-  "Signal floor is the same: sim 6.7 ~ measured 6.0 mm. Sim is realistic, not smoother.",
+  "Signal floor is the same: sim 6.7 vs measured 6.0 mm; the two agree closely.",
   "LOSO (3.9) sees a new session at KNOWN spots (easy); LOPO single-position (9.9) reaches an UNSEEN spot (hard, ~50 distinct positions).",
   "Sim hits 3.9 on unseen spots only via ~1000 distinct positions.",
 ],10.5);
@@ -120,19 +120,19 @@ s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"Can a model bridge the gap? (exploratory)","Learn a sim to measured map on the empty baseline, test on unseen frequencies");
 s.addImage({path:"sim_meas_correlation.png",x:0.5,y:1.9,w:8.5,h:3.45});
 card(s,9.2,1.8,3.55,4.1);
-s.addText("First-pass finding",{x:9.4,y:1.97,w:3.2,h:0.4,fontFace:HEAD,fontSize:15,bold:true,color:CRIMSON,margin:0});
-bullets(s,9.4,2.5,3.25,3.2,[
-  "Raw sim-vs-measured |S| correlation: 0.61.",
-  "A LINEAR transfer predicts measured from sim to R2 = 0.65 on frequencies it never saw, a real learnable relationship.",
+s.addText("How to read it",{x:9.4,y:1.97,w:3.2,h:0.4,fontFace:HEAD,fontSize:15,bold:true,color:CRIMSON,margin:0});
+bullets(s,9.4,2.42,3.25,3.4,[
+  "Left: for one port, the dashed line is the simulated S11 after the learned map. A perfect map would land on the measured (red) curve; it moves toward it but does not fully match.",
+  "Right: predicted vs measured on held-out frequencies. Points on the diagonal are exact; R2 = 0.65 means the linear map captures most, not all, of the relationship.",
   "A flexible MLP overfits the single paired baseline (R2 < 0).",
-],11.5);
+],10.5);
 s.addText("Preliminary: only the empty baseline is cleanly paired. Nonlinear domain adaptation (and any use for calibrating sim toward the bench) needs far more paired data: multiple sessions and, ideally, matched tumor positions.",
   {x:0.6,y:6.6,w:W-1.2,h:0.6,fontFace:BODY,fontSize:12.5,italic:true,color:MUTE,align:"center",margin:0});
 
 // ============ 8. CONCLUSIONS (light)
 s=pres.addSlide();
 closingLight(s,"Part 3, bottom line",[
- ["Sim and measured agree at the signal level","the empty phantom interpolates to ~6 mm on BOTH (k-NN); the simulation is realistic, not artificially smooth."],
+ ["Sim and measured agree at the signal level","the empty phantom interpolates to ~6 mm on both (k-NN), indicating the simulated signal is realistic."],
  ["The detectable-difference pattern matches","bench and sim place the tumor's strongest change in the same regions (toward the antenna sides)."],
  ["The CNN gap is data coverage, not fidelity","sim's 3.9 mm comes from ~1000 distinct positions; measured's 9.9 mm from only ~50. Same model, different coverage."],
  ["Takes and sessions are not new positions","16 takes x 3 sessions add robustness (great for LOSO) but no new tumor locations (no help for interpolation)."],
