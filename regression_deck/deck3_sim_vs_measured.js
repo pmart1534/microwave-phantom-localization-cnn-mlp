@@ -125,23 +125,45 @@ bullets(s,8.7,4.5,3.85,2.1,[
 s.addText("The sim vs measured CNN gap is distinct-position COVERAGE, not fidelity. To match 3.9 mm on the bench: denser grid / more depths, not a better model.",
   {x:0.6,y:6.75,w:7.7,h:0.55,fontFace:BODY,fontSize:11.5,italic:true,color:MUTE,align:"left",margin:0});
 
-// ============ 7. SIM->MEASURED TRANSFER (exploratory)
+// ============ 7. HOW THE MAP IS LEARNED (method)
 s=pres.addSlide(); s.background={color:LIGHT};
-title(s,"Can a model bridge the gap? (exploratory)","Learn a sim to measured map on the empty baseline, test on unseen frequencies");
-s.addImage({path:"sim_meas_correlation.png",x:0.5,y:1.75,w:8.5,h:3.45});
-card(s,9.2,1.7,3.55,4.35);
-s.addText("How to read it",{x:9.4,y:1.85,w:3.2,h:0.4,fontFace:HEAD,fontSize:15,bold:true,color:CRIMSON,margin:0});
-bullets(s,9.4,2.3,3.25,3.6,[
-  "Left: for one port, the dashed line is the simulated S11 after the learned map. A perfect map would land on the measured (red) curve; it moves toward it but does not fully match.",
-  "Right: predicted vs measured on held-out frequencies. Points on the diagonal are exact; R2 = 0.65 means the linear map captures most, not all, of the relationship.",
-  "A flexible MLP overfits the single paired baseline (R2 < 0).",
+title(s,"How the sim to measured map is learned","A linear transfer fit on the empty baseline and tested on frequencies it never saw");
+[["Pair the empty baselines","Sim empty phantom and measured empty phantom are the same physical state (no tumor), so their S-parameters can be matched frequency by frequency."],
+ ["One vector per frequency","At each of 512 frequencies (2 to 8 GHz), stack the real and imaginary parts of the 16 S-parameters into a 32-D vector. Sim = input x, measured = target y."],
+ ["Split the frequencies 70 / 30","Fit on 70% of the frequencies; hold out the other 30% for testing. The map never sees the test frequencies while it is being fit."],
+ ["Fit the linear map","Ridge (L2) regression learns a 32x32 matrix W and offset b that best convert the sim vector into the measured vector."],
+ ["Test on the held-out 30%","Apply W and b to the unseen frequencies and compare to the true measured values, giving R2 = 0.65."],
+].forEach((st,i)=>{const y=1.7+i*1.02; card(s,0.6,y,7.7,0.9);
+  s.addShape(pres.shapes.OVAL,{x:0.82,y:y+0.2,w:0.5,h:0.5,fill:{color:CRIMSON}});
+  s.addText(String(i+1),{x:0.82,y:y+0.2,w:0.5,h:0.5,align:"center",valign:"middle",fontFace:HEAD,fontSize:18,bold:true,color:LIGHT,margin:0});
+  s.addText(st[0],{x:1.5,y:y+0.06,w:2.5,h:0.78,fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,valign:"middle",margin:0});
+  s.addText(st[1],{x:4.05,y:y+0.04,w:4.15,h:0.82,fontFace:BODY,fontSize:10.7,color:INK,valign:"middle",margin:0});});
+card(s,8.5,1.7,4.25,1.75,CARD);
+s.addText("The equation",{x:8.7,y:1.85,w:3.8,h:0.35,fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
+s.addText("y = W x + b",{x:8.7,y:2.2,w:3.85,h:0.5,fontFace:HEAD,fontSize:22,bold:true,color:INK,align:"center",margin:0});
+s.addText("x = sim [Re, Im of 16 S-params] (32-D); y = predicted measured; W (32x32) and b learned on the train frequencies.",
+  {x:8.7,y:2.75,w:3.85,h:0.6,fontFace:BODY,fontSize:10,color:MUTE,valign:"top",margin:0});
+card(s,8.5,3.6,4.25,3.25,CARD);
+s.addText("Why R2 = 0.65 is meaningful",{x:8.7,y:3.75,w:3.9,h:0.4,fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
+s.addText([
+  {text:"R2 is computed only on frequencies the map never used while fitting, so it measures genuine generalization, not curve-fitting.",options:{breakLine:true,paraSpaceAfter:9}},
+  {text:"A model that merely memorized the training frequencies would score near 0 on the held-out set. The flexible MLP did exactly that (R2 < 0).",options:{breakLine:true,paraSpaceAfter:9}},
+  {text:"So R2 = 0.65 says a fixed linear transform already recovers most of the measured signal from the sim, on data it has not seen.",options:{}},
+],{x:8.7,y:4.2,w:3.9,h:2.55,fontFace:BODY,fontSize:11,color:INK,valign:"top",margin:0});
+
+// ============ 7b. SIM->MEASURED TRANSFER (results)
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Can a model bridge the gap? (exploratory)","The learned map applied to one port, and its accuracy on unseen frequencies");
+s.addImage({path:"sim_meas_correlation.png",x:0.5,y:1.9,w:8.5,h:3.45});
+card(s,9.2,1.8,3.55,4.15);
+s.addText("How to read it",{x:9.4,y:1.95,w:3.2,h:0.4,fontFace:HEAD,fontSize:15,bold:true,color:CRIMSON,margin:0});
+bullets(s,9.4,2.4,3.25,3.4,[
+  "Left: the dashed line is the simulated S11 after the map (W x_sim + b). A perfect map would land on the measured (red) curve; it moves toward it but does not fully match.",
+  "Right: predicted vs measured on the held-out frequencies. Points on the diagonal are exact; the R2 = 0.65 spread shows the map captures most, not all, of the relationship.",
+  "A flexible MLP overfits and fails to generalize (R2 < 0).",
 ],10.5);
-card(s,0.5,5.4,8.5,1.55,CARD);
-s.addText([{text:"How the map is built.  ",options:{bold:true,color:CRIMSON}},
-  {text:"On the empty baseline, at each frequency f form a 32-D vector x = [Re, Im of the 16 S-parameters]. Fit a ridge (L2) linear regression  y = W x + b  that maps the SIMULATED vector to the MEASURED vector, learning the 32x32 matrix W and offset b. Trained on 70% of frequencies, tested on the held-out 30%. 'Sim after linear map' = W x_sim + b.",options:{color:INK}}],
-  {x:0.7,y:5.5,w:8.1,h:1.35,fontFace:BODY,fontSize:11,valign:"top",margin:0});
 s.addText("Preliminary: only the empty baseline is cleanly paired. Nonlinear domain adaptation needs far more paired data (multiple sessions, matched tumor positions).",
-  {x:0.5,y:7.05,w:12.3,h:0.4,fontFace:BODY,fontSize:11,italic:true,color:MUTE,align:"center",margin:0});
+  {x:0.6,y:6.6,w:W-1.2,h:0.6,fontFace:BODY,fontSize:12.5,italic:true,color:MUTE,align:"center",margin:0});
 
 // ============ 7b. BEET VS METAL
 s=pres.addSlide(); s.background={color:LIGHT};
