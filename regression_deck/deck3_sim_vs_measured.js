@@ -43,7 +43,7 @@ function closingLight(s,heading,items){s.background={color:CREAMBG};
 let s=pres.addSlide();
 titleLight(s,"PART 3 . SIM vs MEASURED","Comparing simulation and bench, empty phantom",
   "Do the two agree? The signal interpolates equally well on both; the apparent gap is data coverage, not simulation fidelity",
-  [["6.7 vs 6.0 mm","k-NN signal floor: sim ~ measured"],["distinct positions","the real driver of the CNN gap"],["R2 = 0.65","a learnable sim->measured transfer"]]);
+  [["6.7 vs 6.0 mm","k-NN signal floor: sim ~ measured"],["distinct positions","the real driver of the CNN gap"],["R2 = 0.65","empty signal transfers; tumor transfer still open"]]);
 
 // ============ 1b. THE TWO SETUPS
 s=pres.addSlide(); s.background={color:LIGHT};
@@ -138,8 +138,8 @@ bullets(s,9.75,2.25,3.05,1.5,[
 s.addText("The result",{x:9.75,y:3.95,w:3.05,h:0.35,fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
 bullets(s,9.75,4.35,3.05,2.15,[
   "In-domain (held-out sim) it localizes to 15 mm, so the pipeline works.",
-  "On the bench it hits 74 mm, worse than the 34 mm predict-centre chance line.",
-  "Predictions collapse to one biased corner: the measured signal is out-of-distribution for a sim-only model.",
+  "On the bench it hits 43 mm, worse than the 34 mm predict-centre chance line (median of 5 seeds).",
+  "Predictions collapse to one biased region: the measured signal is out-of-distribution for a sim-only model.",
 ],10.3);
 s.addText("The antenna domain gap breaks direct transfer. The sim signal must be calibrated toward the bench first (next slides).",
   {x:0.35,y:6.6,w:9.05,h:0.55,fontFace:BODY,fontSize:12,italic:true,color:MUTE,align:"center",margin:0});
@@ -184,6 +184,25 @@ bullets(s,9.4,2.4,3.25,3.4,[
 s.addText("Preliminary: only the empty baseline is cleanly paired. Nonlinear domain adaptation needs far more paired data (multiple sessions, matched tumor positions).",
   {x:0.6,y:6.6,w:W-1.2,h:0.6,fontFace:BODY,fontSize:12.5,italic:true,color:MUTE,align:"center",margin:0});
 
+// ============ 7c. TEST 2 - BASELINE-CALIBRATED TRANSFER
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Test 2: calibrate the sim, then transfer","Apply the learned empty-baseline map to the sim tumor signal before training. Does it bridge the gap?");
+s.addImage({path:"test2_calibrated_sim2meas.png",x:0.35,y:1.6,w:9.05,h:4.85});
+card(s,9.55,1.7,3.4,4.9);
+s.addText("The idea",{x:9.75,y:1.85,w:3.05,h:0.35,fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
+bullets(s,9.75,2.25,3.05,1.55,[
+  "A tumor signal is a difference dS, so the map's offset cancels: dS_measured-like = W dS_sim.",
+  "Train the CNN on the calibrated sim, test on the untouched bench.",
+],10.3);
+s.addText("The result",{x:9.75,y:3.95,w:3.05,h:0.35,fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
+bullets(s,9.75,4.35,3.05,2.15,[
+  "The calibration does not close the gap: 46 mm calibrated vs 43 mm uncalibrated, both above 34 mm chance.",
+  "Per-sample normalization already removes the map's amplitude effect; what remains is a harder domain gap.",
+  "Bridging it needs paired tumor data or nonlinear adaptation, not a single empty-baseline linear map.",
+],10.3);
+s.addText("Honest negative result: the empty-baseline signal transfers (R2 = 0.65), but that alone is not enough to place a tumor from sim on the bench.",
+  {x:0.35,y:6.6,w:9.05,h:0.55,fontFace:BODY,fontSize:12,italic:true,color:MUTE,align:"center",margin:0});
+
 // ============ 7b. BEET VS METAL
 s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"Beet (dielectric) vs metal tumor, sim and measured","How much differential signal a realistic dielectric target produces relative to metal");
@@ -196,7 +215,7 @@ closingLight(s,"Part 3, bottom line",[
  ["The detectable-difference pattern matches","bench and sim place the tumor's strongest change in the same regions (toward the antenna sides)."],
  ["The CNN gap is data coverage, not fidelity","sim's 3.9 mm comes from ~1000 distinct positions; measured's 9.9 mm from only ~50. Same model, different coverage."],
  ["Sim predicts beet approximately equals metal, but the bench does not","in sim the beet produces 93% of the metal signal; on the bench only 42%, flagging an object-size / depth mismatch or an optimistic sim beet model."],
- ["A sim to measured transfer is learnable","a linear map already reaches R2 = 0.65 on unseen frequencies, a promising if preliminary calibration path."],
+ ["The empty signal transfers, but a sim-only tumor model does not","a linear map reaches R2 = 0.65 on the empty baseline, yet a CNN trained only on sim lands at 43 mm on the bench (worse than chance), and that linear calibration alone does not fix it (46 mm). Closing the gap needs paired tumor data or nonlinear adaptation."],
 ]);
 
 pres.writeFile({fileName:"Deck3_Sim_vs_Measured.pptx"}).then(f=>console.log("wrote "+f));

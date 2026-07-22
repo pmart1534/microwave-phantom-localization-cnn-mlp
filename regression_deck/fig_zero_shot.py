@@ -15,9 +15,10 @@ from matplotlib.lines import Line2D
 
 CRIMSON="#BE0000"; GOLD="#C8890B"; GREEN="#2E7D5B"; INK="#1E293B"; MUTE="#5B6B7B"; OUT_C="#3A2A28"; TRUE_C="#2C5F7C"
 HERE=os.path.dirname(__file__)
-d=np.load(os.path.join(HERE,"..","results","zero_shot_sim2meas.npz"))
-he,zs,ch=float(d["he"])*25.4,float(d["zs"])*25.4,float(d["chance"])*25.4
-t=d["meas_true"]; p=d["meas_pred"]
+# unified experiment (Test 1 = the uncalibrated path of test2_calibrated_sim2meas)
+d=np.load(os.path.join(HERE,"..","results","test2_calibrated_sim2meas.npz"))
+he,zs,ch=float(d["he_u"])*25.4,float(d["zs_u"])*25.4,float(d["chance"])*25.4
+t=d["meas_true"]; p=d["pred_uncal"]
 BOWL=(3.124,3.028); RX=1.901; RY=3.233
 
 fig,(a1,a2)=plt.subplots(1,2,figsize=(12.6,5.6))
@@ -40,7 +41,7 @@ a2.scatter(t[:,0],t[:,1],s=55,facecolors="none",edgecolors=TRUE_C,linewidths=1.5
 a2.scatter(p[:,0],p[:,1],s=42,c=CRIMSON,marker="D",edgecolors="white",linewidths=0.4,zorder=4,label="zero-shot prediction")
 a2.set_aspect("equal"); a2.set_xlim(-0.2,6.6); a2.set_ylim(6.6,-0.2)
 a2.set_xlabel("X (in)",fontsize=11); a2.set_ylabel("Y (in)",fontsize=11)
-a2.set_title("Predictions collapse to a biased corner",fontsize=13,fontweight="bold",color=INK)
+a2.set_title("Predictions collapse to a biased region",fontsize=13,fontweight="bold",color=INK)
 a2.grid(True,color="#EAF0F4",lw=0.6); a2.set_axisbelow(True)
 a2.legend(loc="lower right",fontsize=9,framealpha=0.95)
 for s in a2.spines.values(): s.set_color("#D8E2EA")
