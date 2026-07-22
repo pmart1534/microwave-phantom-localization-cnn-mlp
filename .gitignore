@@ -11,6 +11,7 @@ slprj/
 
 # --- Deck QA renders (regenerable via render_pptx.ps1) ---
 regression_deck/qa*/
+regression_deck/render_deck*/
 
 # --- OS cruft ---
 .DS_Store

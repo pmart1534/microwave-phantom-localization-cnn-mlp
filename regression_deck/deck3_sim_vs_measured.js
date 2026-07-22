@@ -125,6 +125,25 @@ bullets(s,8.7,4.5,3.85,2.1,[
 s.addText("The sim vs measured CNN gap is distinct-position COVERAGE, not fidelity. To match 3.9 mm on the bench: denser grid / more depths, not a better model.",
   {x:0.6,y:6.75,w:7.7,h:0.55,fontFace:BODY,fontSize:11.5,italic:true,color:MUTE,align:"left",margin:0});
 
+// ============ 6b. ZERO-SHOT SIM -> MEASURED (direct transfer fails)
+s=pres.addSlide(); s.background={color:LIGHT};
+title(s,"Test 1: zero-shot, train on sim only, test on the bench","If the CNN sees only simulated tumors, can it locate a real one? Direct transfer collapses");
+s.addImage({path:"zero_shot_sim2meas.png",x:0.35,y:1.6,w:9.05,h:4.85});
+card(s,9.55,1.7,3.4,4.9);
+s.addText("What this tests",{x:9.75,y:1.85,w:3.05,h:0.35,fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
+bullets(s,9.75,2.25,3.05,1.5,[
+  "Train a CNN on simulated tumor dS only; no measured data is seen in training.",
+  "Then hand it the measured S-parameters and ask for (x,y).",
+],10.3);
+s.addText("The result",{x:9.75,y:3.95,w:3.05,h:0.35,fontFace:HEAD,fontSize:14,bold:true,color:CRIMSON,margin:0});
+bullets(s,9.75,4.35,3.05,2.15,[
+  "In-domain (held-out sim) it localizes to 15 mm, so the pipeline works.",
+  "On the bench it hits 74 mm, worse than the 34 mm predict-centre chance line.",
+  "Predictions collapse to one biased corner: the measured signal is out-of-distribution for a sim-only model.",
+],10.3);
+s.addText("The antenna domain gap breaks direct transfer. The sim signal must be calibrated toward the bench first (next slides).",
+  {x:0.35,y:6.6,w:9.05,h:0.55,fontFace:BODY,fontSize:12,italic:true,color:MUTE,align:"center",margin:0});
+
 // ============ 7. HOW THE MAP IS LEARNED (method)
 s=pres.addSlide(); s.background={color:LIGHT};
 title(s,"How the sim to measured map is learned","A linear transfer fit on the empty baseline and tested on frequencies it never saw");
