@@ -6,6 +6,16 @@ entry here.
 
 ## 2026-07-17
 
+- **Bandwidth-reduction sweep (CNN classification, chip-design study).**
+  `Imager_CNN_LOSO.m` gains `CNN_LOSO_BAND="lo hi"` (GHz) to crop the frequency
+  axis; outputs tagged `_band<lo>-<hi>`. Stage A: four 2 GHz windows x 3
+  phantoms (raw, all 16 S-params, LOSO). Winner 2-4 GHz (mean 96.6%); high
+  bands collapse on F5 (~70%, penetration physics). Expansion around the same
+  region: 3/4/5 GHz. Result: **1-5 GHz (4 GHz BW) recovers full-band accuracy
+  on every phantom** (empty 99.4 / F4 98.1 / F5 100.0); 1.5-4.5 GHz costs only
+  ~1-3 pts on F5; 2-4 GHz alone costs 7 pts on F5. Curve:
+  `results/band_sweep_curve.png`.
+
 - **Classification decks: restyle + training-cost comparison.** Both
   `presentation/CNN_vs_MLP_Comparison{,_v2_noMeanSub}.pptx` reskinned from the
   solid-red title/divider slabs to the casual warm theme used by the regression

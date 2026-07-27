@@ -187,6 +187,16 @@ if hierMode, clfTag = 'hier_'; else, clfTag = ''; end
 
 tag = sprintf('%s_%s_%s%s_%s_ant%s', matlab.lang.makeValidName(setupName), setLabel, ...
               clfTag, inputMode, antennaMode, strrep(num2str(ports), '  ', '-'));
+
+% Optional band limit: CNN_LOSO_BAND = "lo hi" in GHz crops the frequency axis
+% (bandwidth-reduction study for chip design). Empty = full 0.1-8 GHz sweep.
+bandGHz = str2num(strtrim(getenv('CNN_LOSO_BAND'))); %#ok<ST2NM>
+if numel(bandGHz) == 2
+    tag = sprintf('%s_band%g-%g', tag, bandGHz(1), bandGHz(2));
+    fprintf('[band] restricting to %.2f-%.2f GHz\n', bandGHz(1), bandGHz(2));
+else
+    bandGHz = [];
+end
 fprintf('Antenna mode: %s   ports [%s]   input=%s\n', upper(antennaMode), num2str(ports), inputMode);
 fprintf('S-parameters used (%d): %s\n', numel(sparamNames), strjoin(sparamNames, ', '));
 
@@ -200,7 +210,7 @@ fprintf('\n--- Building per-session samples ---\n');
 built = cell(nSess, 1);
 posSetPerSess = cell(nSess, 1);
 for s = 1:nSess
-    built{s} = buildSession(sessions{s}, selRows, sparamPairs, inputMode, N_TDR_BINS);
+    built{s} = buildSession(sessions{s}, selRows, sparamPairs, inputMode, N_TDR_BINS, bandGHz);
     posSetPerSess{s} = unique(built{s}.posLabel);
     fprintf('   session %d: %d samples across %d positions\n', ...
         s, numel(built{s}.posLabel), numel(posSetPerSess{s}));
@@ -513,7 +523,7 @@ function [rows, names, pairs] = antennaRows(ports, reflOnly)
     names = unique(names, 'stable');
 end
 
-function S = buildSession(loaded, selRows, pairs, inputMode, nTdr)
+function S = buildSession(loaded, selRows, pairs, inputMode, nTdr, bandGHz)
 % MATCHED-to-MLP feature construction. For a fair CNN-vs-MLP comparison every
 % step here mirrors run_mlp_loso.py:
 %   1. complex baseline subtraction   Y = S - S_baseline   (per S-param)
@@ -528,8 +538,18 @@ function S = buildSession(loaded, selRows, pairs, inputMode, nTdr)
     baseline   = loaded.baseline;
     nPos       = size(data, 1);
     trialCount = loaded.trialCount;
-    nFreq      = loaded.numFreqPoints;
     K          = size(pairs, 1);
+
+    % optional frequency-band crop (bandwidth-reduction study)
+    if nargin >= 6 && numel(bandGHz) == 2
+        fGHz = loaded.freq(:)' / 1e9;
+        keepF = (fGHz >= bandGHz(1)) & (fGHz <= bandGHz(2));
+        baseline = baseline(:, keepF);
+    else
+        keepF = true(1, loaded.numFreqPoints);
+    end
+    nFreq = sum(keepF);
+    nTdr  = min(nTdr, nFreq);   % TDR window cannot exceed the cropped width
 
     % complex baseline per selected S-param (phase stored in DEGREES)
     baseC = zeros(K, nFreq);
@@ -546,6 +566,7 @@ function S = buildSession(loaded, selRows, pairs, inputMode, nTdr)
         for t = 1:trialCount
             raw = data{p, t+1};
             if isempty(raw) || any(isnan(raw(:))), continue; end
+            raw = raw(:, keepF);
             n = n + 1;
             Sc = zeros(K, nFreq);
             for k = 1:K
