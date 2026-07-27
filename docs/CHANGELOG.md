@@ -6,6 +6,16 @@ entry here.
 
 ## 2026-07-17
 
+- **Classification decks: restyle + training-cost comparison.** Both
+  `presentation/CNN_vs_MLP_Comparison{,_v2_noMeanSub}.pptx` reskinned from the
+  solid-red title/divider slabs to the casual warm theme used by the regression
+  decks (cream `FDF8F6` background, thin red top bar, red vertical accent,
+  Cambria serif titles, muted greys). Added measured training-time facts in four
+  places (structural table row, per-model cost bullets, summary box, conclusions
+  card): CNN 5-45 min per LOSO fold on RTX 3070, ~20 GPU-h full sweep; MLP
+  10 s-7 min per fold on CPU, ~3-4 CPU-h for the same sweep (~10x faster);
+  inference is milliseconds for both.
+
 - **Deck 3 revision (sim vs measured).** Reskinned to warm UofU theme with light
   title/closing slides; all em dashes removed. (1) Grid slide is now 3 panels:
   sim lattice, physical grid with the traced A3 bowl, and a true OVERLAY
