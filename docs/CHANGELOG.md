@@ -6,6 +6,14 @@ entry here.
 
 ## 2026-07-17
 
+- **Frequency-reduction deck.** `presentation/Frequency_Reduction.pptx` (8
+  slides, same cream/serif theme as the classification decks): motivation,
+  band-placement table, bandwidth-expansion table, combined figure, chip
+  operating points @ 1-5 GHz, single-antenna robustness check, recommendation
+  (spec 1-5 GHz, fallback 1.5-4.5, avoid >5 and <1 alone, antennas<->bandwidth
+  trade). Generator `gen_deck_band.js`.
+
+
 - **Stage C (chip operating point) + single-antenna band sweep.**
   At the winning 1-5 GHz band: refl-all 100/97.4/94.9, pair full-S
   99.3/92.9/92.9, pair refl-only 99.3/92.9/84.8, single S11 96.1/96.2/69.7
