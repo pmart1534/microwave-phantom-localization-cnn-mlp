@@ -6,6 +6,18 @@ entry here.
 
 ## 2026-07-17
 
+- **Stage C (chip operating point) + single-antenna band sweep.**
+  At the winning 1-5 GHz band: refl-all 100/97.4/94.9, pair full-S
+  99.3/92.9/92.9, pair refl-only 99.3/92.9/84.8, single S11 96.1/96.2/69.7
+  (empty/F4/F5). Reductions COMPOUND on F5: the band cut that was free with 16
+  S-params costs 3-6 pts once antennas/transmission are removed. Single-antenna
+  band sweep (all windows): 2-4 GHz again the best 2 GHz window (0.1-2 GHz
+  collapses to 25% on F5 without array diversity); accuracy climbs monotonically
+  with width, needing ~5 GHz (0.5-5.5) for near-parity with full band. Combined
+  figure: `results/band_sweep_combined.png`. Takeaway: antennas and bandwidth
+  are partially interchangeable information budgets; the 2-4 GHz region is the
+  information centre at both hardware extremes.
+
 - **Bandwidth-reduction sweep (CNN classification, chip-design study).**
   `Imager_CNN_LOSO.m` gains `CNN_LOSO_BAND="lo hi"` (GHz) to crop the frequency
   axis; outputs tagged `_band<lo>-<hi>`. Stage A: four 2 GHz windows x 3
