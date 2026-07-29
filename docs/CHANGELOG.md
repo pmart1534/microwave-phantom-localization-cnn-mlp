@@ -4,6 +4,17 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-07-29
+
+- **Sub-4 GHz "break it" descent (Phases 1-2, CNN, raw, all 16 S-params).**
+  Ceiling: 0.1-4 GHz AND 1-4 GHz both hit F5 = 100% (the no-above-4-GHz chip
+  constraint is free; 1-4 even beats same-width 1.5-4.5). Best-per-width on F5:
+  3 GHz 100 -> 2 GHz 92.9 -> 1 GHz 92.9 (1.5-2.5) -> 0.5 GHz 88.9 (1.5-2) ->
+  0.25 GHz 80.8 (1.75-2). Mean degrades gracefully but fold-to-fold sigma
+  EXPLODES below 1 GHz width (F5 +/-12-20 vs +/-0-5 at 3 GHz): narrow bands
+  become session-unstable before they become inaccurate. Empty stays 99.4
+  everywhere, F4 88-99.
+
 ## 2026-07-17
 
 - **Frequency-reduction deck.** `presentation/Frequency_Reduction.pptx` (8
