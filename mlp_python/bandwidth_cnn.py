@@ -43,17 +43,17 @@ class BandCNN(nn.Module):
         return self.f(self.c(x))
 
 
-def _to_img(Xz, ncols):
-    """standardized feature vector [mag(16*F), phase(16*F)] -> (N,1,32,F) image."""
+def _to_img(Xz, ncols, nchan):
+    """standardized feature vector [mag(C*F), phase(C*F)] -> (N,1,2C,F) image."""
     N = Xz.shape[0]
-    mag = Xz[:, :16 * ncols].reshape(N, 16, ncols)
-    ph = Xz[:, 16 * ncols:].reshape(N, 16, ncols)
+    mag = Xz[:, :nchan * ncols].reshape(N, nchan, ncols)
+    ph = Xz[:, nchan * ncols:].reshape(N, nchan, ncols)
     return np.concatenate([mag, ph], axis=1)[:, None, :, :].astype(np.float32)
 
 
 def cnn_eval_band(data, cols, folds, epochs=EPOCHS, n_seeds=N_SEEDS):
     Yc, pos, sess, tgt = data["Yc"], data["pos"], data["sess"], data["tgt"]
-    ncols = len(cols)
+    ncols = len(cols); nchan = Yc.shape[1]
     fold_errs = []
     for fo in np.unique(folds):
         te = folds == fo; tr = ~te
@@ -63,12 +63,12 @@ def cnn_eval_band(data, cols, folds, epochs=EPOCHS, n_seeds=N_SEEDS):
         Xtr_z, Xte_z = B._per_session_z(Xtr, sess[tr], Xte, sess[te])
         from sklearn.preprocessing import StandardScaler
         sc = StandardScaler().fit(Xtr_z)
-        Xtr_i = _to_img(sc.transform(Xtr_z), ncols); Xte_i = _to_img(sc.transform(Xte_z), ncols)
+        Xtr_i = _to_img(sc.transform(Xtr_z), ncols, nchan); Xte_i = _to_img(sc.transform(Xte_z), ncols, nchan)
         Ttr = tgt[tr].astype(np.float32); Tte = tgt[te]
         preds = []
         for s in range(n_seeds):
             torch.manual_seed(s)
-            net = BandCNN(32)
+            net = BandCNN(2 * nchan)
             opt = torch.optim.Adam(net.parameters(), lr=1e-3)
             lossf = nn.MSELoss()
             dl = DataLoader(TensorDataset(torch.tensor(Xtr_i), torch.tensor(Ttr)),
