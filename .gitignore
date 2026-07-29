@@ -35,3 +35,7 @@ env/
 # deck QA renders
 regression_deck/qa/
 regression_deck/*.pdf
+
+# --- Bandwidth sweep caches (large, regenerable) ---
+results/bw_cache/
+results/bw_cache_reg/
