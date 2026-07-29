@@ -49,8 +49,9 @@ fig.suptitle("Simplest-chip corner: antenna reduction WITHIN the 2-4 GHz sweet s
              fontsize=15,fontweight="bold",color=INK,y=0.985)
 fig.text(0.5,0.945,"fewer antennas / reflection-only, restricted to the 2-4 GHz band (leave-one-position-out CV)",
          ha="center",fontsize=10.5,color=MUTE)
-fig.text(0.5,0.012,"Empty (metal) stays strong even at 1 reflection in a 2 GHz band; F4 degrades gracefully; F5 and sim need more antennas. "
-         "Target difficulty sets\nhow much you can strip: an easy target allows a 1-antenna, 2 GHz front end; the hard glandular case does not.",
-         ha="center",fontsize=9.7,color=MUTE,style="italic")
+fig.text(0.5,0.012,"Both models agree on the ordering: more antennas help, and F5 / sim degrade most as ports drop (transmission carries their signal). "
+         "The k-NN floor shows the\ninformation supports a minimal front end on the easy metal target (~8 mm at 1 antenna); the trained CNN is uniformly higher here "
+         "(data-limited under leave-one-position-out).",
+         ha="center",fontsize=9.5,color=MUTE,style="italic")
 fig.subplots_adjust(left=0.07,right=0.98,top=0.90,bottom=0.11,hspace=0.30,wspace=0.20)
 p=os.path.join(HERE,"bw_antenna.png"); fig.savefig(p,dpi=160); print("wrote",os.path.basename(p))
