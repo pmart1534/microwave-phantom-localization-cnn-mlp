@@ -54,10 +54,16 @@ MEAS = {
 SIM = r"C:\Users\peter\Desktop\EM Imaging\Simulation Data\SamMakin\Data Results\A3_Metal_1cm"
 GPG = r"C:\Users\peter\Desktop\EM Imaging\Simulation Data\SamMakin\grid_placed_global.csv"
 SIM_DEPTHS = {5: "b1", 10: "b1", 15: "b1_2", 20: "b1_2"}
+# full depth stack with per-batch empty baseline (from Imager_CNN_SimReg.m baseMap);
+# z=3 mm is a leftover odd depth and is excluded, matching the deck.
+SIM_ALL_DEPTHS = {0: "b1", 5: "b1", 10: "b1",
+                  -5: "b1_2", 15: "b1_2", 20: "b1_2", 25: "b1_2", 30: "b1_2",
+                  -15: "b1_3", -10: "b1_3", 35: "b1_3", 40: "b1_3", 45: "b1_3"}
 SIM_PERM = [2, 0, 1, 3]
 
 # per-dataset default band (GHz); sim capped at 2 GHz by its data
-DEFAULT_BAND = {"empty": (1.0, 8.0), "F4": (1.0, 8.0), "F5": (1.0, 8.0), "sim": (2.0, 8.0)}
+DEFAULT_BAND = {"empty": (1.0, 8.0), "F4": (1.0, 8.0), "F5": (1.0, 8.0),
+                "sim": (2.0, 8.0), "sim_all": (2.0, 8.0)}
 GRID_STEP_MHZ = 15.0
 
 
@@ -143,6 +149,39 @@ def load_sim(FG):
                 sess=np.zeros(len(pos), np.int64), tgt=np.array(tgt, float))
 
 
+def load_sim_all(FG):
+    """Full depth stack (13 depths, per-batch baseline). Positions keyed by (x,y)
+    so all depths of one (x,y) share a pos id -> strict LOPO grouping over (x,y)."""
+    gl = [l.split(",") for l in open(GPG).read().splitlines()[1:]]
+    gsim = np.array([[float(r[3]), float(r[4])] for r in gl])
+    gloc = np.array([[float(r[1]), float(r[2])] for r in gl])
+    M = np.column_stack([gsim, np.ones(len(gsim))])
+    cX = np.linalg.lstsq(M, gloc[:, 0], rcond=None)[0]
+    cY = np.linalg.lstsq(M, gloc[:, 1], rcond=None)[0]
+    def to_inch(xmm, ymm):
+        return (cX[0]*xmm+cX[1]*ymm+cX[2]) / 25.4, (145.9 - (cY[0]*xmm+cY[1]*ymm+cY[2])) / 23.85
+    bases = {}
+    for bk in set(SIM_ALL_DEPTHS.values()):
+        f, S = read_s4p(os.path.join(SIM, f"baseline_empty_{bk}.s4p"))
+        bases[bk] = _resamp_stack((S.reshape(len(f), 16)).T[None], f, FG)[0].T   # (F,16)
+    Yc, pos, tgt = [], [], []
+    key_to_pid = {}
+    for z, bk in SIM_ALL_DEPTHS.items():
+        for fp in glob.glob(os.path.join(SIM, f"P*DenseZ{z}_*.s4p")):
+            js = fp[:-4] + ".json"
+            if not os.path.exists(js):
+                continue
+            m = json.load(open(js)); fr, S = read_s4p(fp)
+            S = S[:, SIM_PERM][:, :, SIM_PERM]
+            dS = _resamp_stack((S.reshape(len(fr), 16)).T[None], fr, FG)[0].T - bases[bk]
+            key = (round(m["tumor_x_mm"], 1), round(m["tumor_y_mm"], 1))    # (x,y) only
+            key_to_pid.setdefault(key, len(key_to_pid))
+            Yc.append(dS.T); pos.append(key_to_pid[key])
+            tgt.append(list(to_inch(m["tumor_x_mm"], m["tumor_y_mm"])))
+    return dict(Yc=np.stack(Yc), pos=np.array(pos, np.int64),
+                sess=np.zeros(len(pos), np.int64), tgt=np.array(tgt, float))
+
+
 def get_data(dataset, FG, band):
     CACHE.mkdir(parents=True, exist_ok=True)
     fp = CACHE / f"{dataset}_{band[0]:g}-{band[1]:g}.npz"
@@ -151,7 +190,12 @@ def get_data(dataset, FG, band):
         print(f"  loaded cache {fp.name}", flush=True)
         return {k: d[k] for k in ("Yc", "pos", "sess", "tgt")}
     print(f"  building cache {fp.name} ...", flush=True)
-    data = load_sim(FG) if dataset == "sim" else load_measured(MEAS[dataset], FG)
+    if dataset == "sim_all":
+        data = load_sim_all(FG)
+    elif dataset == "sim":
+        data = load_sim(FG)
+    else:
+        data = load_measured(MEAS[dataset], FG)
     np.savez_compressed(fp, **data)
     return data
 
