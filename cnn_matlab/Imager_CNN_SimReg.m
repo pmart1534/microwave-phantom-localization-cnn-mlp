@@ -59,7 +59,12 @@ if isempty(SIM_DIR)
                'Data Results\A3_Metal_1cm'];
 end
 EXCLUDE_Z = 3; if ~isempty(getenv('SIM_EXCLUDE_Z')), EXCLUDE_Z = str2double(getenv('SIM_EXCLUDE_Z')); end
-grid = linspace(2e9, 8e9, NFREQ);
+% Frequency band (GHz) the CNN is allowed to see; default full 2-8 GHz. Restrict
+% (e.g. SIM_FMIN=2 SIM_FMAX=4) to test how little bandwidth the localizer needs.
+FMIN = 2e9; if ~isempty(getenv('SIM_FMIN')), FMIN = str2double(getenv('SIM_FMIN'))*1e9; end
+FMAX = 8e9; if ~isempty(getenv('SIM_FMAX')), FMAX = str2double(getenv('SIM_FMAX'))*1e9; end
+grid = linspace(FMIN, FMAX, NFREQ);
+fprintf('    band: %.2f-%.2f GHz (%d pts)\n', FMIN/1e9, FMAX/1e9, NFREQ);
 
 % depth (mm) -> batch baseline file  (z=3 would be Depth3, but it's excluded)
 baseMap = { [0 5 10],           'baseline_empty_b1.s4p'; ...
@@ -155,6 +160,19 @@ elseif strcmp(simCV, 'loo')
     foldLabel = arrayfun(@(i) sprintf('pos %d', i), (1:N)', 'uni', 0);
     zEdge = false(N, 1);
     fprintf('\n=== TRUE LEAVE-ONE-POSITION-OUT (%d positions) ===\n', N);
+elseif strcmp(simCV, 'xykfold')
+    % STRICT (x,y)-disjoint k-fold: all depths of one (x,y) go to the same fold,
+    % so lateral generalization is to genuinely unseen (x,y) (no depth leakage).
+    xyk = round(T(:, 1:2) * 10) / 10;                    % 0.1 mm rounding
+    [~, ~, ic] = unique(xyk, 'rows');                    % ic: row -> unique-(x,y) id
+    nU = max(ic);
+    permU = randperm(nU); foldOfU = zeros(1, nU);
+    for i = 1:nU, foldOfU(permU(i)) = mod(i-1, KFOLD) + 1; end
+    foldOf = foldOfU(ic);                                % per-row fold
+    testSets = arrayfun(@(f) find(foldOf == f), (1:KFOLD)', 'uni', 0);
+    foldLabel = arrayfun(@(f) sprintf('xyfold %d', f), (1:KFOLD)', 'uni', 0);
+    zEdge = false(numel(testSets), 1);
+    fprintf('\n=== %d-fold STRICT (x,y)-disjoint CV (%d unique xy positions) ===\n', KFOLD, nU);
 else
     perm = randperm(N); foldOf = zeros(1, N);
     for i = 1:N, foldOf(perm(i)) = mod(i-1, KFOLD) + 1; end
@@ -200,7 +218,9 @@ S = struct();
 S.method='CNN-SIM-3D'; S.task='regression_xyz_mm';
 if strcmp(simCV,'depth'), S.protocol='leave_one_depth_out';
 elseif strcmp(simCV,'loo'), S.protocol='leave_one_position_out';
+elseif strcmp(simCV,'xykfold'), S.protocol=sprintf('%dfold_xy_disjoint_cv',KFOLD);
 else, S.protocol=sprintf('%dfold_position_cv',KFOLD); end
+S.bandGHz=[FMIN FMAX]/1e9;
 S.oneDepth = oneDepth;
 S.numPositions=N; S.nfreq=NFREQ; S.epochs=cfg.Epochs; S.mixupAlpha=mixAlpha;
 S.simDir=SIM_DIR; S.excludeZ=EXCLUDE_Z; S.folds=foldRows;
@@ -227,9 +247,11 @@ fprintf('----------------------------------------------------------------\n');
 xtag = ''; if EXCLUDE_Z == 3, xtag = '_5mmgrid'; elseif ~isnan(EXCLUDE_Z), xtag = sprintf('_noZ%g', EXCLUDE_Z); end
 if strcmp(simCV, 'depth'),     cvpart = 'depthCV';
 elseif strcmp(simCV, 'loo'),   cvpart = 'loo';
+elseif strcmp(simCV, 'xykfold'), cvpart = sprintf('%dfoldXY', KFOLD);
 elseif mixAlpha > 0,           cvpart = sprintf('%dfold_mixup%s', KFOLD, strrep(num2str(mixAlpha), '.', 'p'));
 else,                          cvpart = sprintf('%dfold', KFOLD); end
 tag = sprintf('%s_nf%d%s', cvpart, NFREQ, xtag);
+if FMIN > 2.01e9 || FMAX < 7.99e9, tag = [tag sprintf('_b%g-%g', FMIN/1e9, FMAX/1e9)]; end
 if ~isempty(oneDepth), tag = [tag '_z' strrep(oneDepth, '-', 'm')]; end
 if ~isempty(depthList), tag = [tag sprintf('_d%d', numel(str2num(depthList)))]; end %#ok<ST2NM>
 simLabel = strtrim(getenv('SIM_LABEL')); if ~isempty(simLabel), tag = [tag '_' simLabel]; end
