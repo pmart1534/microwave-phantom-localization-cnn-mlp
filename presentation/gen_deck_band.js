@@ -275,7 +275,48 @@ function bandTable(s, rows, y, note, rowH) {
   });
   s.addTable([hdr, ...body], { x: 0.5, y: 1.5, w: 9.0, colW: [3.6, 1.7, 1.8, 1.9],
     border: { pt: 0.75, color: "D9D9D9" }, rowH: 0.44, valign: "middle", fontFace: "Calibri" });
-  notebox(s, "With all 16 S-parameters and a well-placed window, bandwidth alone cannot push any phantom below 50%: even a 50 MHz sliver holds 99 / 90 / 60. F5 fails softly (degraded, then session-unstable below 1 GHz). Breaking for real requires combining the band cut with hardware reduction; that adaptive descent (reflection-only, fewer antennas) is running now.", 4.1, 1.1, 12.5);
+  notebox(s, "With all 16 S-parameters and a well-placed window, bandwidth alone cannot push any phantom below 50%: even a 50 MHz sliver holds 99 / 90 / 60. F5 fails softly (degraded, then session-unstable below 1 GHz). Breaking for real requires combining the band cut with hardware reduction; that adaptive descent is Part 3.", 4.1, 1.1, 12.5);
+}
+
+
+// ================================================================ 13. PART 3 MAP
+{
+  const s = p.addSlide();
+  title(s, "Part 3 · hardware + band together", "The full break map: 5 hardware levels x 7 bands");
+  s.addImage({ path: A + "break_descent_map.png", x: 0.25, y: 1.55, w: 9.5, h: 2.82 });
+  notebox(s, "Adaptive descent: bands narrow left to right at the best placement per width; once a phantom scores below 50% (black box) it stops descending at that hardware level. Blank cells were skipped after the break. Empty stays green everywhere.", 4.62, 0.85, 12);
+}
+
+// ================================================================ 14. PART 3 VERDICT
+{
+  const s = p.addSlide();
+  title(s, "Part 3 · verdict", "Where each phantom finally breaks (<50%)");
+  const hdr = ["Hardware", "Empty", "A3 + F4", "A3 + F5"].map(t =>
+    ({ text: t, options: { fill: { color: RED }, color: WHITE, bold: true, fontSize: 12.5,
+       align: "center", valign: "middle" } }));
+  const rows = [
+    ["16 S-params (full array)", "never", "never", "never (floor 60)"],
+    ["4 antennas, reflection only", "never", "never", "0.1 GHz (47%)"],
+    ["2 antennas (1 & 3), full S", "never", "never", "0.5 GHz (35%)"],
+    ["2 antennas (1 & 3), reflection only", "never", "never", "1 GHz (45%)"],
+    ["1 antenna (S11 only)", "never (floor 75)", "0.5 GHz (40%)", "1 GHz (21%)"],
+  ];
+  const body = rows.map((r, i) => {
+    const fill = { color: i % 2 ? TINT : WHITE };
+    const c = (v, red) => ({ text: v, options: { fill, color: red ? RED : DARK,
+      bold: red, fontSize: 12, align: "center" } });
+    return [{ text: r[0], options: { fill, color: DARK, bold: true, fontSize: 12, align: "left" } },
+      c(r[1], false), c(r[2], r[2] !== "never"), c(r[3], !r[3].startsWith("never"))];
+  });
+  s.addTable([hdr, ...body], { x: 0.5, y: 1.45, w: 9.0, colW: [3.7, 1.7, 1.7, 1.9],
+    border: { pt: 0.75, color: "D9D9D9" }, rowH: 0.42, valign: "middle", fontFace: "Calibri" });
+  const pts = [
+    "Difficulty ladder is perfectly ordered: empty never breaks (75% even on S11 + 50 MHz); F4 breaks only at the most extreme cut; F5 breaks at every reduced-hardware level.",
+    "Antennas and bandwidth trade against each other: each hardware cut moves F5's breaking point to a wider band (0.1 -> 0.5 -> 1 GHz).",
+    "Chip takeaway: with 2 antennas keep at least ~2 GHz of band (in the 1-4 GHz region); with the full array, bandwidth is nearly free.",
+  ].map(t => ({ text: t, options: { bullet: { code: "2022", indent: 12 }, color: DARK,
+    fontSize: 12.5, fontFace: "Calibri", paraSpaceAfter: 8, breakLine: true } }));
+  s.addText(pts, { x: 0.55, y: 4.15, w: 8.9, h: 1.65, valign: "top", margin: 0 });
 }
 
 p.writeFile({ fileName: "Frequency_Reduction.pptx" }).then(() => console.log("band deck written"));

@@ -4,6 +4,22 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-01 - Break-descent complete: hardware x band map + deck Part 3
+
+- Adaptive descent (`cnn_matlab/break_descent.sh`) finished: 4 reduced-hardware
+  levels x up to 7 bands x 3 phantoms with per-phantom early stop below 50%.
+- `analyze_break_descent.py` (new): builds `results/break_descent.md` grid +
+  `results/break_descent_map.png` 3-panel heatmap (black box = broken, blank =
+  skipped after break); includes the full-array row from the Part 2 study.
+- Findings: Empty never breaks anywhere (floor 74.5% at S11 + 50 MHz); F4 breaks
+  only at single-antenna 0.5 GHz (39.7%); F5 breaks at every reduced-hardware
+  level, and its breaking point widens as hardware shrinks: 0.1 GHz (refl-all4,
+  47.5) -> 0.5 GHz (pair full-S, 35.4) -> 1 GHz (refl-pair 45.5 / single 21.2).
+- `presentation/gen_deck_band.js`: appended Part 3 (map figure + verdict table
+  slides 13-14); Part 2 notebox now points to Part 3. Rebuilt pptx (14 slides)
+  + PDF.
+
+
 ## 2026-07-31 - Frequency_Reduction deck: Part 2 "trying to break it" (slides 9-12)
 
 - `presentation/gen_deck_band.js`: appended four slides - break-tier definitions
