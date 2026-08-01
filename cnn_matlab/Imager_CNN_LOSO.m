@@ -677,10 +677,10 @@ function net = trainCNN(XTrain, YTrain, nRows, nFreq, nClasses, cfg, execEnv)
 % held-out session is never shown as validation data during LOSO training).
     layers = [
         imageInputLayer([nRows nFreq 1], 'Normalization', 'zscore', 'Name', 'input')
-        convolution2dLayer([min(4,nRows) 20], cfg.Conv1, 'Padding', 'same', 'Name', 'conv1')
+        convolution2dLayer([min(4,nRows) min(20,nFreq)], cfg.Conv1, 'Padding', 'same', 'Name', 'conv1')
         batchNormalizationLayer('Name', 'bn1')
         reluLayer('Name', 'relu1')
-        convolution2dLayer([min(2,nRows) 10], cfg.Conv2, 'Padding', 'same', 'Name', 'conv2')
+        convolution2dLayer([min(2,nRows) min(10,nFreq)], cfg.Conv2, 'Padding', 'same', 'Name', 'conv2')
         batchNormalizationLayer('Name', 'bn2')
         reluLayer('Name', 'relu2')
         fullyConnectedLayer(cfg.FC1, 'Name', 'fc1')

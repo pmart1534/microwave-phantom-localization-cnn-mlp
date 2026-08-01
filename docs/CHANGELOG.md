@@ -4,6 +4,22 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-07-31
+
+- **Breaking-point analysis + ultra-narrow descent + 0.25 GHz placement scan.**
+  New `analyze_break_points.py` (-> `results/break_analysis.md`,
+  `break_curve.png`): per-phantom best-window-per-width curves with failure
+  tiers (DEGRADED < 90% of full-band, UNSTABLE fold-sigma >= 10, BROKEN < 50%,
+  DEEP < 25%). Conv kernels now clamp to `min(20,nFreq)` / `min(10,nFreq)`
+  (original program's convention) enabling windows below 0.2 GHz. Findings with
+  the full array: Empty NEVER breaks by any tier down to 0.05 GHz (99.3%); F4
+  never crosses any tier (floor 90.4 +/- 7.1 at 0.05 GHz); F5 degrades at
+  0.5 GHz, goes unstable at 1 GHz, but never crosses 50% (floor 59.6 +/- 17.8
+  at 0.05 GHz). Placement scan across nine 0.25 GHz windows: best slot is
+  phantom-dependent (F5: 2-2.25 at 83.8 +/- 3.5, beating 1.75-2's 80.8 +/- 12.6;
+  F4: 3.5-3.75 at 98.1). With 16 S-parameters the model cannot be pushed below
+  50% by bandwidth alone.
+
 ## 2026-07-29
 
 - **Sub-4 GHz "break it" descent (Phases 1-2, CNN, raw, all 16 S-params).**
