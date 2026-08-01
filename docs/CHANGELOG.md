@@ -4,6 +4,19 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-07-31 - Frequency_Reduction deck: Part 2 "trying to break it" (slides 9-12)
+
+- `presentation/gen_deck_band.js`: appended four slides - break-tier definitions
+  (DEGRADED/UNSTABLE/BROKEN/DEEP), the nine-window 0.25 GHz placement scan
+  (2-2.25 GHz best; below ~1.25 GHz even the empty phantom crosses the 50% line),
+  the best-per-width descent curve (`assets/break_curve.png`), and the per-phantom
+  break verdict table (Empty/F4 never break; F5 degraded at 0.5 GHz, unstable at
+  1 GHz, never <50%; floors 99.3/90.4/59.6 at 50 MHz).
+- Rebuilt `Frequency_Reduction.pptx` (12 slides) + PDF.
+- Adaptive hardware x band break-descent sweep (`cnn_matlab/break_descent.sh`)
+  launched in background; results will extend this deck as Part 3.
+
+
 ## 2026-07-31
 
 - **Breaking-point analysis + ultra-narrow descent + 0.25 GHz placement scan.**

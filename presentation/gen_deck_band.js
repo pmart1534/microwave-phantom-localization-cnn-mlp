@@ -196,4 +196,86 @@ function bandTable(s, rows, y, note, rowH) {
       fontFace: "Calibri", margin: 0 });
 }
 
+
+// ================================================================ 9. PART 2 INTRO
+{
+  const s = p.addSlide();
+  title(s, "Part 2 · trying to break it", "New constraint, new question: where does it fail?");
+  s.addText("Follow-up task: stay entirely below 4 GHz (easier chip) and push the bandwidth down until the model breaks. That needs a definition of 'broken':",
+    { x: 0.5, y: 1.35, w: 9.0, h: 0.6, fontSize: 14, color: DARK, fontFace: "Calibri", margin: 0 });
+  const tier = (y, name, def, col) => {
+    s.addText(name, { x: 0.7, y, w: 2.2, h: 0.42, fontSize: 14.5, bold: true, color: col,
+      fontFace: "Cambria", margin: 0, valign: "middle" });
+    s.addText(def, { x: 3.0, y, w: 6.5, h: 0.42, fontSize: 12.5, color: DARK,
+      fontFace: "Calibri", margin: 0, valign: "middle" });
+  };
+  tier(2.15, "DEGRADED", "mean below 90% of that phantom's full-band accuracy", GREY);
+  tier(2.62, "UNSTABLE", "fold-to-fold sigma of 10 points or more: works one session, fails the next", "C8890B");
+  tier(3.09, "BROKEN", "mean below 50%: wrong more often than right (the headline break)", RED);
+  tier(3.56, "DEEP", "mean below 25%: approaching uselessness (still ~10x chance)", "8E1010");
+  notebox(s, "Method: descend bandwidth 3 -> 2 -> 1 -> 0.5 -> 0.25 -> 0.1 -> 0.05 GHz with the best placement at every width, plus a nine-window placement scan at 0.25 GHz. All below 4 GHz.", 4.35, 0.85, 13);
+}
+
+// ================================================================ 10. PLACEMENT SCAN
+{
+  const s = p.addSlide();
+  title(s, "Part 2 · placement", "A 0.25 GHz window: placement is everything");
+  const hdr = ["Window (GHz)", "Empty", "A3 + F4", "A3 + F5"].map(t =>
+    ({ text: t, options: { fill: { color: RED }, color: WHITE, bold: true, fontSize: 12.5,
+       align: "center", valign: "middle" } }));
+  const rows = [
+    ["0.5 - 0.75", "43.8 ± 7.9", "45.5 ± 7.4", "65.7 ± 6.3", false, true],
+    ["1 - 1.25", "48.4 ± 9.3", "65.4 ± 6.1", "74.7 ± 9.7", false, true],
+    ["1.25 - 1.5", "94.8 ± 4.5", "66.7 ± 12.0", "78.8 ± 3.0", false, false],
+    ["1.5 - 1.75", "99.3 ± 1.1", "88.5 ± 9.0", "74.7 ± 20.2", false, false],
+    ["1.75 - 2", "99.3 ± 1.1", "96.8 ± 1.3", "80.8 ± 12.6", false, false],
+    ["2 - 2.25", "100.0 ± 0.0", "95.5 ± 5.7", "83.8 ± 3.5", true, false],
+    ["2.5 - 2.75", "99.3 ± 1.1", "96.8 ± 1.3", "76.8 ± 4.6", false, false],
+    ["3 - 3.25", "99.3 ± 1.1", "96.8 ± 3.8", "74.7 ± 1.7", false, false],
+    ["3.5 - 3.75", "99.3 ± 1.1", "98.1 ± 2.5", "76.8 ± 3.5", false, false],
+  ];
+  const body = rows.map((r, i) => {
+    const fill = { color: r[4] ? TINT : (i % 2 ? "FAFAFA" : WHITE) };
+    const c = (v) => ({ text: v, options: { fill, color: r[5] ? RED : DARK, fontSize: 11.5,
+      align: "center", bold: r[4] } });
+    return [{ text: r[0], options: { fill, color: r[4] ? RED : (r[5] ? RED : DARK), bold: true,
+      fontSize: 11.5, align: "left" } }, c(r[1]), c(r[2]), c(r[3])];
+  });
+  s.addTable([hdr, ...body], { x: 0.5, y: 1.42, w: 9.0, colW: [2.5, 2.1, 2.2, 2.2],
+    border: { pt: 0.75, color: "D9D9D9" }, rowH: 0.315, valign: "middle", fontFace: "Calibri" });
+  notebox(s, "Best slot: 2-2.25 GHz (highlighted; also far more stable than 1.75-2). Red rows: below ~1.25 GHz even the EMPTY phantom breaks the 50% line. Bandwidth is survivable; bad placement is not.", 4.85, 0.62, 12);
+}
+
+// ================================================================ 11. BREAK CURVE
+{
+  const s = p.addSlide();
+  title(s, "Part 2 · the descent", "Best placement at every width, down to 0.05 GHz");
+  s.addImage({ path: A + "break_curve.png", x: 1.05, y: 1.42, w: 7.9, h: 4.28 });
+}
+
+// ================================================================ 12. BREAK VERDICT
+{
+  const s = p.addSlide();
+  title(s, "Part 2 · verdict", "Where each phantom breaks");
+  const hdr = ["Failure tier", "Empty", "A3 + F4", "A3 + F5"].map(t =>
+    ({ text: t, options: { fill: { color: RED }, color: WHITE, bold: true, fontSize: 13,
+       align: "center", valign: "middle" } }));
+  const rows = [
+    ["Degraded (<90% of full band)", "never", "never", "0.5 GHz"],
+    ["Unstable (fold sigma >= 10)", "never", "never", "1 GHz"],
+    ["Broken (<50%)", "never", "never", "never"],
+    ["Floor at 0.05 GHz (50 MHz)", "99.3 ± 1.1", "90.4 ± 7.1", "59.6 ± 17.8"],
+  ];
+  const body = rows.map((r, i) => {
+    const fill = { color: i % 2 ? TINT : WHITE };
+    return [{ text: r[0], options: { fill, color: DARK, bold: true, fontSize: 12.5, align: "left" } },
+      { text: r[1], options: { fill, color: DARK, fontSize: 12.5, align: "center" } },
+      { text: r[2], options: { fill, color: DARK, fontSize: 12.5, align: "center" } },
+      { text: r[3], options: { fill, color: RED, bold: true, fontSize: 12.5, align: "center" } }];
+  });
+  s.addTable([hdr, ...body], { x: 0.5, y: 1.5, w: 9.0, colW: [3.6, 1.7, 1.8, 1.9],
+    border: { pt: 0.75, color: "D9D9D9" }, rowH: 0.44, valign: "middle", fontFace: "Calibri" });
+  notebox(s, "With all 16 S-parameters and a well-placed window, bandwidth alone cannot push any phantom below 50%: even a 50 MHz sliver holds 99 / 90 / 60. F5 fails softly (degraded, then session-unstable below 1 GHz). Breaking for real requires combining the band cut with hardware reduction; that adaptive descent (reflection-only, fewer antennas) is running now.", 4.1, 1.1, 12.5);
+}
+
 p.writeFile({ fileName: "Frequency_Reduction.pptx" }).then(() => console.log("band deck written"));
