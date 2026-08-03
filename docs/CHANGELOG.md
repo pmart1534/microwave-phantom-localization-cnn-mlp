@@ -4,6 +4,17 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-01 - Band-placement importance plot + 0.1 GHz placement scan
+
+- `make_band_importance.py` (new): sufficiency-scan figure `results/band_importance.png`
+  - LOSO accuracy vs window center, one series per width (0.25/0.5/1/2 GHz, and
+  0.1 GHz once scan_100mhz.sh lands), one panel per phantom. Shows where in the
+  spectrum the position information lives.
+- `cnn_matlab/scan_100mhz.sh` (new, launched): nine 100 MHz windows across
+  0.95-3.55 GHz x 3 phantoms to verify the ~1.85-1.925 GHz ultra-narrow placement
+  was actually optimal (it was inherited from the 0.25 GHz scan, not proven).
+
+
 ## 2026-08-01 - Break-descent complete: hardware x band map + deck Part 3
 
 - Adaptive descent (`cnn_matlab/break_descent.sh`) finished: 4 reduced-hardware
