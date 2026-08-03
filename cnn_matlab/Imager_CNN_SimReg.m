@@ -48,9 +48,10 @@ antSel = lower(strtrim(getenv('SIM_ANT'))); if isempty(antSel), antSel = 'all16'
 switch antSel
     case 'all16', selCols = 1:16;            % full 16 S-parameters
     case 'refl',  selCols = [1 6 11 16];     % 4 reflections only (no transmission)
+    case 'pair13',selCols = [1 3 9 11];      % 2 antennas 1&3, FULL S (S11,S13,S31,S33)
     case 'refl2', selCols = [1 11];          % 2 reflections (ports 1 & 3)
     case 'refl1', selCols = 1;               % 1 reflection (port 1)
-    otherwise, error('bad SIM_ANT=%s (use all16|refl|refl2|refl1)', antSel);
+    otherwise, error('bad SIM_ANT=%s (use all16|refl|pair13|refl2|refl1)', antSel);
 end
 nRows = 2 * numel(selCols);
 rng(42);
