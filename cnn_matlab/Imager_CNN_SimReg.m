@@ -42,6 +42,17 @@ KFOLD = 8;  if ~isempty(getenv('SIM_KFOLD')),  KFOLD  = str2double(getenv('SIM_K
 simCV = lower(strtrim(getenv('SIM_CV'))); if isempty(simCV), simCV = 'kfold'; end  % kfold | depth
 NFREQ = 256; if ~isempty(getenv('SIM_NFREQ')), NFREQ = str2double(getenv('SIM_NFREQ')); end
 mixAlpha = str2double(getenv('MIXUP_ALPHA')); if isnan(mixAlpha), mixAlpha = 0; end
+% Antenna / feature subset (parity with the measured Deck 1 reduction). Touchstone
+% 4-port order is row-major S11..S44; reflections Sii are columns [1 6 11 16].
+antSel = lower(strtrim(getenv('SIM_ANT'))); if isempty(antSel), antSel = 'all16'; end
+switch antSel
+    case 'all16', selCols = 1:16;            % full 16 S-parameters
+    case 'refl',  selCols = [1 6 11 16];     % 4 reflections only (no transmission)
+    case 'refl2', selCols = [1 11];          % 2 reflections (ports 1 & 3)
+    case 'refl1', selCols = 1;               % 1 reflection (port 1)
+    otherwise, error('bad SIM_ANT=%s (use all16|refl|refl2|refl1)', antSel);
+end
+nRows = 2 * numel(selCols);
 rng(42);
 if usejava('desktop'), figVis = 'on'; else, figVis = 'off'; end
 
@@ -110,10 +121,11 @@ for k = 1:numel(files)
     if size(S, 2) ~= 16, continue; end
     S_r = resampleC(fq, S, grid);
     dS = S_r - SbUse;                                    % NFREQ x 16
-    img = zeros(32, NFREQ);
-    for c = 1:16
-        img(2*c-1, :) = abs(dS(:, c)).';
-        img(2*c,   :) = angle(dS(:, c)).';
+    img = zeros(nRows, NFREQ);
+    for jj = 1:numel(selCols)
+        c = selCols(jj);
+        img(2*jj-1, :) = abs(dS(:, c)).';
+        img(2*jj,   :) = angle(dS(:, c)).';
     end
     Xc{end+1} = img;   %#ok<AGROW>
     T(end+1, :) = xyz; %#ok<AGROW>
@@ -121,7 +133,7 @@ end
 fprintf('  excluded z=%g: %d    unmapped-depth skipped: %d\n', EXCLUDE_Z, nExcl, nNoBase);
 N = size(T, 1);
 if N < 20, error('Too few positions loaded (%d).', N); end
-X = zeros(32, NFREQ, 1, N);
+X = zeros(nRows, NFREQ, 1, N);
 for i = 1:N, X(:, :, 1, i) = Xc{i}; end
 clear Xc;
 fprintf('Loaded %d positions.  x[%.0f,%.0f] y[%.0f,%.0f] z[%.0f,%.0f] mm\n', ...
@@ -144,7 +156,7 @@ if ~isempty(depthList)
     X = X(:, :, :, keep); T = T(keep, :); N = size(T, 1);
     fprintf('  [SIM_DEPTHS=%s] -> %d positions across %d depths\n', depthList, N, numel(dsel));
 end
-fprintf('CNN input image: 32 x %d   folds=%d  epochs=%d  mixup=%.2f\n', NFREQ, KFOLD, cfg.Epochs, mixAlpha);
+fprintf('CNN input image: %d x %d  (ant=%s)  folds=%d  epochs=%d  mixup=%.2f\n', nRows, NFREQ, antSel, KFOLD, cfg.Epochs, mixAlpha);
 
 if gpuDeviceCount > 0, execEnv = 'gpu'; else, execEnv = 'cpu'; end
 
@@ -195,7 +207,7 @@ for f = 1:nFold
     mu = mean(Xtr, 4); sd = std(Xtr, 0, 4) + 1e-8;
     Xtr = (Xtr - mu) ./ sd; Xte = (Xte - mu) ./ sd;
     if mixAlpha > 0, [Xtr, Ttr] = mixup3(Xtr, Ttr, mixAlpha, 1.0); end
-    net = trainSimCNN(Xtr, Ttr, NFREQ, cfg, execEnv);
+    net = trainSimCNN(Xtr, Ttr, nRows, NFREQ, cfg, execEnv);
     pred(teIdx, :) = double(predict(net, Xte));
     xy = median(hypot(pred(teIdx,1)-T(teIdx,1), pred(teIdx,2)-T(teIdx,2)));
     zz = median(abs(pred(teIdx,3)-T(teIdx,3)));
@@ -252,6 +264,8 @@ elseif mixAlpha > 0,           cvpart = sprintf('%dfold_mixup%s', KFOLD, strrep(
 else,                          cvpart = sprintf('%dfold', KFOLD); end
 tag = sprintf('%s_nf%d%s', cvpart, NFREQ, xtag);
 if FMIN > 2.01e9 || FMAX < 7.99e9, tag = [tag sprintf('_b%g-%g', FMIN/1e9, FMAX/1e9)]; end
+if ~strcmp(antSel, 'all16'), tag = [tag '_' antSel]; end
+S.antSel = antSel; S.selCols = selCols;
 if ~isempty(oneDepth), tag = [tag '_z' strrep(oneDepth, '-', 'm')]; end
 if ~isempty(depthList), tag = [tag sprintf('_d%d', numel(str2num(depthList)))]; end %#ok<ST2NM>
 simLabel = strtrim(getenv('SIM_LABEL')); if ~isempty(simLabel), tag = [tag '_' simLabel]; end
@@ -375,12 +389,13 @@ function [Xo, To] = mixup3(X, T, alpha, ratio)
     Xo = cat(4, X, Xmix); To = [T; Tmix];
 end
 
-function net = trainSimCNN(XTrain, TTrain, nFreq, cfg, execEnv)
+function net = trainSimCNN(XTrain, TTrain, nRows, nFreq, cfg, execEnv)
+    k1h = min(4, nRows); k2h = min(2, nRows);   % clamp filter height to row count (refl subsets)
     layers = [
-        imageInputLayer([32 nFreq 1], 'Normalization', 'zscore', 'Name', 'input')
-        convolution2dLayer([4 20], cfg.Conv1, 'Padding', 'same', 'Name', 'conv1')
+        imageInputLayer([nRows nFreq 1], 'Normalization', 'zscore', 'Name', 'input')
+        convolution2dLayer([k1h 20], cfg.Conv1, 'Padding', 'same', 'Name', 'conv1')
         batchNormalizationLayer('Name','bn1'); reluLayer('Name','relu1')
-        convolution2dLayer([2 10], cfg.Conv2, 'Padding', 'same', 'Name', 'conv2')
+        convolution2dLayer([k2h 10], cfg.Conv2, 'Padding', 'same', 'Name', 'conv2')
         batchNormalizationLayer('Name','bn2'); reluLayer('Name','relu2')
         fullyConnectedLayer(cfg.FC1, 'Name','fc1')
         batchNormalizationLayer('Name','bn3'); reluLayer('Name','relu3')

@@ -7,14 +7,15 @@ the best center. CNN under LOSO (the deck's measured protocol), band-masked.
 Writes results/bw_meas_narrow_empty.json.
 """
 from __future__ import annotations
-import numpy as np, json, time
+import sys, numpy as np, json, time
 import bandwidth_sweep_reg as B
 import bandwidth_cnn as C
 
+DS = sys.argv[1] if len(sys.argv) > 1 else "empty"    # empty | F4 | F5
 band = (1.0, 8.0); FG, FGG = B.make_grid(*band)
-d = B.get_data("empty", FG, band); folds = d["sess"].copy()   # LOSO = session folds
+d = B.get_data(DS, FG, band); folds = d["sess"].copy()   # LOSO = session folds
 ch = B.chance_baseline(d, folds)
-print(f"empty [LOSO] {d['Yc'].shape[0]} samples, {len(np.unique(folds))} sessions, chance {ch*25.4:.1f} mm", flush=True)
+print(f"{DS} [LOSO] {d['Yc'].shape[0]} samples, {len(np.unique(folds))} sessions, chance {ch*25.4:.1f} mm", flush=True)
 
 bands = []
 for c in np.round(np.arange(1.125, 7.876, 0.25), 3):          # 0.25 GHz across 1-8
@@ -34,6 +35,6 @@ for lo, hi in bands:
                      ncols=int(cols.size), err=e))
     print(f"  {lo}-{hi} GHz (w{round(hi-lo,3)}, {cols.size}c): {e*25.4:.1f} mm  ({time.time()-t0:.0f}s)", flush=True)
 
-json.dump(dict(dataset="empty", mode="loso", chanceIn=ch, rows=rows),
-          open(B.RESULTS / "bw_meas_narrow_empty.json", "w"), indent=1)
-print("MEAS NARROW DONE", flush=True)
+json.dump(dict(dataset=DS, mode="loso", chanceIn=ch, rows=rows),
+          open(B.RESULTS / f"bw_meas_narrow_{DS}.json", "w"), indent=1)
+print(f"MEAS NARROW {DS} DONE", flush=True)
