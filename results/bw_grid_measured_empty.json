@@ -1,0 +1,358 @@
+{
+ "dataset": "empty",
+ "mode": "loso",
+ "center": 2.125,
+ "chanceIn": 1.3417410805586698,
+ "brokenMm": 20.0,
+ "widths": [
+  3.0,
+  2.0,
+  1.0,
+  0.5,
+  0.25,
+  0.1,
+  0.05
+ ],
+ "grid": [
+  {
+   "antenna": "16 S-params (full)",
+   "cells": [
+    {
+     "width": 3.0,
+     "band": [
+      1.0,
+      4.0
+     ],
+     "err_mm": 4.34,
+     "broken": false
+    },
+    {
+     "width": 2.0,
+     "band": [
+      1.125,
+      3.125
+     ],
+     "err_mm": 4.52,
+     "broken": false
+    },
+    {
+     "width": 1.0,
+     "band": [
+      1.625,
+      2.625
+     ],
+     "err_mm": 3.17,
+     "broken": false
+    },
+    {
+     "width": 0.5,
+     "band": [
+      1.875,
+      2.375
+     ],
+     "err_mm": 3.25,
+     "broken": false
+    },
+    {
+     "width": 0.25,
+     "band": [
+      2.0,
+      2.25
+     ],
+     "err_mm": 3.33,
+     "broken": false
+    },
+    {
+     "width": 0.1,
+     "band": [
+      2.075,
+      2.175
+     ],
+     "err_mm": 3.94,
+     "broken": false
+    },
+    {
+     "width": 0.05,
+     "band": [
+      2.1,
+      2.15
+     ],
+     "err_mm": 4.51,
+     "broken": false
+    }
+   ]
+  },
+  {
+   "antenna": "4 ant, refl only",
+   "cells": [
+    {
+     "width": 3.0,
+     "band": [
+      1.0,
+      4.0
+     ],
+     "err_mm": 4.63,
+     "broken": false
+    },
+    {
+     "width": 2.0,
+     "band": [
+      1.125,
+      3.125
+     ],
+     "err_mm": 4.98,
+     "broken": false
+    },
+    {
+     "width": 1.0,
+     "band": [
+      1.625,
+      2.625
+     ],
+     "err_mm": 4.77,
+     "broken": false
+    },
+    {
+     "width": 0.5,
+     "band": [
+      1.875,
+      2.375
+     ],
+     "err_mm": 4.22,
+     "broken": false
+    },
+    {
+     "width": 0.25,
+     "band": [
+      2.0,
+      2.25
+     ],
+     "err_mm": 5.27,
+     "broken": false
+    },
+    {
+     "width": 0.1,
+     "band": [
+      2.075,
+      2.175
+     ],
+     "err_mm": 6.53,
+     "broken": false
+    },
+    {
+     "width": 0.05,
+     "band": [
+      2.1,
+      2.15
+     ],
+     "err_mm": 7.01,
+     "broken": false
+    }
+   ]
+  },
+  {
+   "antenna": "2 ant (1&3), full S",
+   "cells": [
+    {
+     "width": 3.0,
+     "band": [
+      1.0,
+      4.0
+     ],
+     "err_mm": 4.54,
+     "broken": false
+    },
+    {
+     "width": 2.0,
+     "band": [
+      1.125,
+      3.125
+     ],
+     "err_mm": 4.8,
+     "broken": false
+    },
+    {
+     "width": 1.0,
+     "band": [
+      1.625,
+      2.625
+     ],
+     "err_mm": 4.64,
+     "broken": false
+    },
+    {
+     "width": 0.5,
+     "band": [
+      1.875,
+      2.375
+     ],
+     "err_mm": 4.01,
+     "broken": false
+    },
+    {
+     "width": 0.25,
+     "band": [
+      2.0,
+      2.25
+     ],
+     "err_mm": 4.6,
+     "broken": false
+    },
+    {
+     "width": 0.1,
+     "band": [
+      2.075,
+      2.175
+     ],
+     "err_mm": 5.9,
+     "broken": false
+    },
+    {
+     "width": 0.05,
+     "band": [
+      2.1,
+      2.15
+     ],
+     "err_mm": 6.88,
+     "broken": false
+    }
+   ]
+  },
+  {
+   "antenna": "2 ant (1&3), refl only",
+   "cells": [
+    {
+     "width": 3.0,
+     "band": [
+      1.0,
+      4.0
+     ],
+     "err_mm": 5.08,
+     "broken": false
+    },
+    {
+     "width": 2.0,
+     "band": [
+      1.125,
+      3.125
+     ],
+     "err_mm": 5.99,
+     "broken": false
+    },
+    {
+     "width": 1.0,
+     "band": [
+      1.625,
+      2.625
+     ],
+     "err_mm": 4.61,
+     "broken": false
+    },
+    {
+     "width": 0.5,
+     "band": [
+      1.875,
+      2.375
+     ],
+     "err_mm": 4.71,
+     "broken": false
+    },
+    {
+     "width": 0.25,
+     "band": [
+      2.0,
+      2.25
+     ],
+     "err_mm": 5.28,
+     "broken": false
+    },
+    {
+     "width": 0.1,
+     "band": [
+      2.075,
+      2.175
+     ],
+     "err_mm": 6.3,
+     "broken": false
+    },
+    {
+     "width": 0.05,
+     "band": [
+      2.1,
+      2.15
+     ],
+     "err_mm": 5.57,
+     "broken": false
+    }
+   ]
+  },
+  {
+   "antenna": "1 ant (S11 only)",
+   "cells": [
+    {
+     "width": 3.0,
+     "band": [
+      1.0,
+      4.0
+     ],
+     "err_mm": 7.6,
+     "broken": false
+    },
+    {
+     "width": 2.0,
+     "band": [
+      1.125,
+      3.125
+     ],
+     "err_mm": 8.82,
+     "broken": false
+    },
+    {
+     "width": 1.0,
+     "band": [
+      1.625,
+      2.625
+     ],
+     "err_mm": 6.75,
+     "broken": false
+    },
+    {
+     "width": 0.5,
+     "band": [
+      1.875,
+      2.375
+     ],
+     "err_mm": 7.76,
+     "broken": false
+    },
+    {
+     "width": 0.25,
+     "band": [
+      2.0,
+      2.25
+     ],
+     "err_mm": 8.82,
+     "broken": false
+    },
+    {
+     "width": 0.1,
+     "band": [
+      2.075,
+      2.175
+     ],
+     "err_mm": 11.82,
+     "broken": false
+    },
+    {
+     "width": 0.05,
+     "band": [
+      2.1,
+      2.15
+     ],
+     "err_mm": 12.49,
+     "broken": false
+    }
+   ]
+  }
+ ]
+}

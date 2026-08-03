@@ -100,7 +100,8 @@ for ax, (title, rows, lbl) in zip(axs, PANELS):
                 ax.add_patch(Rectangle((x, y), 1, 1, facecolor=col, edgecolor="white", linewidth=1))
                 ax.text(x+0.5, y+0.5, f"{v:.1f}", ha="center", va="center", color=INK, fontsize=9.5)
     ax.set_xticks(np.arange(len(WIDTHS))+0.5)
-    ax.set_xticklabels([f"{lbl.get(w,'')}\n({w:g} GHz)" for w in WIDTHS], fontsize=8)
+    ax.set_xticklabels([(f"{w:g} GHz" if w >= 1 else f"{int(w*1000)} MHz") for w in WIDTHS],
+                       fontsize=8.5, rotation=30, ha="right")
     ax.set_yticks(np.arange(len(ANT_ROWS))+0.5); ax.set_yticklabels(ANT_ROWS, fontsize=9)
     ax.tick_params(length=0)
     for s in ax.spines.values(): s.set_visible(False)
