@@ -4,6 +4,21 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-01 - 0.1 GHz placement scan complete: each phantom has its own best frequency
+
+- `cnn_matlab/scan_100mhz.sh` finished (27 runs; resume/skip logic added after a
+  mid-scan pause for a BIOS update; one CUDA-error casualty re-run).
+- Best 100 MHz slot per phantom: empty 1.95-2.05 (100.0, indifferent above 1.45),
+  F4 2.95-3.05 (97.4, small target rewards higher f), F5 2.2-2.3 (78.8, large
+  lossy insert forces low). F5 has a local DIP at 1.7-2.05 (62-67) - the descent's
+  1.825-1.925/1.85-1.9 slots were NOT its best, so the ultra-narrow floors in the
+  break verdict are conservative (true 0.1 GHz floor ~79, not 62.6).
+- `make_band_importance.py`: 0.1 GHz series + per-phantom best-slot stars added
+  to `results/band_importance.png`.
+- Deck: new slide 11 "Each phantom has its own best frequency" (sufficiency-scan
+  figure + phantom-dependence note); 15 slides total.
+
+
 ## 2026-08-01 - Band-placement importance plot + 0.1 GHz placement scan
 
 - `make_band_importance.py` (new): sufficiency-scan figure `results/band_importance.png`

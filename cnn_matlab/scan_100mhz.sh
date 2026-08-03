@@ -13,11 +13,18 @@ PH_parent=("$B\\June18" "$B\\July03\\A3_F4_SamMed" "$B\\July03\\A3_F5_SamMed")
 PH_sess=("" "1623 1642 1707 1726" "1432 1454 1516")
 PH_label=(remap all4 last3)
 PH_remap=("2 1 4 3" "" "")
+PH_jsonpre=(June18_remap A3_F4_SamMed_all4 A3_F5_SamMed_last3)
 
 BANDS=("0.95 1.05" "1.2 1.3" "1.45 1.55" "1.7 1.8" "1.95 2.05" "2.2 2.3" "2.45 2.55" "2.95 3.05" "3.45 3.55")
 
 for bi in "${!BANDS[@]}"; do
   for p in 0 1 2; do
+    BT="${BANDS[$bi]}"; BT="${BT/ /-}"
+    J="C:/Users/peter/Desktop/EM Imaging/CNN vs MLP/results/cnn_loso_${PH_jsonpre[$p]}_raw_all_ant1-2-3-4_band${BT}.json"
+    if [ -f "$J" ]; then
+      echo "--- skip ${PH_names[$p]} [${BANDS[$bi]}] (result exists)"
+      continue
+    fi
     export CNN_LOSO_PARENT="${PH_parent[$p]}"; export CNN_LOSO_SESSIONS="${PH_sess[$p]}"
     export CNN_LOSO_SETLABEL="${PH_label[$p]}"; export CNN_LOSO_PORT_REMAP="${PH_remap[$p]}"
     export CNN_LOSO_BAND="${BANDS[$bi]}"

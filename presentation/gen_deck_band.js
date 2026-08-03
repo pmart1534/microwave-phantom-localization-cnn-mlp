@@ -246,6 +246,14 @@ function bandTable(s, rows, y, note, rowH) {
   notebox(s, "Best slot: 2-2.25 GHz (highlighted; also far more stable than 1.75-2). Red rows: below ~1.25 GHz even the EMPTY phantom breaks the 50% line. Bandwidth is survivable; bad placement is not.", 4.85, 0.62, 12);
 }
 
+// ================================================================ 10b. WHERE INFO LIVES
+{
+  const s = p.addSlide();
+  title(s, "Part 2 · placement, proven", "Each phantom has its own best frequency");
+  s.addImage({ path: A + "band_importance.png", x: 0.3, y: 1.5, w: 9.4, h: 2.88 });
+  notebox(s, "Sufficiency scan: train on ONLY one window and slide it across the spectrum. Best narrow slot differs by phantom: empty ~2.0 GHz (indifferent above 1.45), F4 ~3.0 (small target rewards higher frequency), F5 ~2.2-2.3 (large lossy insert forces low). The descent's 1.85-1.9 GHz slot was NOT F5's best (62.6 there vs 78.8 at 2.2-2.3), so true narrow-band floors are even higher. Pick the chip band for the worst-case target.", 4.5, 1.0, 11);
+}
+
 // ================================================================ 11. BREAK CURVE
 {
   const s = p.addSlide();

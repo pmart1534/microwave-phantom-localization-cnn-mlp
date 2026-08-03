@@ -46,6 +46,12 @@ def main():
             cs, ms, ss = zip(*pts)
             ax.errorbar(cs, ms, yerr=ss, fmt=f"-{mk}", color=col, lw=1.8, ms=5,
                         capsize=2.5, alpha=0.9, label=f"{w:g} GHz wide")
+        # star = best narrow (<=0.25 GHz) window for this phantom
+        narrow = [(c, m) for w, c, m, s in rows if w <= 0.25]
+        if narrow:
+            bc, bm = max(narrow, key=lambda t: t[1])
+            ax.plot(bc, bm + 6, marker="*", ms=16, color="#BE0000", mec="#2A1618",
+                    mew=0.8, zorder=5, clip_on=False)
         ax.axhline(50, color="#333", ls="--", lw=1)
         ax.set_title(ph, fontsize=12.5, fontweight="bold")
         ax.set_xlabel("window center (GHz)", fontsize=10.5)
@@ -54,8 +60,8 @@ def main():
     axes[0].set_ylabel("LOSO accuracy (%)", fontsize=10.5)
     axes[0].set_ylim(0, 105)
     axes[0].legend(loc="lower right", fontsize=9)
-    fig.suptitle("Where the information lives: train on ONLY one window, slide it across the spectrum "
-                 "(shaded = 1.75-2.25 GHz; dashed = broken)", fontsize=11.5, y=0.99)
+    fig.suptitle("Where the information lives: train on ONLY one window, slide it across the spectrum. "
+                 "Star = best narrow slot per phantom (each is different)", fontsize=11.5, y=0.99)
     fig.tight_layout(rect=[0, 0, 1, 0.94])
     fig.savefig(RESULTS / "band_importance.png", dpi=180)
     print("wrote", RESULTS / "band_importance.png")
