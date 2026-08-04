@@ -1,13 +1,11 @@
-"""4-panel hardware x bandwidth error grid (regression).
+"""4-panel hardware x bandwidth error grid (regression) -- styled to match the
+classification break-descent map (analyze_break_descent.py): imshow continuous
+colormap, black-box outline for BROKEN cells, '--' for skipped-after-break.
 
 Panels: Empty, F4, F5 (measured session-LOSO CNN) + Sim (tuned 8-fold CNN),
-each optimized to its OWN best center. Rows = antenna/feature reduction,
-cols = band width. Cell = lateral error (mm), 3-tier:
-  <10 good (green) | 10-20 degraded (yellow->orange) | >20 BROKEN (black box).
-Skipped-after-break cells show '--'.
-
-Measured grids: results/bw_grid_measured_{ds}.json (structured).
-Sim grid: per-cell results/cnn_simreg_*_grid.json (reconstructed + skip rule).
+each at its own best center. Cell = lateral error (mm); low=green, high=red;
+> BROKEN mm gets a black box. Measured grids: results/bw_grid_measured_{ds}.json;
+sim reconstructed from results/cnn_simreg_*_grid.json.
 """
 import os, json
 import numpy as np
@@ -15,16 +13,16 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-from matplotlib.patches import Rectangle
 
 HERE = os.path.dirname(__file__); RES = os.path.join(HERE, "..", "results")
-INK = "#1E293B"; MUTE = "#5B6B7B"
 WIDTHS = [3.0, 2.0, 1.0, 0.5, 0.25, 0.1, 0.05]
 ANT_ROWS = ["16 S-params (full)", "4 ant, refl only", "2 ant (1&3), full S",
             "2 ant (1&3), refl only", "1 ant (S11 only)"]
 BROKEN = 20.0
-# green -> yellow -> orange over [0,20]; >20 handled separately (black)
-CMAP = LinearSegmentedColormap.from_list("gyo", ["#2E7D5B", "#7DBb6a", "#E8D34e", "#E8973a", "#D8563a"])
+VMIN, VMAX = 3.0, 20.0
+# reversed accuracy palette: low error = green (good), high error = dark red (bad)
+CMAP = LinearSegmentedColormap.from_list(
+    "err", ["#3E7A3E", "#7BA05B", "#F5E6A3", "#E8A33D", "#BE0000", "#8E1010"])
 
 # ---- sim: reconstruct grid from per-cell JSONs + skip-after-break ----
 SIM_ANT_SUF = {"16 S-params (full)": "", "4 ant, refl only": "_refl",
@@ -38,85 +36,71 @@ SIM_BANDLBL = {3.0: "2-8", 2.0: "2.25-4.25", 1.0: "2.75-3.75", 0.5: "3-3.5",
 def sim_cell(ant, w):
     suf = SIM_BAND_SUF[w]; band = "" if suf is None else suf
     fp = os.path.join(RES, f"cnn_simreg_8fold_nf256_5mmgrid{band}{SIM_ANT_SUF[ant]}_grid.json")
-    if not os.path.exists(fp): return None
-    return json.load(open(fp))["lateral_medianMm"]
+    return json.load(open(fp))["lateral_medianMm"] if os.path.exists(fp) else None
 
 def sim_grid():
-    rows = []
-    for ant in ANT_ROWS:
-        cells = []; broke = False
-        for w in WIDTHS:
-            if broke: cells.append((None, True, None)); continue
+    grid = np.full((len(ANT_ROWS), len(WIDTHS)), np.nan)
+    for i, ant in enumerate(ANT_ROWS):
+        broke = False
+        for j, w in enumerate(WIDTHS):
+            if broke: continue
             v = sim_cell(ant, w)
-            if v is None: cells.append((None, True, None)); continue
-            broke = v > BROKEN
-            cells.append((v, False, SIM_BANDLBL[w]))
-        rows.append(cells)
-    # widest labels for the x axis come from SIM_BANDLBL
-    return rows, {w: SIM_BANDLBL[w] for w in WIDTHS}
+            if v is None: continue
+            grid[i, j] = v; broke = v > BROKEN
+    return grid, {w: SIM_BANDLBL[w] for w in WIDTHS}, 3.25, 39.0
 
 def meas_grid(ds):
     d = json.load(open(os.path.join(RES, f"bw_grid_measured_{ds}.json")))
-    lbl = {}
-    rows = []
-    for r in d["grid"]:
-        cells = []
-        for c in r["cells"]:
-            if c.get("skipped"): cells.append((None, True, None))
-            else:
-                b = c.get("band"); ll = f"{b[0]:g}-{b[1]:g}" if b else ""
-                lbl[c["width"]] = ll
-                cells.append((c["err_mm"], False, ll))
-        rows.append(cells)
-    return rows, lbl, d["center"], d["chanceIn"]
+    grid = np.full((len(ANT_ROWS), len(WIDTHS)), np.nan); lbl = {}
+    for i, r in enumerate(d["grid"]):
+        for j, c in enumerate(r["cells"]):
+            if not c.get("skipped") and c.get("err_mm") is not None:
+                grid[i, j] = c["err_mm"]
+                b = c.get("band");  lbl[c["width"]] = f"{b[0]:g}-{b[1]:g}" if b else ""
+    return grid, lbl, d["center"], d["chanceIn"]
 
 PANELS = []
-for ds in ["empty", "F4", "F5"]:
-    try:
-        rows, lbl, c0, ch = meas_grid(ds)
-        PANELS.append((f"{ds}  (LOSO, ctr {c0:g} GHz)", rows, lbl))
-    except FileNotFoundError:
-        PANELS.append((f"{ds} (pending)", None, None))
-srows, slbl = sim_grid()
-PANELS.append(("Sim  (8-fold, ctr ~3.25 GHz)", srows, slbl))
+for ds, disp in [("empty", "Empty"), ("F4", "F4"), ("F5", "F5")]:
+    g, lbl, c0, ch = meas_grid(ds)
+    PANELS.append((f"{disp}  (LOSO, ctr {c0:g} GHz)", g, lbl))
+g, lbl, c0, ch = sim_grid()
+PANELS.append(("Sim  (8-fold, ctr ~3.25 GHz)", g, lbl))
 
-fig, axs = plt.subplots(1, 4, figsize=(20, 5.2))
-for ax, (title, rows, lbl) in zip(axs, PANELS):
-    ax.set_title(title, fontsize=12.5, fontweight="bold", color=INK)
-    ax.set_xlim(0, len(WIDTHS)); ax.set_ylim(0, len(ANT_ROWS)); ax.invert_yaxis()
-    if rows is None:
-        ax.text(len(WIDTHS)/2, len(ANT_ROWS)/2, "pending", ha="center", va="center", color=MUTE); continue
-    for ri, cells in enumerate(rows):
-        for ci, (v, skipped, _) in enumerate(cells):
-            x, y = ci, ri
-            if skipped:
-                ax.add_patch(Rectangle((x, y), 1, 1, facecolor="white", edgecolor="#E7D6D1"))
-                ax.text(x+0.5, y+0.5, "--", ha="center", va="center", color="#B9A6A2", fontsize=11)
-            elif v > BROKEN:
-                ax.add_patch(Rectangle((x, y), 1, 1, facecolor="#1A1A1A", edgecolor="k", linewidth=1.5))
-                ax.text(x+0.5, y+0.5, f"{v:.0f}", ha="center", va="center", color="white", fontsize=10, fontweight="bold")
+fig, axes = plt.subplots(1, 4, figsize=(20, 4.8))
+def wlab(w): return f"{w:g} GHz" if w >= 0.999 else f"{int(round(w*1000))} MHz"
+def actual_w(b, nom):
+    try: lo, hi = [float(x) for x in b.split("-")]; return hi - lo
+    except Exception: return nom
+
+for ci, (ax, (title, grid, lbl)) in enumerate(zip(axes, PANELS)):
+    disp = np.clip(grid, VMIN, VMAX)
+    ax.imshow(disp, cmap=CMAP, vmin=VMIN, vmax=VMAX, aspect="auto")
+    for i in range(len(ANT_ROWS)):
+        for j in range(len(WIDTHS)):
+            v = grid[i, j]
+            if np.isnan(v):
+                ax.text(j, i, "--", ha="center", va="center", fontsize=10, color="#B9A6A2")
             else:
-                col = CMAP(min(v, BROKEN)/BROKEN)
-                ax.add_patch(Rectangle((x, y), 1, 1, facecolor=col, edgecolor="white", linewidth=1))
-                ax.text(x+0.5, y+0.5, f"{v:.1f}", ha="center", va="center", color=INK, fontsize=9.5)
-    ax.set_xticks(np.arange(len(WIDTHS))+0.5)
-    def wlab(w): return f"{w:g} GHz" if w >= 0.999 else f"{int(round(w*1000))} MHz"
-    def actual_w(bandstr, nominal):
-        try: lo, hi = [float(x) for x in bandstr.split("-")]; return hi - lo
-        except Exception: return nominal
-    labels = []
-    for w in WIDTHS:
-        b = lbl.get(w, "?")
-        labels.append(f"{b} GHz\n({wlab(actual_w(b, w))})")
-    ax.set_xticklabels(labels, fontsize=7.3, rotation=32, ha="right")
-    ax.set_yticks(np.arange(len(ANT_ROWS))+0.5); ax.set_yticklabels(ANT_ROWS, fontsize=9)
+                broken = v > BROKEN
+                ax.text(j, i, f"{v:.1f}", ha="center", va="center", fontsize=9.3,
+                        fontweight="bold" if broken else "normal",
+                        color="white" if v >= 12 else "#1A1A1A")
+                if broken:
+                    ax.add_patch(plt.Rectangle((j-.5, i-.5), 1, 1, fill=False, edgecolor="black", lw=2.4))
+    ax.set_title(title, fontsize=12.5, fontweight="bold", color="#1E293B")
+    ax.set_xticks(range(len(WIDTHS)))
+    ax.set_xticklabels([f"{lbl.get(w,'?')} GHz\n({wlab(actual_w(lbl.get(w,''), w))})" for w in WIDTHS],
+                       fontsize=7.3, rotation=32, ha="right")
+    ax.set_yticks(range(len(ANT_ROWS)))
+    ax.set_yticklabels(ANT_ROWS if ci == 0 else [""]*len(ANT_ROWS), fontsize=9)
     ax.tick_params(length=0)
     for s in ax.spines.values(): s.set_visible(False)
 
-fig.suptitle("Localization error (mm) across hardware reduction x band narrowing  —  black = BROKEN (>20 mm), -- = skipped after break",
-             fontsize=13.5, fontweight="bold", color=INK, y=1.02)
-fig.text(0.5, -0.02, "Each panel optimized to its own best center (measured empty ~2.1, F4 ~2.9, F5 ~3.4, sim ~3.25 GHz). Cell = median lateral error; "
-         "green <10 mm, yellow/orange 10-20, black >20 (broken). Measured = session-LOSO CNN; sim = tuned 8-fold CNN.",
-         ha="center", fontsize=9.5, color=MUTE, style="italic")
-fig.tight_layout(rect=[0, 0, 1, 1])
-fig.savefig(os.path.join(HERE, "reduction_grid.png"), dpi=160, bbox_inches="tight"); print("wrote reduction_grid.png")
+fig.suptitle("Localization error (mm) across hardware reduction x band narrowing  —  black box = BROKEN (>20 mm), -- = skipped after break",
+             fontsize=12, y=1.0, color="#1E293B")
+fig.text(0.5, -0.04, "Each panel optimized to its own best center (empty ~2.1, F4 ~2.9, F5 ~3.4, sim ~3.25 GHz). Colour = median lateral error "
+         "(green good -> red bad); measured = session-LOSO CNN, sim = tuned 8-fold CNN.",
+         ha="center", fontsize=9.5, color="#5B6B7B", style="italic")
+fig.tight_layout(rect=[0, 0, 1, 0.94])
+fig.savefig(os.path.join(HERE, "reduction_grid.png"), dpi=180, bbox_inches="tight")
+print("wrote reduction_grid.png")
