@@ -112,7 +112,7 @@ for idx, (ax, (title, panel)) in enumerate(zip(axes.flat, PANELS)):
 fig.suptitle("Localization error (mm): full band -> narrowing x hardware reduction  —  black box = BROKEN (>20 mm), -- = skipped / not computed",
              fontsize=14, y=0.995, color="#1E293B")
 fig.text(0.5, 0.005, "First column = FULL band (measured 1-8, sim 2-8 GHz); the rest each at the panel's best center. Colour = median lateral error "
-         "(green good -> red bad). Measured = session-LOSO CNN; sim = tuned 8-fold CNN. (sim 3 GHz sub-band pending.)",
+         "(green good -> red bad). Measured = session-LOSO CNN; sim = tuned 8-fold CNN.",
          ha="center", fontsize=10, color="#5B6B7B", style="italic")
 fig.tight_layout(rect=[0, 0.02, 1, 0.965])
 fig.savefig(os.path.join(HERE, "reduction_grid.png"), dpi=180, bbox_inches="tight")
