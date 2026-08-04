@@ -24,13 +24,50 @@ import bandwidth_sweep_reg as B
 
 SIM = B.SIM; GPG = B.GPG; PERM = B.SIM_PERM
 FG = np.linspace(2e9, 8e9, 256); DF = FG[1] - FG[0]
+MEAS = (r"C:\Users\peter\Desktop\EM Imaging\BreastPhantom\HunterVNA\DataMeasurements"
+        r"\Sam Antennas\MediumAntenna\Separated\June18")
 
-# --- nuisance budget, calibrated to measured June18 A3 ---
-SNR          = 6.6      # per-cell |S| signal/noise (match measured)
-DRIFT_RIPPLE = 0.12     # per-session common-mode freq-shape gain ripple (frac of signal)
-ANT_GAIN_STD = 0.05     # per-session per-antenna complex gain std (keep small: don't scramble the which-antenna pattern)
+# --- nuisance model params (drift shape); noise SNR is calibrated per-channel from the bench ---
+ANT_GAIN_STD = 0.08     # per-session per-antenna complex gain std (keep small: don't scramble which-antenna)
 FSHIFT_STD   = 30e6     # per-session resonance/frequency jitter (Hz)
 N_MODES      = 3        # low-order frequency modes in the drift ripple
+# the cos-mode ripple partially averages out over frequency, so its amplitude must be
+# ~2.5x the target cross-session drift to actually PRODUCE that much |dS| variation.
+DRIFT_GAIN   = 2.5
+
+
+def _read_meas(path):
+    a = np.genfromtxt(path, delimiter=",", skip_header=1); a = a[:, ~np.all(np.isnan(a), axis=0)]
+    b = a[:, 1:].reshape(a.shape[0], 16, 2)
+    return b[:, :, 0] * np.exp(1j * np.deg2rad(b[:, :, 1]))          # (F,16)
+
+
+def measured_calibration(n_pos=30):
+    """Per-S-parameter SNR (16,) and drift fraction from the June18 A3 bench.
+    SNR_c = median tumor |dS_c| / within-session take-to-take std of |S_c|;
+    drift = cross-session std of the session-mean |S|, as a fraction of the signal."""
+    import glob, re
+    sess = sorted(glob.glob(os.path.join(MEAS, "BreastPhantom_A3_*")))
+    noise_c, means = [], []
+    for s in sess:
+        bf = sorted(glob.glob(os.path.join(s, "baseline_T*.csv")))
+        if not bf: continue
+        S = np.abs(np.array([_read_meas(b) for b in bf]))            # (takes,F,16)
+        noise_c.append(np.median(S.std(0), axis=0))                  # (16,) take-to-take std
+        means.append(S.mean(0))                                      # (F,16) session-mean |S|
+    noise_c = np.median(np.array(noise_c), axis=0)                   # (16,)
+    drift_c = np.median(np.std(np.array(means), axis=0), axis=0)     # (16,) cross-session std
+    # tumor dS per channel (first session, up to n_pos positions)
+    s0 = sess[0]; bf = sorted(glob.glob(os.path.join(s0, "baseline_T*.csv")))
+    base = np.mean([_read_meas(b) for b in bf], axis=0)
+    stems = sorted({re.match(r"(R\d+C\d+P\d+)_T", os.path.basename(x)).group(1)
+                    for x in glob.glob(os.path.join(s0, "R*C*P*_T*.csv"))})[:n_pos]
+    sig_c = np.median([np.abs(np.abs(np.mean([_read_meas(x) for x in
+                       glob.glob(os.path.join(s0, st + "_T*.csv"))], axis=0)) - np.abs(base))
+                       for st in stems], axis=(0, 1))                # (16,)
+    snr_c = sig_c / noise_c
+    drift_frac = float(np.median(drift_c / sig_c))
+    return snr_c, drift_frac
 
 
 def _resamp(f, S16):
@@ -59,19 +96,21 @@ def load_sim_ds(depth=15, baseline_key="b1_2"):
     return np.array(dS).transpose(0, 2, 1), np.array(tgt, float)   # (P,16,F), (P,2)
 
 
-def synth(dS, tgt, n_sess=3, n_take=16, seed=0, noise=True, drift=True):
-    """dS:(P,16,F) -> (N,16,F) with per-session drift + per-take noise; N=P*n_sess*n_take."""
+def synth(dS, tgt, snr_c, drift_ripple, n_sess=3, n_take=16, seed=0, noise=True, drift=True):
+    """dS:(P,16,F) -> (N,16,F) with per-session drift + per-take noise; N=P*n_sess*n_take.
+    snr_c: per-channel target SNR (16,). Noise std per quadrature = sig_c/snr_c, so
+    std(|dS+noise|) ~ sig_c/snr_c matches the measured per-channel take-to-take ratio."""
     rng = np.random.RandomState(seed)
     P, C, F = dS.shape
-    sig = np.median(np.abs(dS), axis=(0, 2))              # per-channel signal level (16,)
-    sigma = sig / SNR                                     # per-channel noise std
+    sig = np.median(np.abs(dS), axis=(0, 2))              # per-channel sim signal level (16,)
+    sigma = sig / snr_c                                   # per-quadrature noise std (16,)
     fn = np.linspace(0, 1, F)
     Yc, pos, sess, tg = [], [], [], []
     for k in range(n_sess):
         if drift:
             ripple = np.ones(F, complex)
             for m in range(N_MODES):
-                c = rng.normal(0, DRIFT_RIPPLE, 2)
+                c = rng.normal(0, drift_ripple, 2)
                 ripple += (c[0] + 1j*c[1]) * np.cos((m+1) * np.pi * fn)
             antg = (1 + rng.normal(0, ANT_GAIN_STD, C)) + 1j*rng.normal(0, ANT_GAIN_STD, C)
             shift = int(round(rng.normal(0, FSHIFT_STD) / DF))
@@ -81,8 +120,7 @@ def synth(dS, tgt, n_sess=3, n_take=16, seed=0, noise=True, drift=True):
             dS_k = dS
         for t in range(n_take):
             if noise:
-                nz = (rng.normal(0, 1, dS_k.shape) + 1j*rng.normal(0, 1, dS_k.shape))
-                nz = nz * (sigma[None, :, None] / np.sqrt(2))
+                nz = (rng.normal(0, 1, dS_k.shape) + 1j*rng.normal(0, 1, dS_k.shape)) * sigma[None, :, None]
             else:
                 nz = 0
             Yc.append(dS_k + nz); pos.append(np.arange(P)); sess.append(np.full(P, k)); tg.append(tgt)
@@ -112,16 +150,38 @@ def _cls_band(d, chans, lo, hi):
     return knn_classify_loso({**d, "Yc": d["Yc"][:, chans, :][:, :, cols]}) * 100
 
 
+def _validate(d, dS):
+    """Synthetic take-to-take ratio + cross-session drift, to compare to the bench."""
+    Yc, pos, sess = d["Yc"], d["pos"], d["sess"]
+    # take-to-take: std over takes within (pos,sess), as fraction of |dS|
+    r = []
+    for p in np.unique(pos)[:30]:
+        m = (pos == p) & (sess == 0); t = np.abs(Yc[m])
+        r.append(t.std(0).mean() / t.mean())
+    # drift: cross-session std of the per-(pos) session-mean |dS|, as fraction of signal
+    dr = []
+    for p in np.unique(pos)[:30]:
+        sm = [np.abs(Yc[(pos == p) & (sess == k)]).mean() for k in np.unique(sess)]
+        dr.append(np.std(sm) / np.mean(sm))
+    return float(np.median(r)), float(np.median(dr))
+
+
 if __name__ == "__main__":
     dS, tgt = load_sim_ds(); P = dS.shape[0]
-    print(f"sim: {P} (x,y) positions at z=15 mm; synthesizing 3 sessions x 16 takes\n")
+    snr_c, drift_frac = measured_calibration()
+    print(f"sim: {P} (x,y) positions at z=15 mm; 3 sessions x 16 takes")
+    print(f"measured calibration: median per-channel SNR {np.median(snr_c):.1f}x, drift {drift_frac*100:.0f}% of signal\n")
 
     # sanity: with no nuisances there are no sessions to distinguish -> trivially perfect
-    d0 = synth(dS, tgt, noise=False, drift=False)
+    d0 = synth(dS, tgt, snr_c, drift_frac, noise=False, drift=False)
     print(f"NOISELESS sanity: full-config LOSO classification {_cls_band(d0, list(range(16)), 2, 8):.1f}%  (trivial)\n")
 
-    # realistic sim: SNR-matched noise + per-session drift -> LOSO is a real test
-    d = synth(dS, tgt, noise=True, drift=True)
+    # realistic sim: per-channel SNR-matched noise + per-session drift
+    d = synth(dS, tgt, snr_c, drift_frac * DRIFT_GAIN, noise=True, drift=True)
+    tt, drf = _validate(d, dS)
+    print(f"synthetic vs bench:  per-channel SNR {np.median(snr_c):.1f}x (matched)   "
+          f"cross-session drift {drf*100:.0f}% (bench {drift_frac*100:.0f}%)   "
+          f"take-to-take {tt*100:.0f}% (signal-weighted)\n")
     print("NOISE + DRIFT sim -- LOSO position classification (87 classes) under reduction:")
     for lbl, ch, lo, hi in [("all-16, full 2-8",   list(range(16)), 2, 8),
                             ("4 refl, full 2-8",    [0, 5, 10, 15],  2, 8),
