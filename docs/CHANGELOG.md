@@ -4,6 +4,24 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-04 - Break descent v2: per-phantom best-center ladders + map + deck slide
+
+- `cnn_matlab/break_descent_best.sh` (new): adaptive descent where each phantom's
+  band ladder converges on ITS OWN best frequency (empty -> 2.0 GHz, F4 -> 3.0,
+  F5 -> 2.25); skip-if-exists reuse + <50% early stop (break check also fires on
+  reused results).
+- `analyze_break_descent_best.py` (new): `results/break_descent_best.md` +
+  `results/break_descent_map_best.png` (per-panel column labels). Original v1
+  map/figure kept unchanged per user request.
+- Findings: F4's single-antenna break VANISHES at its own center (70.5% at 50 MHz
+  vs broken at 0.5 GHz before) - it was placement, not information. F5 floors
+  rise ~10-15 pts (full-array 50 MHz: 74.7 vs 59.6) and refl-pair survives 1 GHz
+  (52.5), but reduced-hardware breaks remain (pair/refl-pair break at 0.5 GHz,
+  single at 1 GHz). Caveat: full-array best centers shift at reduced hardware
+  (empty S11 50 MHz: 58.8 at 2.0-center vs 74.5 at old 1.85-1.9).
+- Deck: new slide 15 (break map v2) after the original; 16 slides total.
+
+
 ## 2026-08-01 - 0.1 GHz placement scan complete: each phantom has its own best frequency
 
 - `cnn_matlab/scan_100mhz.sh` finished (27 runs; resume/skip logic added after a
