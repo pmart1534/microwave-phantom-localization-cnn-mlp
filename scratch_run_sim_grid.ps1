@@ -36,7 +36,7 @@ foreach ($r in $rows) {
     if (Test-Path $file) {
       $err = (Get-Content $file -Raw | ConvertFrom-Json).lateral_medianMm
       Write-Output ("RESUME (exists) {0} / {1}: {2:N1} mm" -f $r.name, $c.w, $err)
-      if ($err -gt $BROKEN) { $broke = $true }
+      if ($err -gt $BROKEN -and $err -lt 900) { $broke = $true }
       continue
     }
     if ($c.fmin -ne "") { $env:SIM_FMIN = $c.fmin; $env:SIM_FMAX = $c.fmax }
@@ -45,8 +45,9 @@ foreach ($r in $rows) {
     & $MAT -batch "run('$SCRIPT')"
     $err = 999.0
     if (Test-Path $file) { $err = (Get-Content $file -Raw | ConvertFrom-Json).lateral_medianMm }
-    Write-Output ("  -> {0:N1} mm  ({1})" -f $err, $(if ($err -gt $BROKEN) {"BROKEN"} else {"ok"}))
-    if ($err -gt $BROKEN) { $broke = $true }
+    $state = if ($err -ge 900) {"FAILED (no JSON) - will retry on next run"} elseif ($err -gt $BROKEN) {"BROKEN"} else {"ok"}
+    Write-Output ("  -> {0:N1} mm  ({1})" -f $err, $state)
+    if ($err -gt $BROKEN -and $err -lt 900) { $broke = $true }   # real >20 breaks; 999=failed does NOT
   }
 }
 Write-Output "SIM GRID DONE"
