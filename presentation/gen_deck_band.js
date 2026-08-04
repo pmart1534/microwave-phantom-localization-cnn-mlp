@@ -300,7 +300,7 @@ function bandTable(s, rows, y, note, rowH) {
   const s = p.addSlide();
   title(s, "Part 3 · break map v2", "Same descent, but each phantom aims at its own best frequency");
   s.addImage({ path: A + "break_descent_map_best.png", x: 0.25, y: 1.55, w: 9.5, h: 2.82 });
-  notebox(s, "Re-centered ladders (empty -> 2.0 GHz, F4 -> 3.0, F5 -> 2.25). F4's single-antenna break vanishes entirely (70% at 50 MHz vs broken at 0.5 GHz before): its 'break' was bad placement, not missing information. F5's floors rise ~10-15 points and it survives one step further, but its reduced-hardware breaks remain - those are physics. Caveat: best centers came from full-array scans and shift slightly at reduced hardware (empty on S11 alone did better at the old 1.85-1.9 slot).", 4.55, 1.05, 11);
+  notebox(s, "Re-centered ladders (F4 -> 3.0 GHz, F5 -> 2.25). F4's single-antenna break vanishes entirely (70% at 50 MHz vs broken at 0.5 GHz before): its 'break' was bad placement, not missing information. F5's floors rise ~10-15 points and it survives one step further, but its reduced-hardware breaks remain - those are physics. Empty keeps its ORIGINAL ~1.875 GHz bands: its full-array placement scan was saturated (99-100 everywhere), so the 'optimized' 2.0 pick was noise and measurably worse at single antenna (71/59 vs 76/75) - optimize placement at the hardware you deploy.", 4.55, 1.05, 10.5);
 }
 
 // ================================================================ 14. PART 3 VERDICT

@@ -4,6 +4,25 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-04 - Component ablation (mag/phase), tone descent, empty reverted to original bands
+
+- `Imager_CNN_LOSO.m`: new `CNN_LOSO_COMPONENT=mag|phase|both` (raw mode row
+  selection; tagged rawmag/rawphase in filenames AND inputKind so canonical raw
+  selections are unaffected). mag-only models a scalar power-detector chip.
+- `cnn_matlab/minimal_chip_sweep.sh` (new, running): priority-ordered sweep on
+  the surviving reduced-hardware configs (single-S11 + refl-pair13, empty + F4):
+  tone descent 4->3->2->1 frequency points (native grid = 10 MHz spacing, so
+  "2 2" = single-tone CW) and magnitude-only ladders. <50% early stop + reuse.
+- `cnn_matlab/component_sweep_empty.sh` (new, superseded by the above mid-flight).
+- EMPTY REVERTED to original ~1.875 GHz narrow bands everywhere (user decision):
+  the full-array placement scan was saturated (99-100 above 1.45 GHz) so its
+  "best 2.0 GHz" pick was noise, and at single antenna it was measurably worse
+  (71/59 vs 76/75 at 0.1/0.05 GHz). Lesson: optimize placement at deployment
+  hardware. `analyze_break_descent_best.py` + v2 map regenerated accordingly.
+- First tone results (single-S11 empty, 2.0-center before revert): 4 pts 59.5,
+  3 pts 54.3 - kept on disk as rawlegacy comparison points.
+
+
 ## 2026-08-04 - Break descent v2: per-phantom best-center ladders + map + deck slide
 
 - `cnn_matlab/break_descent_best.sh` (new): adaptive descent where each phantom's

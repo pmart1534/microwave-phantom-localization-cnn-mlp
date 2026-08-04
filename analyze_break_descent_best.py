@@ -20,8 +20,11 @@ from matplotlib.colors import LinearSegmentedColormap
 RESULTS = Path(__file__).resolve().parent / "results"
 
 PHANTOMS = {  # name -> (json prefix, best center label, band ladder)
-    "Empty (best ~2.0 GHz)": ("June18_remap",
-        ["1-4", "2-4", "1.5-2.5", "1.5-2", "2-2.25", "1.95-2.05", "1.975-2.025"]),
+    # Empty keeps its ORIGINAL ~1.875 GHz narrow bands: the full-array placement
+    # scan was saturated (99-100 everywhere) so its "best 2.0" pick was noise,
+    # and at reduced hardware the original slot measurably wins (76/75 vs 71/59).
+    "Empty (best ~1.875 GHz)": ("June18_remap",
+        ["1-4", "2-4", "1.5-2.5", "1.5-2", "2-2.25", "1.825-1.925", "1.85-1.9"]),
     "F4 (best ~3.0 GHz)": ("A3_F4_SamMed_all4",
         ["1-4", "2-4", "2.5-3.5", "2.5-3", "3-3.25", "2.95-3.05", "2.975-3.025"]),
     "F5 (best ~2.25 GHz)": ("A3_F5_SamMed_last3",

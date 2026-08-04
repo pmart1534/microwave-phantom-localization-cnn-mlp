@@ -181,12 +181,23 @@ inputMode = lower(strtrim(getenv('CNN_LOSO_INPUT')));
 if isempty(inputMode), inputMode = 'raw'; end
 N_TDR_BINS = 64;
 
+% Component ablation (raw mode only): CNN_LOSO_COMPONENT = mag | phase | both
+% (default both). mag-only models a scalar power-detector chip (no vector
+% receiver); phase-only is its control. Tagged rawmag/rawphase in filenames
+% and inputKind so canonical raw selections are unaffected.
+component = lower(strtrim(getenv('CNN_LOSO_COMPONENT')));
+if isempty(component), component = 'both'; end
+inputLabel = inputMode;
+if strcmp(inputMode, 'raw') && ~strcmp(component, 'both')
+    inputLabel = ['raw' component];
+end
+
 % Classifier structure: single-stage (default) or hierarchical quadrant->position.
 hierMode = strcmp(strtrim(getenv('CNN_LOSO_HIER')), '1');
 if hierMode, clfTag = 'hier_'; else, clfTag = ''; end
 
 tag = sprintf('%s_%s_%s%s_%s_ant%s', matlab.lang.makeValidName(setupName), setLabel, ...
-              clfTag, inputMode, antennaMode, strrep(num2str(ports), '  ', '-'));
+              clfTag, inputLabel, antennaMode, strrep(num2str(ports), '  ', '-'));
 
 % Optional band limit: CNN_LOSO_BAND = "lo hi" in GHz crops the frequency axis
 % (bandwidth-reduction study for chip design). Empty = full 0.1-8 GHz sweep.
@@ -350,7 +361,7 @@ result = struct();
 result.method        = 'CNN';
 result.setup         = setupName;
 result.sessionSet    = setLabel;
-result.inputKind     = inputMode;
+result.inputKind     = inputLabel;
 result.classifier    = 'single';
 if hierMode, result.classifier = 'hierarchical'; end
 result.antennaMode   = antennaMode;
@@ -586,8 +597,12 @@ function S = buildSession(loaded, selRows, pairs, inputMode, nTdr, bandGHz)
     end
 
     % ---- step 3: build the requested representation ----
+    comp = lower(strtrim(getenv('CNN_LOSO_COMPONENT')));
+    if isempty(comp), comp = 'both'; end
     switch inputMode
-        case 'raw',     nRows = 2 * K; W = nFreq;
+        case 'raw'
+            if strcmp(comp, 'both'), nRows = 2 * K; else, nRows = K; end
+            W = nFreq;
         case 'physics', nRows = 5 * K; W = nFreq;
         case 'tdr',     nRows = K;     W = nTdr;
         otherwise, error('unknown CNN_LOSO_INPUT %s', inputMode);
@@ -600,7 +615,11 @@ function S = buildSession(loaded, selRows, pairs, inputMode, nTdr, bandGHz)
             env = abs(ifft(yv));
             switch inputMode
                 case 'raw'
-                    block((k-1)*2 + (1:2), :) = [abs(yv); angle(yv)];
+                    switch comp
+                        case 'both',  block((k-1)*2 + (1:2), :) = [abs(yv); angle(yv)];
+                        case 'mag',   block(k, :) = abs(yv);
+                        case 'phase', block(k, :) = angle(yv);
+                    end
                 case 'tdr'
                     block(k, :) = env(1:nTdr);
                 case 'physics'
