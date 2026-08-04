@@ -63,10 +63,7 @@ a2.grid(True,which="both",color="#EAF0F4",lw=0.7); a2.set_axisbelow(True)
 for ax in (a1,a2):
     for s in ax.spines.values(): s.set_color("#D8E2EA")
 
-fig.suptitle("Narrow-band localization: measured centers at ~2 GHz, sim at ~3.25 GHz (the sim-vs-bench resonance offset)",
+fig.suptitle("Localization error by 0.25 GHz window center (left) and by bandwidth at the best center (right)",
              fontsize=13,fontweight="bold",color=INK,y=0.99)
-fig.text(0.5,0.01,"Both narrow gracefully: measured is flat ~3.5 mm from 0.1-0.25 GHz at ~2 GHz; sim reaches 6.4 mm at 0.25 GHz and 3.9 mm full, "
-         "at ~3.25 GHz.\nDesign the chip's center to the MEASURED bench (~2 GHz), not sim (~3.25 GHz) -- the ~1 GHz offset is the antenna-model shift.",
-         ha="center",fontsize=9.2,color=MUTE,style="italic")
 fig.subplots_adjust(left=0.07,right=0.98,top=0.88,bottom=0.19,wspace=0.22)
 fig.savefig(os.path.join(HERE,"narrowband_combined.png"),dpi=160); print("wrote narrowband_combined.png")

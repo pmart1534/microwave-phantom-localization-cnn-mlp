@@ -1,0 +1,51 @@
+{
+ "dataset": "empty",
+ "mode": "loso",
+ "band": [
+  1.0,
+  8.0
+ ],
+ "chanceIn": 1.3417410805586698,
+ "rows": [
+  {
+   "antenna": "16 S-params (full)",
+   "err_mm": 4.3,
+   "band": [
+    1.0,
+    8.0
+   ]
+  },
+  {
+   "antenna": "4 ant, refl only",
+   "err_mm": 5.74,
+   "band": [
+    1.0,
+    8.0
+   ]
+  },
+  {
+   "antenna": "2 ant (1&3), full S",
+   "err_mm": 6.48,
+   "band": [
+    1.0,
+    8.0
+   ]
+  },
+  {
+   "antenna": "2 ant (1&3), refl only",
+   "err_mm": 7.63,
+   "band": [
+    1.0,
+    8.0
+   ]
+  },
+  {
+   "antenna": "1 ant (S11 only)",
+   "err_mm": 10.56,
+   "band": [
+    1.0,
+    8.0
+   ]
+  }
+ ]
+}

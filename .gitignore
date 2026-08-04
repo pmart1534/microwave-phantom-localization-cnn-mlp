@@ -39,3 +39,5 @@ regression_deck/*.pdf
 # --- Bandwidth sweep caches (large, regenerable) ---
 results/bw_cache/
 results/bw_cache_reg/
+
+regression_deck/render_deck4/

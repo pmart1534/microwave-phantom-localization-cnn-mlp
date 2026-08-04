@@ -31,12 +31,12 @@ ax.text(1.48,2.9,"measured CNN @2-4GHz (2.9mm)",ha="right",va="bottom",fontsize=
 ax.set_xticks(x); ax.set_xticklabels(groups,fontsize=11)
 ax.set_ylabel("sim lateral (x,y) error, median (mm)",fontsize=11.5)
 ax.set_ylim(0,11); ax.legend(fontsize=10,framealpha=0.95,loc="upper left")
-ax.set_title("Sim CNN (tuned GPU): the ~3.9 mm was protocol, not band",fontsize=13,fontweight="bold",color=INK)
+ax.set_title("Simulated CNN lateral error: band x cross-validation protocol",fontsize=13,fontweight="bold",color=INK)
 ax.grid(True,axis="y",color="#EAF0F4",lw=0.7); ax.set_axisbelow(True)
 for s in ax.spines.values(): s.set_color("#D8E2EA")
 fig.text(0.5,0.005,
-    "A=3.95 reproduces the deck's 3.9 mm. Deck protocol: 2-4 GHz is nearly free (4.4 vs 3.95). Honest split costs +2.8 mm (depth\n"
-    "leakage removed) and there the CNN wants MORE band (6.8 full vs 9.7 narrow). Narrowing is free only when positions are seen.",
+    "Simulated CNN median lateral error (mm), full 2-8 GHz vs 2-4 GHz band, under random 8-fold vs strict (x,y)-disjoint 8-fold CV.\n"
+    "Dashed line = measured empty CNN at 2-4 GHz (2.9 mm).",
     ha="center",fontsize=9,color=MUTE,style="italic")
 fig.subplots_adjust(left=0.10,right=0.97,top=0.91,bottom=0.20)
 fig.savefig(os.path.join(HERE,"sim_band_protocol.png"),dpi=160); print("wrote sim_band_protocol.png")

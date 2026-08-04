@@ -44,12 +44,10 @@ for ax,(ds,title,col) in zip(axs.ravel(),DS):
     ax.set_xlabel("bandwidth used (GHz)",fontsize=10.5); ax.set_ylabel("best-achievable error (mm)",fontsize=10.5)
     ax.set_ylim(0,max(mm(d["chanceIn"])*1.05,max(er)*1.25)); ax.grid(True,color="#EAF0F4",lw=0.7); ax.set_axisbelow(True)
     for s in ax.spines.values(): s.set_color("#D8E2EA")
-fig.suptitle("How much bandwidth does the regression localizer need?",
+fig.suptitle("Best-achievable localization error vs bandwidth used",
              fontsize=15,fontweight="bold",color=INK,y=0.985)
 fig.text(0.5,0.945,"k-NN signal floor, best center at each width; number by each point = that band's best center (GHz)",
          ha="center",fontsize=10.5,color=MUTE)
-fig.text(0.5,0.012,"Best-achievable error is nearly flat down to ~1-1.5 GHz for every config (empty is flat to <0.5 GHz): the localization\n"
-         "information sits in the low-mid band, so a narrow front end suffices.",ha="center",fontsize=10,color=MUTE,style="italic")
 fig.subplots_adjust(left=0.07,right=0.98,top=0.90,bottom=0.11,hspace=0.34,wspace=0.20)
 fig.savefig(os.path.join(HERE,"bw_knee.png"),dpi=160); print("wrote bw_knee.png")
 
@@ -84,7 +82,7 @@ for ds,title,col in DS:
     ax.plot(ns,er,"-o",color=col,lw=2,ms=5,label=title)
 ax.set_xlabel("number of discrete tones (greedy-selected)",fontsize=11)
 ax.set_ylabel("k-NN localization error (mm)",fontsize=11)
-ax.set_title("A few discrete tones already localize well (multi-tone chip)",fontsize=12.5,fontweight="bold",color=INK)
+ax.set_title("Localization error vs number of discrete tones",fontsize=12.5,fontweight="bold",color=INK)
 ax.grid(True,color="#EAF0F4",lw=0.7); ax.set_axisbelow(True); ax.legend(fontsize=9.5,framealpha=0.95)
 for s in ax.spines.values(): s.set_color("#D8E2EA")
 fig.tight_layout(); fig.savefig(os.path.join(HERE,"bw_tones.png"),dpi=160); print("wrote bw_tones.png")
