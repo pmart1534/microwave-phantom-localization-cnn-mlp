@@ -77,8 +77,9 @@ def col_hdr(ck, lbl):
     if ck == "full": return f"{lbl} GHz\n(full)"
     return f"{lbl} GHz\n({wlab(ck)})"
 
-fig, axes = plt.subplots(1, 4, figsize=(21, 4.8))
-for ci, (ax, (title, panel)) in enumerate(zip(axes, PANELS)):
+fig, axes = plt.subplots(2, 2, figsize=(16, 10.5))
+for idx, (ax, (title, panel)) in enumerate(zip(axes.flat, PANELS)):
+    col = idx % 2
     grid = np.full((len(ANT_ROWS), len(COL_KEYS)), np.nan)
     hdrs = [None] * len(COL_KEYS)
     for i, a in enumerate(ANT_ROWS):
@@ -96,23 +97,23 @@ for ci, (ax, (title, panel)) in enumerate(zip(axes, PANELS)):
                 ax.text(j, i, "--", ha="center", va="center", fontsize=10, color="#B9A6A2")
             else:
                 broken = v > BROKEN
-                ax.text(j, i, f"{v:.1f}", ha="center", va="center", fontsize=9.0,
+                ax.text(j, i, f"{v:.1f}", ha="center", va="center", fontsize=10.5,
                         fontweight="bold" if broken else "normal",
                         color="white" if v >= 12 else "#1A1A1A")
                 if broken:
-                    ax.add_patch(plt.Rectangle((j-.5, i-.5), 1, 1, fill=False, edgecolor="black", lw=2.4))
-    ax.set_title(title, fontsize=12.5, fontweight="bold", color="#1E293B")
-    ax.set_xticks(range(len(COL_KEYS))); ax.set_xticklabels(hdrs, fontsize=7.0, rotation=32, ha="right")
+                    ax.add_patch(plt.Rectangle((j-.5, i-.5), 1, 1, fill=False, edgecolor="black", lw=2.6))
+    ax.set_title(title, fontsize=14, fontweight="bold", color="#1E293B")
+    ax.set_xticks(range(len(COL_KEYS))); ax.set_xticklabels(hdrs, fontsize=8.5, rotation=32, ha="right")
     ax.set_yticks(range(len(ANT_ROWS)))
-    ax.set_yticklabels(ANT_ROWS if ci == 0 else [""]*len(ANT_ROWS), fontsize=9)
+    ax.set_yticklabels(ANT_ROWS if col == 0 else [""]*len(ANT_ROWS), fontsize=10)
     ax.tick_params(length=0)
     for s in ax.spines.values(): s.set_visible(False)
 
 fig.suptitle("Localization error (mm): full band -> narrowing x hardware reduction  —  black box = BROKEN (>20 mm), -- = skipped / not computed",
-             fontsize=12, y=1.0, color="#1E293B")
-fig.text(0.5, -0.04, "First column = FULL band (measured 1-8, sim 2-8 GHz); the rest each at the panel's best center. Colour = median lateral error "
+             fontsize=14, y=0.995, color="#1E293B")
+fig.text(0.5, 0.005, "First column = FULL band (measured 1-8, sim 2-8 GHz); the rest each at the panel's best center. Colour = median lateral error "
          "(green good -> red bad). Measured = session-LOSO CNN; sim = tuned 8-fold CNN. (sim 3 GHz sub-band pending.)",
-         ha="center", fontsize=9.3, color="#5B6B7B", style="italic")
-fig.tight_layout(rect=[0, 0, 1, 0.94])
+         ha="center", fontsize=10, color="#5B6B7B", style="italic")
+fig.tight_layout(rect=[0, 0.02, 1, 0.965])
 fig.savefig(os.path.join(HERE, "reduction_grid.png"), dpi=180, bbox_inches="tight")
 print("wrote reduction_grid.png")

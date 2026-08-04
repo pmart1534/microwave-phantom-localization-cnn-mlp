@@ -60,7 +60,7 @@ imgSlide("Simulated CNN error: band x cross-validation protocol",
 
 imgSlide("Hardware reduction x band narrowing",
   "Median lateral (x,y) error, mm; each panel at its own best center; black box = >20 mm",
-  "reduction_grid.png", 21.0/4.8);
+  "reduction_grid.png", 16.0/10.5);
 
 imgSlide("Simulated CNN: lateral (x,y) vs depth (z) error",
   "Same reduction grid; simulated only (measured is single-depth)",
