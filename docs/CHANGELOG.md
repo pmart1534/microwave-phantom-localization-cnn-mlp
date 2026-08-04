@@ -4,6 +4,16 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-04 - Deck rewritten to objective descriptions (user request)
+
+- `presentation/gen_deck_band.js`: 22 rewrites removing conclusions/inferences
+  from noteboxes, headings, and bullets - text now states what the data shows
+  (numbers, which cells cross thresholds) without interpretive claims
+  ("those are physics", "bandwidth is survivable", design principles, etc.).
+  Recommendation slide keeps the spec cards but with data-only support text.
+- Rebuilt Frequency_Reduction.pptx (16 slides) + PDF.
+
+
 ## 2026-08-04 - Component ablation (mag/phase), tone descent, empty reverted to original bands
 
 - `Imager_CNN_LOSO.m`: new `CNN_LOSO_COMPONENT=mag|phase|both` (raw mode row
