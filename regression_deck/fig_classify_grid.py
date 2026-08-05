@@ -5,7 +5,7 @@ cols = full band then narrowing (each panel at its own best center). Colour = LO
 accuracy (red low -> green high); black box = BROKEN (<50%); '--' = skipped.
 Reads results/classify_grid_*.json.
 """
-import os, json
+import os, sys, json
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -13,6 +13,10 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
 HERE = os.path.dirname(__file__); RES = os.path.join(HERE, "..", "results")
+MODEL = sys.argv[1] if len(sys.argv) > 1 else "knn"        # knn | cnn
+PFX = "classify_grid_" if MODEL == "knn" else "classify_grid_cnn_"
+OUT = "classify_grid.png" if MODEL == "knn" else "classify_grid_cnn.png"
+MODEL_LBL = "k-NN" if MODEL == "knn" else "CNN"
 COLS = ["full", "3.0", "2.0", "1.0", "0.5", "0.25", "0.1"]
 ANT_ROWS = ["16 S-params (full)", "4 ant, refl only", "2 ant (1&3), full S",
             "2 ant (1&3), refl only", "1 ant (S11 only)"]
@@ -28,7 +32,7 @@ def wlab(w):
 
 
 def load(name):
-    d = json.load(open(os.path.join(RES, f"classify_grid_{name}.json")))
+    d = json.load(open(os.path.join(RES, f"{PFX}{name}.json")))
     grid = np.full((len(ANT_ROWS), len(COLS)), np.nan); hdr = [None]*len(COLS)
     for i, r in enumerate(d["grid"]):
         for j, c in enumerate(r["cells"]):
@@ -68,11 +72,11 @@ for idx, (ax, (name, disp)) in enumerate(zip(axes.flat, PANELS)):
     ax.tick_params(length=0)
     for s in ax.spines.values(): s.set_visible(False)
 
-fig.suptitle("LOSO position-classification accuracy (%): hardware reduction x band narrowing  —  black box = BROKEN (<50%), -- = skipped after break",
+fig.suptitle(f"LOSO position-classification accuracy (%), {MODEL_LBL}: hardware reduction x band narrowing  —  black box = BROKEN (<50%), -- = skipped",
              fontsize=14, y=0.995, color="#1E293B")
-fig.text(0.5, 0.005, "Measured phantoms + noise-injected sim, same k-NN LOSO classifier; first column = full band, rest each at the panel's best "
-         "center. Sim noise calibrated to the bench (per-channel SNR + cross-session drift). CNN full-config anchor: sim 99.5%.",
+fig.text(0.5, 0.005, f"Measured phantoms + noise-injected sim, same {MODEL_LBL} LOSO classifier; first column = full band, rest each at the panel's best "
+         "center. Sim noise calibrated to the bench (per-channel SNR + cross-session drift).",
          ha="center", fontsize=10, color="#5B6B7B", style="italic")
 fig.tight_layout(rect=[0, 0.02, 1, 0.965])
-fig.savefig(os.path.join(HERE, "classify_grid.png"), dpi=180, bbox_inches="tight")
-print("wrote classify_grid.png")
+fig.savefig(os.path.join(HERE, OUT), dpi=180, bbox_inches="tight")
+print("wrote " + OUT)
