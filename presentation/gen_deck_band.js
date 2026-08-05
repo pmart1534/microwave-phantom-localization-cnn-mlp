@@ -334,4 +334,13 @@ function bandTable(s, rows, y, note, rowH) {
   s.addText(pts, { x: 0.55, y: 4.15, w: 8.9, h: 1.65, valign: "top", margin: 0 });
 }
 
+
+// ================================================================ 15. PART 4 MINIMAL CHIP
+{
+  const s = p.addSlide();
+  title(s, "Part 4 · further reduction", "Tone-count descent and magnitude-only input");
+  s.addImage({ path: A + "minimal_chip_map.png", x: 0.9, y: 1.5, w: 8.2, h: 2.64 });
+  notebox(s, "Configurations that had not crossed 50%, reduced further. Tone columns: 4 -> 1 frequency points on the native 10 MHz grid (1 pt = a single CW tone). Mag-only rows use |S| only (no phase). Single-tone, mag+phase: empty 66.0 (1 ant) / 91.5 (2 ant refl); F4 60.9 / 90.4. Mag-only with one antenna: 87-99 at 1-4 GHz but below 50% by 0.05-0.25 GHz (30.1 / 35.9); with two antennas: 49.7 (empty) and 69.9 (F4) at a single tone.", 4.4, 1.15, 11.5);
+}
+
 p.writeFile({ fileName: "Frequency_Reduction.pptx" }).then(() => console.log("band deck written"));

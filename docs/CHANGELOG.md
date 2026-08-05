@@ -4,6 +4,23 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-04 - Minimal-chip sweep complete: tone descent + magnitude-only; deck Part 4
+
+- `cnn_matlab/minimal_chip_sweep.sh` finished (priority-ordered, 8 groups).
+  Tone descent 4->3->2->1 freq points at each phantom's center (empty 1.875 GHz
+  original slot, F4 3.0 GHz) on single-S11 and refl-pair13; magnitude-only
+  (CNN_LOSO_COMPONENT=mag) ladders on the same hardware.
+- Single-tone (1 CW frequency point), mag+phase: empty 66.0 (1 ant) / 91.5
+  (2 ant refl); F4 60.9 / 90.4. Tone count 4->1 changes accuracy by only ~5 pts.
+- Magnitude-only: near parity at 1-4 GHz (empty 98.7/99.3, F4 86.5/94.9) but
+  collapses as band narrows: 1 ant crosses 50% at 0.05 GHz (empty 30.1) and
+  0.25 GHz (F4 35.9) - the only sub-50 empty cell in the study; 2 ant refl
+  reaches a single tone at 49.7 (empty) / 69.9 (F4).
+- `analyze_minimal_chip.py` (new): `results/minimal_chip_map.png` + `.md`,
+  same heatmap format as the break maps (rows = hardware x component).
+- Deck: new slide 17 "Part 4 - further reduction" (17 slides total).
+
+
 ## 2026-08-04 - Deck rewritten to objective descriptions (user request)
 
 - `presentation/gen_deck_band.js`: 22 rewrites removing conclusions/inferences
