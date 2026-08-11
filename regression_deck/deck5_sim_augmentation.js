@@ -116,10 +116,10 @@ s.addTable(rows.map((r,ri)=>r.map((c,ci)=>({text:c,options:{
 s.addText("Calibrated to, and validated against, the same measured baselines/tumor takes - not tuned by hand.",
   {x:1.0,y:6.4,w:11.3,h:0.5,fontFace:BODY,fontSize:13,italic:true,color:MUTE,align:"center",margin:0});
 
-// ---- 7. RESULT: classification CNN ----
-s=pres.addSlide(); title(s,"Result: classification CNN on the augmented sim (LOSO)",
-  "Actual CNN classifier on augmented sim + measured phantoms; hardware x band reduction (black box = <50%)");
-imgFit(s,"classify_grid_cnn.png",16.0/10.5,1.5,5.75);
+// ---- 7. RESULT: classification (measured = your classification-CNN track) ----
+s=pres.addSlide(); title(s,"Result: classification under reduction (LOSO)",
+  "Measured (Empty/F4/F5) = the classification-CNN track (cnn_loso, per-position vote); Sim = augmented. Black box = <50%.");
+imgFit(s,"classify_grid_matched.png",16.0/10.5,1.5,5.75);
 
 // ---- 8. RESULT: regression on augmented sim ----
 s=pres.addSlide(); title(s,"Regression (x,y) on the augmented sim (LOSO)",
