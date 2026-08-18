@@ -4,6 +4,17 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-18 - Aug18 A3 metal-tumor and beet-1cm LOSO (main CNN)
+
+- New Aug18 data (Separated/Aug18): 3 metal-tumor + 3 beet-1cm sessions,
+  49 positions x 16 trials, July03 antenna convention (no remap).
+- Main CNN defaults (raw, all 16 S-params, full band, single-stage, 100 ep):
+  metal 99.32 +/- 1.18, beet 99.32 +/- 1.18 (folds 100/98/100 both).
+  The 1 cm beet matches metal exactly at full array + full band.
+- Post repaste/BIOS: ~6.2-6.5 min per full-band fold (~3x faster than the
+  15-25 min typical earlier in the study); both runs in 41 min wall.
+
+
 ## 2026-08-04 - Minimal-chip sweep complete: tone descent + magnitude-only; deck Part 4
 
 - `cnn_matlab/minimal_chip_sweep.sh` finished (priority-ordered, 8 groups).
