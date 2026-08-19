@@ -4,6 +4,16 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-18 - Spatial accuracy plots restyled (green = 100%)
+
+- `Imager_CNN_LOSO.m` spatial figure + new `replot_spatial.py` (regenerates any
+  existing result's spatial PNG from its JSON, no retraining): red->yellow->
+  green colormap (100% = green), markers sized from grid spacing so neighbours
+  never touch, labels only on imperfect positions in white callout boxes,
+  offset diagonally and flipped away from the nearest plot edge.
+- Aug18 metal + beet spatial PNGs regenerated in the new style.
+
+
 ## 2026-08-18 - Aug18 A3 metal-tumor and beet-1cm LOSO (main CNN)
 
 - New Aug18 data (Separated/Aug18): 3 metal-tumor + 3 beet-1cm sessions,

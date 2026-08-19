@@ -405,14 +405,39 @@ grid on;
 saveas(figBar, fullfile(resultsDir, sprintf('cnn_loso_%s_bars.png', tag)));
 
 % ----- spatial overlay of per-position accuracy -----
+% Red (0%) -> orange -> yellow -> green (100%); markers sized from grid
+% spacing so neighbours never touch; only imperfect positions get a label,
+% offset beside the dot so text never overlaps markers.
 figSp = figure('Name', 'CNN LOSO spatial', 'Position', [150 120 640 620], 'Visible', figVis);
 xs = [posAccMap.x]; ys = [posAccMap.y]; accs = [posAccMap.acc];
-scatter(xs, ys, 260, accs, 'filled', 'MarkerEdgeColor', 'k'); hold on;
+dxy = hypot(xs(:) - xs(:)', ys(:) - ys(:)');   % no toolbox dependency
+dxy(dxy == 0) = inf;
+minGap = min(dxy(:));                     % nearest-neighbour spacing (inches)
+axSz = 500;                               % approx axes size in points
+span = max(max(xs)-min(xs), max(ys)-min(ys)) + minGap;
+mkPt = 0.80 * minGap / span * axSz;       % marker diameter in points
+scatter(xs, ys, mkPt^2, accs, 'filled', ...
+    'MarkerEdgeColor', [1 1 1], 'LineWidth', 0.75); hold on;
+xMid = (min(xs) + max(xs)) / 2;
 for i = 1:numel(accs)
-    text(xs(i), ys(i), sprintf('%.0f', accs(i)), 'HorizontalAlignment', 'center', 'FontSize', 7);
+    if accs(i) < 99.5
+        % diagonal offset (y is reversed), flipped away from the nearest edge
+        if xs(i) <= xMid, dx = 0.35*minGap; ha = 'left';
+        else,             dx = -0.35*minGap; ha = 'right'; end
+        text(xs(i) + dx, ys(i) - 0.55*minGap, sprintf('%.0f%%', accs(i)), ...
+            'HorizontalAlignment', ha, 'VerticalAlignment', 'bottom', ...
+            'FontSize', 9, 'FontWeight', 'bold', 'Color', [0.15 0.15 0.15], ...
+            'BackgroundColor', [1 1 1 0.85], 'EdgeColor', [0.73 0.73 0.73], ...
+            'Margin', 1);
+    end
 end
-colormap(gca, jet); caxis([0 100]); cb = colorbar; cb.Label.String = 'LOSO accuracy (%)';
-set(gca, 'YDir', 'reverse'); axis equal; grid on;
+accMap = [0.72 0.11 0.11; 0.91 0.36 0.14; 0.98 0.75 0.29; 0.55 0.76 0.40; 0.22 0.55 0.24];
+colormap(gca, interp1(linspace(0,1,size(accMap,1)), accMap, linspace(0,1,256)));
+caxis([0 100]); cb = colorbar; cb.Label.String = 'LOSO accuracy (%)';
+set(gca, 'YDir', 'reverse'); axis equal; grid on; box on;
+set(gca, 'Color', [0.985 0.985 0.985], 'GridAlpha', 0.25);
+pad = minGap;
+xlim([min(xs)-pad max(xs)+pad]); ylim([min(ys)-pad max(ys)+pad]);
 xlabel('X (inches)'); ylabel('Y (inches)');
 title(sprintf('Per-position LOSO accuracy  --  mean %.1f%%', mean(accs)), 'Interpreter', 'none');
 saveas(figSp, fullfile(resultsDir, sprintf('cnn_loso_%s_spatial.png', tag)));
