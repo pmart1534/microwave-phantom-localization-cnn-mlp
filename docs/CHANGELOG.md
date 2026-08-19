@@ -4,6 +4,20 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-19 - Aug19 data: next-day metal + empty null-control LOSO; cross-day script
+
+- New Aug19 sessions in Separated/Aug18: 3 next-day metal (0909/0938/1008) and
+  3 empty/Nothing (1744/1807/0802; 02-03 have 96 positions - the position
+  intersection in the LOSO script automatically restricts to the typical 49).
+- `cnn_matlab/aug19_loso.sh`: LOSO on each set separately (running).
+- `cnn_matlab/Imager_CNN_XDay.m` (new, generated from Imager_CNN_LOSO.m):
+  fixed train/test session-group split - trains ONCE on CNN_XDAY_TRAIN_SESSIONS,
+  evaluates per CNN_XDAY_TEST_SESSIONS session; test data never enters training;
+  per-session z-score stays per-session. Outputs cnn_xday_*.
+- `cnn_matlab/xday_metal.sh`: train day-1 metal (1143/1210/1239) -> test day-2
+  metal (0909/0938/1008); queued to auto-start after the LOSO runs finish.
+
+
 ## 2026-08-18 - Spatial accuracy plots restyled (green = 100%)
 
 - `Imager_CNN_LOSO.m` spatial figure + new `replot_spatial.py` (regenerates any
