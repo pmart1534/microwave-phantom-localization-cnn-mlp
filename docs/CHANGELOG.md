@@ -4,6 +4,15 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-19 - Cross-day result: train day-1 metal -> test day-2 = 100.00
+
+- `cnn_xday_Aug18_metal-d1train-d2test_*`: trained once on the three Aug18
+  day-1 metal sessions (2352 samples, 504 s), evaluated on each Aug19 day-2
+  session. 100.00% position-vote AND trial-level on all three test sessions;
+  zero positions below 100. Overnight drift costs nothing at full array/band
+  with per-session z-score.
+
+
 ## 2026-08-19 - Results: next-day metal LOSO 100.0; empty null-control at chance
 
 - Metal next-day (Aug19 0909/0938/1008): LOSO 100.00 +/- 0.00 (all folds perfect).
