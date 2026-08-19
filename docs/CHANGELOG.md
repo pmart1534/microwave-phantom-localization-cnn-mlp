@@ -4,6 +4,15 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-19 - Fresh-calibration metal LOSO: 100.00
+
+- Aug19 fresh-cal metal sessions (1103/1200/1258, VNA recalibrated before each):
+  LOSO 100.00 +/- 0.00, all folds and all positions perfect
+  (`cnn_loso_Aug18_freshcal_*`). Per-session recalibration does not hurt -
+  the per-session baseline subtraction + z-score absorbs the new calibration
+  state entirely.
+
+
 ## 2026-08-19 - Cross-day result: train day-1 metal -> test day-2 = 100.00
 
 - `cnn_xday_Aug18_metal-d1train-d2test_*`: trained once on the three Aug18
