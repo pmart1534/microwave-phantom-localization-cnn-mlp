@@ -4,6 +4,15 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-19 - Results: next-day metal LOSO 100.0; empty null-control at chance
+
+- Metal next-day (Aug19 0909/0938/1008): LOSO 100.00 +/- 0.00 (all folds perfect).
+- Empty/Nothing (1744/1807/0802): LOSO 3.40 +/- 2.36 vs 2.0% chance - the
+  null-control confirms position labels carry no exploitable drift signal when
+  nothing is placed (Nothing_Test01 fold 6.1, others 2.0).
+- Cross-day run (train day-1 metal, test day-2) auto-started next.
+
+
 ## 2026-08-19 - Aug19 data: next-day metal + empty null-control LOSO; cross-day script
 
 - New Aug19 sessions in Separated/Aug18: 3 next-day metal (0909/0938/1008) and
