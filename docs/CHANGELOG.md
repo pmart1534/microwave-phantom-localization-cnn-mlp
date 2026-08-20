@@ -4,6 +4,14 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-19 - Antenna-reattach set at reduced configs: no damage
+
+- freshant4 (4-way) x 2-5 GHz configs: all16 99.49, refl-all4 99.49,
+  pair13 98.98 - equal to or HIGHER than every 3-session dataset's reduced
+  numbers (extra training fold helps more than reattach hurts). Antenna
+  re-seating remains free even at reduced hardware/band.
+
+
 ## 2026-08-19 - Reduced-config table complete + antenna-reattach LOSO 100.00
 
 - 2-5 GHz x 3 configs x 4 datasets complete (`*_band2-5` results): all16
