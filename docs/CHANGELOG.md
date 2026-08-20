@@ -4,6 +4,22 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-20 - First position-disjoint test (Imager_CNN_ValPos.m): corners -> unseen cell centers
+
+- Train: all 2352 corner samples (day-1 metal, 3 sessions, 49 classes/targets).
+  Test: 384 P9 cell-center samples from the sessions' validation/ folders -
+  positions never seen as class or target. Per-session stats from corners only.
+- CLASSIFICATION -> nearest corner: mean err 1.08 in (median 0.73), own-cell
+  corner hit only 23.7% (ideal snap = 0.530 in; chance = 1.74 in).
+- REGRESSION (same body, fc(2) xy head): mean err 0.539 in = almost exactly
+  the corner-to-center distance; predictions are per-cell consistent but
+  displaced ~0.5 in toward the trained-position manifold (see scatter).
+- Reading: both heads beat chance clearly but neither truly interpolates to
+  unseen positions on this 0.75-in-pitch grid; the regression error sits AT the
+  geometric floor of the training grid. This is the honest LOPO-flavored
+  baseline the Joel-Harley revision plan starts from.
+
+
 ## 2026-08-20 - Antenna-swap 4-way LOSO: 97.96 - first visible (but small) dent
 
 - Swap set (Aug20, A3_MetalTumor_SwapAntLocation/: 4 sessions, each a

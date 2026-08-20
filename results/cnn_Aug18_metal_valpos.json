@@ -1,0 +1,28 @@
+{
+  "method": "CNN-valpos",
+  "setup": "Aug18",
+  "sessionSet": "metal",
+  "nTrain": 2352,
+  "nTest": 384,
+  "nClasses": 49,
+  "classTrialErrMean": 1.0790358503690218,
+  "classTrialErrMedian": 0.72886898685566259,
+  "classVoteErrMean": 1.0726812124433824,
+  "classCellHitPct": 23.697916666666664,
+  "classCellHitVotePct": 20.833333333333336,
+  "idealSnapIn": 0.5303300858899106,
+  "regTrialErrMean": 0.539289951,
+  "regTrialErrMedian": 0.525942445,
+  "regVoteErrMean": 0.53893335365379846,
+  "cnnConfig": {
+    "LR": 0.001,
+    "BatchSize": 16,
+    "Epochs": 100,
+    "Conv1": 32,
+    "Conv2": 32,
+    "FC1": 64,
+    "Dropout": 0.3,
+    "LRDropFactor": 0.5,
+    "LRDropPeriod": 30
+  }
+}

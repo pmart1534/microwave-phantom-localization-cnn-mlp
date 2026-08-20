@@ -297,6 +297,7 @@ end
 
 allTrueTest = {};   % accumulated over folds (for a global confusion matrix)
 allPredTest = {};
+curveInfos = cell(nSess, 1);   % per-fold training info (CNN_LOSO_CURVES=1)
 
 for testS = 1:nSess
     trainS = setdiff(1:nSess, testS);
@@ -317,7 +318,12 @@ for testS = 1:nSess
                                   numSParamRows, numFreqPoints, cfg, execEnv);
         predTest = categorical(predCell, validPos);
     else
-        net = trainCNN(XTrain, YTrain, numSParamRows, numFreqPoints, nClasses, cfg, execEnv);
+        if strcmp(strtrim(getenv('CNN_LOSO_CURVES')), '1')
+            [net, curveInfos{testS}] = trainCNN(XTrain, YTrain, numSParamRows, ...
+                numFreqPoints, nClasses, cfg, execEnv, XTest, YTest);
+        else
+            net = trainCNN(XTrain, YTrain, numSParamRows, numFreqPoints, nClasses, cfg, execEnv);
+        end
         predTest = classify(net, XTest);
     end
 
@@ -452,6 +458,30 @@ xlim([min(xs)-pad max(xs)+pad]); ylim([min(ys)-pad max(ys)+pad]);
 xlabel('X (inches)'); ylabel('Y (inches)');
 title(sprintf('Per-position LOSO accuracy  --  mean %.1f%%', mean(accs)), 'Interpreter', 'none');
 saveas(figSp, fullfile(resultsDir, sprintf('cnn_loso_%s_spatial.png', tag)));
+
+% ----- loss-vs-epoch curves (CNN_LOSO_CURVES=1): train + held-out loss -----
+if strcmp(strtrim(getenv('CNN_LOSO_CURVES')), '1') && ~isempty(curveInfos{1})
+    save(fullfile(resultsDir, sprintf('cnn_loso_%s_curves.mat', tag)), 'curveInfos');
+    figCv = figure('Position', [80 80 380*nSess 360], 'Visible', figVis);
+    for f = 1:nSess
+        subplot(1, nSess, f);
+        ci = curveInfos{f};
+        itPerEp = numel(ci.TrainingLoss) / cfg.Epochs;
+        plot((1:numel(ci.TrainingLoss)) / itPerEp, ci.TrainingLoss, '-', ...
+            'Color', [0.23 0.36 0.49]); hold on;
+        vIdx = find(~isnan(ci.ValidationLoss));
+        plot(vIdx / itPerEp, ci.ValidationLoss(vIdx), '-o', ...
+            'Color', [0.72 0.11 0.11], 'MarkerSize', 3, 'LineWidth', 1.2);
+        grid on; xlabel('epoch'); ylabel('cross-entropy loss');
+        title(sprintf('fold %d: test = %s', f, sessNames{f}), 'Interpreter', 'none', 'FontSize', 8);
+        if f == 1
+            legend({'training loss', 'held-out session loss (monitoring only)'}, ...
+                'Location', 'northeast', 'FontSize', 7);
+        end
+    end
+    saveas(figCv, fullfile(resultsDir, sprintf('cnn_loso_%s_curves.png', tag)));
+    fprintf('Saved loss curves (%s_curves.png)\n', tag);
+end
 
 fprintf('Saved figures to %s\n', resultsDir);
 fprintf('\nDone.  Compare against the MLP by running ../mlp_python/run_mlp_loso.py\n');
@@ -759,9 +789,13 @@ function predCell = predictHierCNN(XTrain, yTrain, XTest, quadTrain, nRows, nFre
     if any(empt), predCell(empt) = yTrain(1); end
 end
 
-function net = trainCNN(XTrain, YTrain, nRows, nFreq, nClasses, cfg, execEnv)
+function [net, info] = trainCNN(XTrain, YTrain, nRows, nFreq, nClasses, cfg, execEnv, XVal, YVal)
 % The SAME single-stage CNN as Imager_ML_MultiSession.m (no leakage: the
 % held-out session is never shown as validation data during LOSO training).
+% EXCEPTION (curves mode, CNN_LOSO_CURVES=1): the held-out session may be
+% passed as MONITORING-ONLY validation data so loss-vs-epoch curves can be
+% recorded. It never influences training: fixed epoch count, no early
+% stopping, no model selection - identical weights either way.
     layers = [
         imageInputLayer([nRows nFreq 1], 'Normalization', inputNormFcn(), 'Name', 'input')
         convolution2dLayer([min(4,nRows) min(20,nFreq)], cfg.Conv1, 'Padding', 'same', 'Name', 'conv1')
@@ -780,6 +814,11 @@ function net = trainCNN(XTrain, YTrain, nRows, nFreq, nClasses, cfg, execEnv)
     ];
 
     if cfg.showPlots, plt = 'training-progress'; else, plt = 'none'; end
+    extra = {};
+    if nargin >= 9 && ~isempty(XVal)
+        vf = max(1, floor(size(XTrain, 4) / cfg.BatchSize));   % once per epoch
+        extra = {'ValidationData', {XVal, YVal}, 'ValidationFrequency', vf};
+    end
     opts = trainingOptions('adam', ...
         'MaxEpochs', cfg.Epochs, ...
         'MiniBatchSize', cfg.BatchSize, ...
@@ -790,9 +829,9 @@ function net = trainCNN(XTrain, YTrain, nRows, nFreq, nClasses, cfg, execEnv)
         'Shuffle', 'every-epoch', ...
         'ExecutionEnvironment', execEnv, ...
         'Verbose', false, ...
-        'Plots', plt);
+        'Plots', plt, extra{:});
 
-    net = trainNetwork(XTrain, YTrain, layers, opts);
+    [net, info] = trainNetwork(XTrain, YTrain, layers, opts);
 end
 
 function [posAcc, perPos] = perPositionVote(trueLbls, predLbls, validPos)
