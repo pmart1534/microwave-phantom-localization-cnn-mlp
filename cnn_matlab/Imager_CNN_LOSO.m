@@ -481,6 +481,20 @@ if strcmp(strtrim(getenv('CNN_LOSO_CURVES')), '1') && ~isempty(curveInfos{1})
     end
     saveas(figCv, fullfile(resultsDir, sprintf('cnn_loso_%s_curves.png', tag)));
     fprintf('Saved loss curves (%s_curves.png)\n', tag);
+    % automatic convergence audit: compare held-out loss in the last quarter
+    % of training vs the quarter before it. If still clearly improving, the
+    % run should be repeated with more epochs.
+    for f = 1:nSess
+        vl = curveInfos{f}.ValidationLoss;
+        vl = vl(~isnan(vl));
+        q  = max(1, floor(numel(vl)/4));
+        recent = mean(vl(end-q+1:end)); prior = mean(vl(end-2*q+1:end-q));
+        if recent < prior - max(0.02, 0.05*prior)
+            fprintf('[curves] fold %d: STILL IMPROVING (%.3f -> %.3f) - consider more epochs\n', f, prior, recent);
+        else
+            fprintf('[curves] fold %d: CONVERGED (%.3f -> %.3f)\n', f, prior, recent);
+        end
+    end
 end
 
 fprintf('Saved figures to %s\n', resultsDir);
