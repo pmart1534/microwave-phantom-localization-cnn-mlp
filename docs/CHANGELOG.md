@@ -4,6 +4,19 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-20 - Freshant preprocessing ablation complete (corrects prior commit message)
+
+- freshant4 (reattach, 4-way), all16/full band, reference 100.00:
+  no-baseline 100.0 | no-meansub 100.0 | nobase+nomean 100.0 | zscore-off 100.0
+  | zscore-row 99.5 | zscore-global 100.0 | inputnorm-none 100.0 |
+  ALL-OFF 94.90 +/- 2.63.
+- Correction: the previous commit message said "all 8 variants 99.5-100" -
+  the all-off variant is 94.90. Under reattach drift the CNN needs AT LEAST ONE
+  normalization mechanism (either the subtractions or a z-score - any single
+  one restores 100), but no specific one: the steps are redundant safety nets,
+  and only removing all of them at once costs anything (~5 pts).
+
+
 ## 2026-08-20 - Preprocessing ablation (ideal 3-session metal LOSO): every step worth ~0 here
 
 - New switches in Imager_CNN_LOSO.m: CNN_LOSO_NO_BASELINE, CNN_LOSO_ZSCORE
