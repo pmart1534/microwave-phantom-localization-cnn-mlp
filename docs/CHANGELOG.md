@@ -4,6 +4,18 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-20 - Antenna-swap 4-way LOSO: 97.96 - first visible (but small) dent
+
+- Swap set (Aug20, A3_MetalTumor_SwapAntLocation/: 4 sessions, each a
+  different unit->port arrangement; every held-out arrangement's unit-port
+  pairings unseen in training): LOSO 97.96 +/- 1.67 (folds 98.0/100.0/95.9/98.0).
+- First perturbation to score below 99 at full array/band - unit fingerprints
+  carry a measurable ~2 pts - but position information dominates: the model
+  localizes at ~98% through completely rearranged antenna units.
+- Also: train-normal->test-reattached (cnn_xday normtrain-reattachtest) 99.32
+  vs 100.00 with-exposure LOSO: reattach robustness is intrinsic, not learned.
+
+
 ## 2026-08-20 - Z-score reconciliation complete: it was the model, not the physics
 
 - CNN single-S11 Aug18 metal: z-on 84.35 +/- 12.30 vs z-off 82.99 +/- 10.07
