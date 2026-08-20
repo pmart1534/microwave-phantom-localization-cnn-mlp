@@ -4,6 +4,22 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-20 - Swap-set ablation (20-epoch fast regime): preprocessing IS load-bearing under structural mismatch
+
+- swap4e20 ablation (9 variants incl. same-epoch reference, 20 epochs + curves):
+  reference 97.96; no-baseline 99.49; no-meansub 97.45; nobase+nomean 99.49;
+  zscore off/row 97.96; zscore-global 95.41; inputnorm-none 97.45;
+  **ALL-OFF 17.86 +/- 10.85 - collapse.**
+- Completes the drift-severity ladder for raw (no preprocessing) input:
+  ideal 99.3 -> reattach 94.9 -> swap 17.9. Any single normalization mechanism
+  restores 95-99.5 everywhere; with none, structural unit-location mismatch
+  breaks the CNN entirely. The "redundant safety nets" have a real cliff.
+- Epoch parity certified: single-S11 metal @20 = 84.35 +/- 13.1 (exactly the
+  100-epoch mean); convergence audit flagged only that run's folds 1-2 as
+  still-improving on loss (accuracy already at parity). 20-epoch + curves is
+  now the standard exploration regime.
+
+
 ## 2026-08-20 - First position-disjoint test (Imager_CNN_ValPos.m): corners -> unseen cell centers
 
 - Train: all 2352 corner samples (day-1 metal, 3 sessions, 49 classes/targets).
