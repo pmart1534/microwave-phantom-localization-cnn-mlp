@@ -295,6 +295,8 @@ def main():
                          "(new port a <- old port list[a-1]). Use for June18 empty.")
     ap.add_argument("--hier", action="store_true",
                     help="two-stage hierarchical: predict quadrant then position.")
+    ap.add_argument("--no-zscore", dest="no_zscore", action="store_true",
+                    help="ablation: skip the per-session z-score entirely")
     ap.add_argument("--no-session-mean", dest="no_session_mean", action="store_true",
                     help="ABLATION: skip the per-session mean subtraction "
                          "(keep only baseline subtraction).")
@@ -308,6 +310,8 @@ def main():
 
     sess_files = list_sessions(parent, only=only)
     set_label = args.set_label.strip() or f"{len(sess_files)}sess"
+    if args.no_zscore:
+        set_label += "-zsoff"           # keep ablation outputs separate
     if args.no_session_mean:
         set_label += "-nomean"          # keep ablation outputs separate
     if len(sess_files) < 2:
@@ -368,9 +372,12 @@ def main():
         y_te = np.array([pos_to_label[int(p)] for p in yposes[test_sid]])
         ypos_te = yposes[test_sid]
 
-        X_tr_z, _ = per_session_zscore(X_tr, sess_tr)          # the KEY trick
-        mu = X_te.mean(0); sd = X_te.std(0) + 1e-8
-        X_te_z = (X_te - mu) / sd
+        if args.no_zscore:
+            X_tr_z, X_te_z = X_tr, X_te                        # ablation: raw
+        else:
+            X_tr_z, _ = per_session_zscore(X_tr, sess_tr)      # the KEY trick
+            mu = X_te.mean(0); sd = X_te.std(0) + 1e-8
+            X_te_z = (X_te - mu) / sd
 
         if args.hier:
             pred = hierarchical_predict(X_tr_z, y_tr, X_te_z, quad_of_dense)
