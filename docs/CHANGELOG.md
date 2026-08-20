@@ -4,6 +4,22 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-20 - Preprocessing ablation (ideal 3-session metal LOSO): every step worth ~0 here
+
+- New switches in Imager_CNN_LOSO.m: CNN_LOSO_NO_BASELINE, CNN_LOSO_ZSCORE
+  (pixel|row|global|off), CNN_LOSO_INPUTNORM (zscore|none); each appends its
+  own setLabel suffix.
+- Day-1 metal (1143/1210/1239), all16/full band, reference 99.32:
+  no-baseline 99.32; no-meansub 100.00; zscore off/row/global all 99.32;
+  inputnorm-none 99.32; ALL-OFF (completely raw S into the CNN) 99.32.
+- Reading: on tight same-morning sessions the between-session drift is small
+  enough that the CNN needs no preprocessing at all; baseline sub and mean-sub
+  are mutually redundant; mean-sub alone costs 0.68 (drop it -> 100.00).
+  The pipeline earns its keep only under real drift - the follow-up ablation
+  should run on freshant4 (raw reattach drift 0.014-0.017 EXCEEDS the 0.011
+  position signal) where zscore-off is predicted to collapse.
+
+
 ## 2026-08-19 - Antenna-reattach set at reduced configs: no damage
 
 - freshant4 (4-way) x 2-5 GHz configs: all16 99.49, refl-all4 99.49,

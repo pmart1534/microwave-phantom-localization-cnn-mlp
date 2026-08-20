@@ -128,6 +128,17 @@ if isempty(setLabel), setLabel = sprintf('%dsess', nSess); end
 if strcmp(strtrim(getenv('CNN_LOSO_NO_MEANSUB')), '1')
     setLabel = [setLabel '-nomean'];    % keep ablation outputs separate
 end
+% Preprocessing-ablation suffixes (each switch keeps its outputs separate)
+if strcmp(strtrim(getenv('CNN_LOSO_NO_BASELINE')), '1')
+    setLabel = [setLabel '-nobase'];
+end
+zsLbl = lower(strtrim(getenv('CNN_LOSO_ZSCORE')));
+if ~isempty(zsLbl) && ~strcmp(zsLbl, 'pixel')
+    setLabel = [setLabel '-zs' zsLbl];
+end
+if strcmpi(strtrim(getenv('CNN_LOSO_INPUTNORM')), 'none')
+    setLabel = [setLabel '-innone'];
+end
 fprintf('Session set: %s\n', setLabel);
 
 %% -----------------------------------------------------------------------
@@ -450,6 +461,16 @@ fprintf('with the same setup folder and antenna choice.\n');
 % =========================================================================
 %  LOCAL FUNCTIONS
 % =========================================================================
+function nf = inputNormFcn()
+% Input-layer normalization: 'zscore' (default) or 'none' via CNN_LOSO_INPUTNORM
+% (ablation of the train-set-derived normalization inside the network).
+    if strcmpi(strtrim(getenv('CNN_LOSO_INPUTNORM')), 'none')
+        nf = 'none';
+    else
+        nf = 'zscore';
+    end
+end
+
 function [sessions, names] = loadAllSessions(parentDir)
 % Enumerate Hunter session subfolders under parentDir and load each.
     d = dir(parentDir);
@@ -608,7 +629,11 @@ function S = buildSession(loaded, selRows, pairs, inputMode, nTdr, bandGHz)
             for k = 1:K
                 Sc(k, :) = raw(pairs(k,1), :) .* exp(1j * deg2rad(raw(pairs(k,2), :)));
             end
-            Yall(:, :, n) = Sc - baseC;
+            if strcmp(strtrim(getenv('CNN_LOSO_NO_BASELINE')), '1')
+                Yall(:, :, n) = Sc;          % ablation: raw S, no baseline sub
+            else
+                Yall(:, :, n) = Sc - baseC;
+            end
             posLabel{n} = lbl;
         end
     end
@@ -656,8 +681,26 @@ function S = buildSession(loaded, selRows, pairs, inputMode, nTdr, bandGHz)
     end
 
     % ---- step 4: per-session z-score (per pixel, across samples) ----
+    % Ablation granularity via CNN_LOSO_ZSCORE = pixel (default) | row |
+    % global | off.  row = one mean/std per input row; global = one scalar
+    % pair per session; off = skip entirely.
+    zsMode = lower(strtrim(getenv('CNN_LOSO_ZSCORE')));
+    if isempty(zsMode), zsMode = 'pixel'; end
     if n > 1
-        X = (X - mean(X, 4)) ./ (std(X, 0, 4) + 1e-8);
+        switch zsMode
+            case 'pixel'
+                X = (X - mean(X, 4)) ./ (std(X, 0, 4) + 1e-8);
+            case 'row'
+                mu = mean(X, [2 4]); sd = std(X, 0, [2 4]);
+                X = (X - mu) ./ (sd + 1e-8);
+            case 'global'
+                mu = mean(X(:)); sd = std(X(:));
+                X = (X - mu) ./ (sd + 1e-8);
+            case 'off'
+                % no per-session normalization
+            otherwise
+                error('unknown CNN_LOSO_ZSCORE %s', zsMode);
+        end
     end
 
     S.X = X;
@@ -720,7 +763,7 @@ function net = trainCNN(XTrain, YTrain, nRows, nFreq, nClasses, cfg, execEnv)
 % The SAME single-stage CNN as Imager_ML_MultiSession.m (no leakage: the
 % held-out session is never shown as validation data during LOSO training).
     layers = [
-        imageInputLayer([nRows nFreq 1], 'Normalization', 'zscore', 'Name', 'input')
+        imageInputLayer([nRows nFreq 1], 'Normalization', inputNormFcn(), 'Name', 'input')
         convolution2dLayer([min(4,nRows) min(20,nFreq)], cfg.Conv1, 'Padding', 'same', 'Name', 'conv1')
         batchNormalizationLayer('Name', 'bn1')
         reluLayer('Name', 'relu1')
