@@ -4,6 +4,19 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-19 - Reduced-config table complete + antenna-reattach LOSO 100.00
+
+- 2-5 GHz x 3 configs x 4 datasets complete (`*_band2-5` results): all16
+  98.6-99.3; refl-all4 96.6-98.0; pair13 95.2-98.0. Band cut costs ~1-2 pts,
+  hardware cuts ~1-3 more; no dataset (incl. fresh-cal) reacts worse than others.
+  Bonus full-band refl/pair runs from the interrupted first sweep kept.
+- ANTENNA-REATTACH 4-way LOSO (freshCal03 1258 + FreshPlaceAnt 1509/1631/1703,
+  full features/band): 100.00 +/- 0.00 - every fold perfect, including the
+  pre-reattach reference fold. Physically removing/re-attaching antennas does
+  not break cross-session generalization at full array/band
+  (`cnn_loso_Aug18_freshant4_*`).
+
+
 ## 2026-08-19 - Fresh-calibration metal LOSO: 100.00
 
 - Aug19 fresh-cal metal sessions (1103/1200/1258, VNA recalibrated before each):
