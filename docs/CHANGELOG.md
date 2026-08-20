@@ -4,6 +4,18 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-20 - Z-score reconciliation complete: it was the model, not the physics
+
+- CNN single-S11 Aug18 metal: z-on 84.35 +/- 12.30 vs z-off 82.99 +/- 10.07
+  (~1.4 pts, within fold noise) - antenna count does not revive the need.
+- CNN F5-last3 all16 z-off: 100.00 (= reference) - hard phantom/drift does not
+  either (at full array).
+- Verdict: the old A2 study needed per-session normalization because of the
+  MODEL (MLP/LogReg, no internal normalization: 99.32 -> 90.48 without z on the
+  same Aug18 data). The CNN's batch-norm self-normalizes; it only pays (~5 pts)
+  when ALL preprocessing is removed under reattach drift.
+
+
 ## 2026-08-20 - Freshant preprocessing ablation complete (corrects prior commit message)
 
 - freshant4 (reattach, 4-way), all16/full band, reference 100.00:
