@@ -4,6 +4,25 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-21 - Overnight: oil-change + A3F4 LOSO, swap reduced configs, ablations, mag-only
+
+- OIL-CHANGE LOSO (1120/1154/1225, canola replaced per session, @100ep):
+  97.96 +/- 0.00 - first environmental perturbation with a consistent small
+  cost (~1.4 pts vs metal 99.32; every fold 98.0). Partial OilSwap01 excluded;
+  OilChange03's two stray positions dropped by intersection.
+- A3F4 LOSO (1655/1804/1820, 37-way, @100ep): 98.20 +/- 3.12.
+- Reduced trio @2-5 GHz (20ep): swap4 97.45 / 88.78 (refl) / 90.82 (pair) -
+  swap + hardware reduction compounds; oil3 97.3/96.6/96.6 (free);
+  f4aug 86.5/81.1/87.4 (band cut costs ~12 pts on this F4 set, unlike July F4).
+- Preprocessing ablation (20ep): oil3 singles all 97.3-98.0, ALL-OFF 83.7;
+  f4aug singles 93.7-97.3, ALL-OFF 82.0. Drift ladder for raw input now:
+  ideal 99.3 -> reattach 94.9 -> oil 83.7 / f4 82.0 -> swap 17.9.
+- MAG-ONLY full band (20ep): swap4 100.00 (BEATS mag+phase 97.96 - phase
+  carries the unit fingerprints), oil3 97.96, f4aug 97.30.
+- Convergence audit: flagged runs are mostly low-loss fine-tuning; the two
+  worth promoting to 100ep are swap refl/pair @2-5 (folds still at 0.4-0.7 loss).
+
+
 ## 2026-08-20 - Swap-set ablation (20-epoch fast regime): preprocessing IS load-bearing under structural mismatch
 
 - swap4e20 ablation (9 variants incl. same-epoch reference, 20 epochs + curves):
