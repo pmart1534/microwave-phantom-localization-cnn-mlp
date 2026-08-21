@@ -4,6 +4,22 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-21 - Cheap-device factorial complete (component x hardware x band, @20ep)
+
+- 3 datasets (metal-e20 / swap4e20 / oil3e20) x {both,mag,phase} x {all16,refl4}
+  x {full, 2-5 GHz}; 32 new cells + reuse. Note: one earlier progress peek
+  misattributed swap mag/all16/2-5 as 100.0 - JSON value is 99.0.
+- KEY PATTERNS: (1) magnitude NEEDS transmission - mag+refl-only collapses
+  (metal 78.2, swap 86.7, oil 91.8) while phase+refl-only holds (98.6/86.7/96.6);
+  (2) best cheap config = MAG-ONLY + ALL-16 + 2-5 GHz: 98.0/99.0/96.6 - drop
+  the vector receiver and half the band, keep the transmission paths;
+  (3) full-cheap (mag+refl+2-5) pays 10-15 pts: 87.8/83.7/89.1;
+  (4) phase-only degrades most on swap (77.6 refl 2-5) - fingerprints in phase
+  reconfirmed from the third direction.
+- 18 convergence-audit flags across the grid (mostly low cells) - promote
+  before quoting any individual low cell.
+
+
 ## 2026-08-21 - Mag-only swap transfer 98.47 (mechanism confirmed) + first LOPO regression
 
 - MAG-ONLY pristine-day2 -> swapped units (@20ep): 98.47 +/- 3.06 vs 93.37 for
