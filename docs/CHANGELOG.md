@@ -4,6 +4,20 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-21 - Mag-only swap transfer 98.47 (mechanism confirmed) + first LOPO regression
+
+- MAG-ONLY pristine-day2 -> swapped units (@20ep): 98.47 +/- 3.06 vs 93.37 for
+  mag+phase - dropping phase recovers +5.1 pts of transfer; 3 of 4 swap
+  sessions at 100, full-reversal session 83.7 -> 93.9. Unit fingerprints are
+  PHASE-borne; a magnitude-only front end is unit-agnostic without needing
+  swap examples in training.
+- LOPO REGRESSION (Imager_CNN_LOPO.m, metal day-1, 49 holds, @20ep, stats
+  exclude held-out position): per-hold vote error mean 0.758 in / median
+  0.739 in (chance ~1.74; grid pitch 0.25-0.75). Edge positions worst
+  (extrapolation: up to 1.8 in); interior best (down to 0.09 in). The honest
+  "localize a position never sampled" number.
+
+
 ## 2026-08-21 - Overnight: oil-change + A3F4 LOSO, swap reduced configs, ablations, mag-only
 
 - OIL-CHANGE LOSO (1120/1154/1225, canola replaced per session, @100ep):
