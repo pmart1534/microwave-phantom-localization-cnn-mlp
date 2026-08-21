@@ -4,6 +4,20 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-21 - Band windows + only-one-preprocessing (ideal + swap, @20ep)
+
+- Bands (ideal/swap): 1-5: 99.3/97.5 | 2-4.5: 99.3/96.9 | 1-2: 76.9/36.2 |
+  2-3: 98.6/76.5 | 3-4: 98.0/95.4 | 4-5: 91.2/92.9. Swap's robust 1-GHz
+  window is 3-4 (95.4), NOT 2-3 (76.5) - band placement interacts with
+  perturbation robustness.
+- ONLY-ONE-step (keep exactly one mechanism; ideal/swap):
+  only-baseline 99.3/95.9 | only-meansub 100.0/96.9 | only-zscore 98.6/99.5 |
+  only-innorm 99.3/19.9. Baseline alone IS sufficient (single-measurement
+  deployment viable); the input-layer norm alone fails on swap because its
+  constants are train-derived, not session-local - normalization must be
+  computed from the deployment session.
+
+
 ## 2026-08-21 - Cheap-device factorial complete (component x hardware x band, @20ep)
 
 - 3 datasets (metal-e20 / swap4e20 / oil3e20) x {both,mag,phase} x {all16,refl4}
