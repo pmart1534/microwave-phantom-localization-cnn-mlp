@@ -1,4 +1,4 @@
-# Results Inventory (as of 2026-08-21)
+# Results Inventory (as of 2026-08-21, evening)
 
 CNN = Imager_CNN_LOSO.m defaults (raw mag+phase, all 16 S-params, full 0.1-8 GHz,
 single-stage, LOSO per-position vote) unless noted. 100 ep = canonical;
@@ -105,3 +105,18 @@ z-score vs 90.48 +/- 13.5 without; CNN indifferent everywhere tested
 - Oil/A3F4 loss-curve promotions where audit flagged (mostly low-loss).
 - Session-01 swap arrangement note truncated in README (scored 100 on pristine
   transfer - possibly near-normal arrangement; confirm layout).
+
+## 10. Added 2026-08-21 (deadline day)
+
+- Oil caveat: 2 of 3 LOSO misses (R6C3P2, R6C4P1) sit in OilChange03's
+  documented row-6 error region; clean-region accuracy ~99.2.
+- Pristine->swap transfer: mag+phase 93.37; MAG-ONLY 98.47 (+5.1; mechanism
+  confirmed - unit fingerprints are phase-borne).
+- LOPO regression (metal, 49 holds, stats exclude held-out position, @20ep):
+  vote err mean 0.758 in / median 0.739 (chance ~1.74); interior 0.09-0.5,
+  edges up to 1.8 (extrapolation).
+- Cheap-device factorial @20ep, {both,mag,phase} x {all16,refl4} x {full,2-5}
+  x {metal,swap,oil}: winner = MAG + ALL16 + 2-5 GHz (98.0/99.0/96.6);
+  mag+refl collapses (78.2 metal) - magnitude needs transmission; full-cheap
+  (mag+refl+2-5) = 87.8/83.7/89.1; phase-only worst on swap (77.6).
+  18 audit flags - promote low cells before quoting individually.
