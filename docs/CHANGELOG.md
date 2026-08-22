@@ -4,6 +4,18 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-21 - F5 band probe: information centered at 1-2 GHz
+
+- Windows: 0.1-2: 64.8 | 2-5: 54.3 | 5-8: 48.6 | 1-5: 90.5 | 0.1-5: 98.1
+  (= full-band parity).
+- The 1-2 GHz octave is worth ~36 pts (2-5 vs 1-5) and 0.1-1 adds ~8 more:
+  Aug-F5's information is centered at 1-2 GHz - the penetration-limited
+  low band, and exactly the region the swap study found least robust.
+- Chip tension identified: swap-robustness wants the band to START at >=2 GHz;
+  F5 penetration wants it to REACH <=1 GHz. 1-5 GHz spans both: F5 90.5,
+  swap 97.5, ideal 99.3.
+
+
 ## 2026-08-21 - F5 promotions: band collapse is REAL, not under-training
 
 - f5aug-p100 @100ep: headline 98.10 (F5 ~ F4 at full band); all16@2-5 54.29,
