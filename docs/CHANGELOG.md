@@ -4,6 +4,20 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-21 - Wider bands, original-paper pipeline, feature reduction (ideal + swap, @20ep)
+
+- Bands (ideal/swap): 1-3: 99.3/82.1 | 2-4: 99.3/96.4 | 3-5: 98.6/96.9.
+  Windows touching sub-2 GHz are swap-fragile; 2-4 and 3-5 robust.
+- ORIGINAL-PAPER pipeline (baseline sub + mag/phase + input-layer zscore, no
+  session stats): ideal 100.0 (linear) / 100.0 (dB); swap 92.4 / 92.9.
+  dB-vs-linear magnitude: no difference. Original data manipulation fully
+  sufficient on clean data; costs ~5-7 pts under unit swap vs per-session z.
+  CNN_LOSO_MAGDB switch added.
+- Feature reduction (ideal/swap): pair13 98.0/93.4 (full), 98.6/90.8 (2-5);
+  refl-pair13 95.9/77.6, 95.9/76.5; single-S11 84.4/50.5, 72.1/52.0.
+  Hardware reduction is the axis swap punishes hardest (single antenna ~ coin flip).
+
+
 ## 2026-08-21 - Band windows + only-one-preprocessing (ideal + swap, @20ep)
 
 - Bands (ideal/swap): 1-5: 99.3/97.5 | 2-4.5: 99.3/96.9 | 1-2: 76.9/36.2 |

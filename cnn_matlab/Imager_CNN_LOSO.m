@@ -139,6 +139,9 @@ end
 if strcmpi(strtrim(getenv('CNN_LOSO_INPUTNORM')), 'none')
     setLabel = [setLabel '-innone'];
 end
+if strcmp(strtrim(getenv('CNN_LOSO_MAGDB')), '1')
+    setLabel = [setLabel '-magdb'];
+end
 fprintf('Session set: %s\n', setLabel);
 
 %% -----------------------------------------------------------------------
@@ -709,9 +712,13 @@ function S = buildSession(loaded, selRows, pairs, inputMode, nTdr, bandGHz)
             env = abs(ifft(yv));
             switch inputMode
                 case 'raw'
+                    mv = abs(yv);
+                    if strcmp(strtrim(getenv('CNN_LOSO_MAGDB')), '1')
+                        mv = 20*log10(mv + 1e-12);   % original-paper dB magnitude
+                    end
                     switch comp
-                        case 'both',  block((k-1)*2 + (1:2), :) = [abs(yv); angle(yv)];
-                        case 'mag',   block(k, :) = abs(yv);
+                        case 'both',  block((k-1)*2 + (1:2), :) = [mv; angle(yv)];
+                        case 'mag',   block(k, :) = mv;
                         case 'phase', block(k, :) = angle(yv);
                     end
                 case 'tdr'
