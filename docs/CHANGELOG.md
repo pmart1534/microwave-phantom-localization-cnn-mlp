@@ -4,6 +4,17 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-21 - A3F5 parity suite (@20ep) + audit-driven promotions
+
+- A3F5 Aug21 (sessions 1317/1341/1409, 35-way; aborted 1307 excluded).
+- @20ep: headline 96.19; all16@2-5 56.19; refl4@2-5 30.48; pair13@2-5 44.76;
+  ablation nobase 96.2 / nomean 90.5 / zsoff 97.1 / zsglobal 95.2 /
+  ALL-OFF 75.2; mag-only 88.6.
+- Convergence audit flagged MOST of the suite (F5 trains slower than any other
+  dataset) - headline + 3 band cells promoted to 100ep (f5aug-p100 labels)
+  before comparison with F4. 20ep band numbers are floors, not finals.
+
+
 ## 2026-08-21 - Wider bands, original-paper pipeline, feature reduction (ideal + swap, @20ep)
 
 - Bands (ideal/swap): 1-3: 99.3/82.1 | 2-4: 99.3/96.4 | 3-5: 98.6/96.9.
