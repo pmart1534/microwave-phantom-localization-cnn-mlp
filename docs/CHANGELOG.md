@@ -4,6 +4,15 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-21 - F5 promotions: band collapse is REAL, not under-training
+
+- f5aug-p100 @100ep: headline 98.10 (F5 ~ F4 at full band); all16@2-5 54.29,
+  refl4@2-5 31.43, pair13@2-5 41.90 - essentially identical to the 20ep values.
+  The 44-pt band-cut penalty is physical: Aug-F5's position information lives
+  substantially outside 2-5 GHz, unlike July's F5 (93 at 2-4).
+- Band-location probe launched (0.1-2, 5-8, 1-5, 0.1-5).
+
+
 ## 2026-08-21 - A3F5 parity suite (@20ep) + audit-driven promotions
 
 - A3F5 Aug21 (sessions 1317/1341/1409, 35-way; aborted 1307 excluded).
