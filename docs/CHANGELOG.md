@@ -4,6 +4,27 @@ Running log of what changed, when, and why. Newest first. Each substantive
 change to code, method, or results should land as its own commit with a matching
 entry here.
 
+## 2026-08-22 - Overnight: F4/F5 bands+factorial+only-one, LOPO x3, swap promotions
+
+- P1 BANDS. F4 (full 98.2): 0.1-2: 39.6 | 1-3: 84.7 | 2-4: 85.6 | 3-5: 84.7 |
+  5-8: 84.7 | 1-5: 96.4 | 0.1-5: 95.5 - info DISTRIBUTED, needs width not
+  placement. F5 (full 98.1): 1-3: 90.5 | 2-4: 59.0 | 3-5: 47.6 - needs the
+  1-2 GHz octave; 1-3 as good as 1-5.
+- P2 FACTORIAL F4/F5. F5 needs TRANSMISSION (both/refl4/full = 37.1) and its
+  info is PHASE-borne (phase-only all16 full = 98.1 = reference; mag-only 88.6)
+  - the OPPOSITE of swap. Cheap config (mag+all16+2-5): F4 88.3, F5 48.6 -
+  the large insert breaks the cheap device; full-band mag: F4 97.3 / F5 88.6.
+- P3 ONLY-ONE. only-zscore again best: F4 98.2, F5 99.05 (BEATS the full
+  pipeline's 96.2 on F5). only-baseline insufficient for inserts (89.2/69.5).
+- P4 LOPO regression (vote err): F4 0.607 in, F5 0.761 in, swap 0.634 in.
+  Unseen-position error ~0.6-0.8 in across all phantoms and under hardware
+  perturbation (swap LOPO ~= metal LOPO).
+- P5 swap promotions @100ep: refl4@2-5 79.08 +/- 10.2 (was 88.8 @20),
+  pair13@2-5 85.20 +/- 9.9 (was 90.8). LONGER TRAINING HURT the swap reduced
+  cells - hypothesis: extra epochs memorize unit fingerprints. Quote the
+  100ep values with the large sigmas.
+
+
 ## 2026-08-21 - F5 band probe: information centered at 1-2 GHz
 
 - Windows: 0.1-2: 64.8 | 2-5: 54.3 | 5-8: 48.6 | 1-5: 90.5 | 0.1-5: 98.1
